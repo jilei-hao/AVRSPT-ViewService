@@ -42,35 +42,35 @@ renderWindow.render();
 // then display them in a playback series.
 // ----------------------------------------------------------------------------
 
-const BASE_URL = 'http://127.0.0.1:8000/bavcta008/';
+const BASE_URL = 'http://127.0.0.1:8000/bavcta008/vtp/withdata';
 
 function downloadTimeSeries() {
   const files = [
-    'mesh_bavcta008_01.vtk',
-    'mesh_bavcta008_02.vtk',
-    'mesh_bavcta008_03.vtk',
-    'mesh_bavcta008_04.vtk',
-    'mesh_bavcta008_05.vtk',
-    'mesh_bavcta008_06.vtk',
-    'mesh_bavcta008_07.vtk',
-    'mesh_bavcta008_08.vtk',
-    'mesh_bavcta008_09.vtk',
-    'mesh_bavcta008_10.vtk',
-    'mesh_bavcta008_11.vtk',
-    'mesh_bavcta008_12.vtk',
-    'mesh_bavcta008_13.vtk',
-    'mesh_bavcta008_14.vtk',
-    'mesh_bavcta008_15.vtk',
-    'mesh_bavcta008_16.vtk',
-    'mesh_bavcta008_17.vtk',
-    'mesh_bavcta008_18.vtk',
-    'mesh_bavcta008_19.vtk',
-    'mesh_bavcta008_20.vtk'
+    'mesh_bavcta008_01.vtp',
+    'mesh_bavcta008_02.vtp',
+    'mesh_bavcta008_03.vtp',
+    'mesh_bavcta008_04.vtp',
+    'mesh_bavcta008_05.vtp',
+    'mesh_bavcta008_06.vtp',
+    'mesh_bavcta008_07.vtp',
+    'mesh_bavcta008_08.vtp',
+    'mesh_bavcta008_09.vtp',
+    'mesh_bavcta008_10.vtp',
+    'mesh_bavcta008_11.vtp',
+    'mesh_bavcta008_12.vtp',
+    'mesh_bavcta008_13.vtp',
+    'mesh_bavcta008_14.vtp',
+    'mesh_bavcta008_15.vtp',
+    'mesh_bavcta008_16.vtp',
+    'mesh_bavcta008_17.vtp',
+    'mesh_bavcta008_18.vtp',
+    'mesh_bavcta008_19.vtp',
+    'mesh_bavcta008_20.vtp'
   ];
   return Promise.all(
     files.map((filename) =>
       fetchBinary(`${BASE_URL}/${filename}`).then((binary) => {
-        const reader = vtkPolyDataReader.newInstance();
+        const reader = vtkXMLPolyDataReader.newInstance();
         reader.parseAsArrayBuffer(binary);
         return reader.getOutputData(0);
       })
@@ -123,6 +123,7 @@ timeslider.addEventListener('input', (e) => {
 });
 
 downloadTimeSeries().then((downloadedData) => {
+  console.log(downloadedData);
   timeSeriesData = downloadedData.filter((ds) => getDataTimeStep(ds) !== null);
   timeSeriesData.sort((a, b) => getDataTimeStep(a) - getDataTimeStep(b));
 
