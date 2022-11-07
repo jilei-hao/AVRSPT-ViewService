@@ -67,9 +67,11 @@ function downloadTimeSeries() {
     'mesh_bavcta008_19.vtp',
     'mesh_bavcta008_20.vtp'
   ];
+  console.log("[downloadTimeSeries] files", files);
   return Promise.all(
-    files.map((filename) =>
+    files.map((filename) => 
       fetchBinary(`${BASE_URL}/${filename}`).then((binary) => {
+        console.log("downloading file: ", filename);
         const reader = vtkXMLPolyDataReader.newInstance();
         reader.parseAsArrayBuffer(binary);
         return reader.getOutputData(0);
