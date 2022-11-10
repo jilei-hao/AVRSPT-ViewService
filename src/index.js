@@ -42,36 +42,35 @@ renderWindow.render();
 // then display them in a playback series.
 // ----------------------------------------------------------------------------
 
-const BASE_URL = 'http://127.0.0.1:8000/bavcta008/vtp/withdata';
+const BASE_URL = 'http://10.102.165.25:8000/bavcta008/mesh_ds/vtp';
 
 function downloadTimeSeries() {
   const files = [
-    'mesh_bavcta008_01.vtp',
-    'mesh_bavcta008_02.vtp',
-    'mesh_bavcta008_03.vtp',
-    'mesh_bavcta008_04.vtp',
-    'mesh_bavcta008_05.vtp',
-    'mesh_bavcta008_06.vtp',
-    'mesh_bavcta008_07.vtp',
-    'mesh_bavcta008_08.vtp',
-    'mesh_bavcta008_09.vtp',
-    'mesh_bavcta008_10.vtp',
-    'mesh_bavcta008_11.vtp',
-    'mesh_bavcta008_12.vtp',
-    'mesh_bavcta008_13.vtp',
-    'mesh_bavcta008_14.vtp',
-    'mesh_bavcta008_15.vtp',
-    'mesh_bavcta008_16.vtp',
-    'mesh_bavcta008_17.vtp',
-    'mesh_bavcta008_18.vtp',
-    'mesh_bavcta008_19.vtp',
-    'mesh_bavcta008_20.vtp'
+    'seg3d_bavcta008_ds_00.nii.vtp',
+    'seg3d_bavcta008_ds_01.nii.vtp',
+    'seg3d_bavcta008_ds_02.nii.vtp',
+    'seg3d_bavcta008_ds_03.nii.vtp',
+    'seg3d_bavcta008_ds_04.nii.vtp',
+    'seg3d_bavcta008_ds_05.nii.vtp',
+    'seg3d_bavcta008_ds_06.nii.vtp',
+    'seg3d_bavcta008_ds_07.nii.vtp',
+    'seg3d_bavcta008_ds_08.nii.vtp',
+    'seg3d_bavcta008_ds_09.nii.vtp',
+    'seg3d_bavcta008_ds_10.nii.vtp',
+    'seg3d_bavcta008_ds_11.nii.vtp',
+    'seg3d_bavcta008_ds_12.nii.vtp',
+    'seg3d_bavcta008_ds_13.nii.vtp',
+    'seg3d_bavcta008_ds_14.nii.vtp',
+    'seg3d_bavcta008_ds_15.nii.vtp',
+    'seg3d_bavcta008_ds_16.nii.vtp',
+    'seg3d_bavcta008_ds_17.nii.vtp',
+    'seg3d_bavcta008_ds_18.nii.vtp',
+    'seg3d_bavcta008_ds_19.nii.vtp'
   ];
-  console.log("[downloadTimeSeries] files", files);
   return Promise.all(
     files.map((filename) => 
       fetchBinary(`${BASE_URL}/${filename}`).then((binary) => {
-        console.log("downloading file: ", filename);
+        uiUpdateMessage(`loading file: ${filename}`);
         const reader = vtkXMLPolyDataReader.newInstance();
         reader.parseAsArrayBuffer(binary);
         return reader.getOutputData(0);
@@ -97,6 +96,10 @@ function setVisibleDataset(ds) {
 // -----------------------------------------------------------
 // UI control handling
 // -----------------------------------------------------------
+
+function uiUpdateMessage(msg) {
+  document.querySelector('#msg').innerText = msg;
+}
 
 function uiUpdateSlider(max) {
   const timeslider = document.querySelector('#timeslider');
@@ -125,7 +128,7 @@ timeslider.addEventListener('input', (e) => {
 });
 
 downloadTimeSeries().then((downloadedData) => {
-  console.log(downloadedData);
+  uiUpdateMessage("All data downloaded");
   timeSeriesData = downloadedData.filter((ds) => getDataTimeStep(ds) !== null);
   timeSeriesData.sort((a, b) => getDataTimeStep(a) - getDataTimeStep(b));
 
