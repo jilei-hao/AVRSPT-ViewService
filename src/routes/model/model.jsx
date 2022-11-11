@@ -14,14 +14,18 @@ import vtkPolyData from '@kitware/vtk.js//Common/DataModel/PolyData';
 export default function Model() {
   const vtkContainerRef = useRef(null);
   const context = useRef(null); // stores vtk related objects
-  const [coneResolution, setConeResolution] = useState(6);
+  const tpSlider = useRef(null); // ref to the tp slider
+  const [currentTP, setCurrentTP] = useState(1);
   const [representation, setRepresentation] = useState(2);
   const [devMessage, setDevMessage] = useState("");
-  //const BASE_URL = 'http://10.102.165.25:8000/bavcta008/mesh_ds/vtp';
-  const BASE_URL = 'http://192.168.50.37:8000/bavcta008/mesh_ds/vtp';
+  const [hasDataDownloaded, setHasDataDownloaded] = useState(false);
+  const [tpData, setTPData] = useState([]);
+
+
+  const BASE_URL = 'http://10.102.165.25:8000/bavcta008/mesh_ds/vtp';
+  //const BASE_URL = 'http://192.168.50.37:8000/bavcta008/mesh_ds/vtp';
   
   const { fetchBinary } = vtkHttpDataAccessHelper;
-  let timeSeriesData = [];
 
   function downloadTimeSeries() {
     const files = [
@@ -67,12 +71,19 @@ export default function Model() {
   }
 
   function setVisibleDataset(ds) {
-    if (context.current)
-    {
+    if (context.current) {
       const { renderWindow, mapper, renderer } = context.current;
       mapper.setInputData(ds);
       renderer.resetCamera();
       renderWindow.render();
+    }
+  }
+
+  function updateSlider(len) {
+    if (context.current && tpSlider.current) {
+      const slider = tpSlider.current;
+      slider.min = 1;
+      slider.max = len;
     }
   }
 
@@ -96,21 +107,20 @@ export default function Model() {
       renderer.resetCamera();
       renderWindow.render();
 
-      downloadTimeSeries().then((downloadedData) => {
-        console.log("All Data Downloaded!");
-        timeSeriesData = downloadedData.filter((ds) => getDataTimeStep(ds) !== null);
-        timeSeriesData.sort((a, b) => getDataTimeStep(a) - getDataTimeStep(b));
-
-        //uiUpdateSlider(timeSeriesData.length);
-        //timeslider.value = 0;
-
-        // set up camera
-        renderer.getActiveCamera().setPosition(0, 55, -22);
-        renderer.getActiveCamera().setViewUp(0, 0, -1);
-
-        setVisibleDataset(timeSeriesData[0]);
-        //timevalue.innerText = getDataTimeStep(timeSeriesData[0]);
-      });
+      if (!hasDataDownloaded) {
+        downloadTimeSeries().then((downloadedData) => {
+          console.log("All Data Downloaded!");
+          setTPData(
+            downloadedData.filter((ds) => getDataTimeStep(ds) !== null)
+                          .sort((a, b) => getDataTimeStep(a) - getDataTimeStep(b))
+          );
+          updateSlider(tpData.length);
+          renderer.getActiveCamera().setPosition(0, 55, -22);
+          renderer.getActiveCamera().setViewUp(0, 0, -1);
+          setVisibleDataset(tpData[0]);
+          setHasDataDownloaded(true);
+        });
+      }
 
       context.current = {
         fullScreenRenderer,
@@ -135,9 +145,12 @@ export default function Model() {
   useEffect(() => {
     if (context.current) {
       const { renderWindow } = context.current;
+      console.log("Current TP Changed to: ", currentTP);
+      const ds = tpData[Number(currentTP - 1)];
+      setVisibleDataset(ds);
       renderWindow.render();
     }
-  }, [coneResolution]);
+  }, [currentTP]);
 
   useEffect(() => {
     if (context.current) {
@@ -177,11 +190,12 @@ export default function Model() {
           <tr>
             <td>
               <input
+                ref={tpSlider}
                 type="range"
-                min="4"
-                max="80"
-                value={coneResolution}
-                onChange={(ev) => setConeResolution(Number(ev.target.value))}
+                min="1"
+                max="1"
+                value={currentTP}
+                onChange={(ev) => setCurrentTP(Number(ev.target.value))}
               />
             </td>
           </tr>
