@@ -1,12 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 
 import '@kitware/vtk.js/Rendering/Profiles/Geometry';
-
 import vtkFullScreenRenderWindow from '@kitware/vtk.js/Rendering/Misc/FullScreenRenderWindow';
 import vtkActor           from '@kitware/vtk.js/Rendering/Core/Actor';
 import vtkMapper          from '@kitware/vtk.js/Rendering/Core/Mapper';
-import vtkConeSource      from '@kitware/vtk.js/Filters/Sources/ConeSource';
-
 import vtkHttpDataAccessHelper from '@kitware/vtk.js//IO/Core/DataAccessHelper/HttpDataAccessHelper';
 import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
 import vtkPolyData from '@kitware/vtk.js//Common/DataModel/PolyData';
@@ -16,18 +13,17 @@ export default function Model() {
   const context = useRef(null); // stores vtk related objects
   const tpSlider = useRef(null); // ref to the tp slider
   const [currentTP, setCurrentTP] = useState(1);
-  const [representation, setRepresentation] = useState(2);
   const [devMessage, setDevMessage] = useState("");
   const [hasDataDownloaded, setHasDataDownloaded] = useState(false);
-  const [tpData, setTPData] = useState([]);
-
+  const [timeData, setTimeData] = useState([]);
 
   const BASE_URL = 'http://10.102.165.25:8000/bavcta008/mesh_ds/vtp';
   //const BASE_URL = 'http://192.168.50.37:8000/bavcta008/mesh_ds/vtp';
   
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
-  function downloadTimeSeries() {
+  function downloadData() {
+    console.log("[doanloadData] downloading started");
     const files = [
       'seg3d_bavcta008_ds_00.nii.vtp',
       'seg3d_bavcta008_ds_01.nii.vtp',
@@ -71,7 +67,7 @@ export default function Model() {
   }
 
   function setVisibleDataset(ds) {
-    if (context.current) {
+    if (context.current && timeData.length > 0) {
       const { renderWindow, mapper, renderer } = context.current;
       mapper.setInputData(ds);
       renderer.resetCamera();
@@ -96,28 +92,24 @@ export default function Model() {
 
       const mapper = vtkMapper.newInstance();
       mapper.setInputData(vtkPolyData.newInstance());
-
       const actor = vtkActor.newInstance();
       actor.setMapper(mapper);
-
       const renderer = fullScreenRenderer.getRenderer();
       const renderWindow = fullScreenRenderer.getRenderWindow();
-
       renderer.addActor(actor);
       renderer.resetCamera();
-      renderWindow.render();
 
       if (!hasDataDownloaded) {
-        downloadTimeSeries().then((downloadedData) => {
+        downloadData().then((downloadedData) => {
           console.log("All Data Downloaded!");
-          setTPData(
-            downloadedData.filter((ds) => getDataTimeStep(ds) !== null)
-                          .sort((a, b) => getDataTimeStep(a) - getDataTimeStep(b))
-          );
-          updateSlider(tpData.length);
+          const sorted = downloadedData
+            .filter((ds) => getDataTimeStep(ds) !== null)
+            .sort((a, b) => getDataTimeStep(a) - getDataTimeStep(b));
+          setTimeData([...sorted]);
+          updateSlider(sorted.length);
           renderer.getActiveCamera().setPosition(0, 55, -22);
           renderer.getActiveCamera().setViewUp(0, 0, -1);
-          setVisibleDataset(tpData[0]);
+          setVisibleDataset(timeData[0]);
           setHasDataDownloaded(true);
         });
       }
@@ -133,6 +125,7 @@ export default function Model() {
 
     return () => {
       if (context.current) {
+        console.log("[(Effect)vtkContainerRef: Cleaning up");
         const { fullScreenRenderer, actor, mapper } = context.current;
         actor.delete();
         mapper.delete();
@@ -146,20 +139,20 @@ export default function Model() {
     if (context.current) {
       const { renderWindow } = context.current;
       console.log("Current TP Changed to: ", currentTP);
-      const ds = tpData[Number(currentTP - 1)];
+      const ds = timeData[Number(currentTP - 1)];
       setVisibleDataset(ds);
       renderWindow.render();
     }
   }, [currentTP]);
 
   useEffect(() => {
-    if (context.current) {
-      const { actor, renderWindow } = context.current;
-      actor.getProperty().setRepresentation(representation);
+    if (timeData.length > 0 && context.current) {
+      const { renderWindow } = context.current;
+      const ds = timeData[Number(currentTP - 1)];
+      setVisibleDataset(ds);
       renderWindow.render();
     }
-  }, [representation]);
-
+  }, [timeData])
 
   return (
     <div>
@@ -176,19 +169,6 @@ export default function Model() {
         <tbody>
           <tr>
             <td>
-              <select
-                value={representation}
-                style={{ width: '100%' }}
-                onInput={(ev) => setRepresentation(Number(ev.target.value))}
-              >
-                <option value="0">Points</option>
-                <option value="1">Wireframe</option>
-                <option value="2">Surface</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td>
               <input
                 ref={tpSlider}
                 type="range"
@@ -201,8 +181,7 @@ export default function Model() {
           </tr>
           <tr>
             <td>
-              <p>DevMessage: </p>
-              <span value={devMessage} />
+              <p>DevMessage: {devMessage}</p>
             </td>
           </tr>
         </tbody>
