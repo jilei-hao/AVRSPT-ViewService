@@ -13,9 +13,10 @@ export default function Model() {
   const context = useRef(null); // stores vtk related objects
   const tpSlider = useRef(null); // ref to the tp slider
   const [currentTP, setCurrentTP] = useState(1);
-  const [devMessage, setDevMessage] = useState("");
   const [hasDataDownloaded, setHasDataDownloaded] = useState(false);
   const [timeData, setTimeData] = useState([]);
+  const [replayTimer, setReplayTimer] = useState({});
+  const [isReplayOn, setIsReplayOn] = useState(false);
 
   const BASE_URL = 'http://10.102.165.25:8000/bavcta008/mesh_ds/vtp';
   //const BASE_URL = 'http://192.168.50.37:8000/bavcta008/mesh_ds/vtp';
@@ -49,7 +50,6 @@ export default function Model() {
     return Promise.all(
       files.map((filename) => 
         fetchBinary(`${BASE_URL}/${filename}`).then((binary) => {
-          setDevMessage(`loading file: ${filename}`);
           const reader = vtkXMLPolyDataReader.newInstance();
           reader.parseAsArrayBuffer(binary);
           return reader.getOutputData(0);
@@ -152,7 +152,30 @@ export default function Model() {
       setVisibleDataset(ds);
       renderWindow.render();
     }
-  }, [timeData])
+  }, [timeData]);
+
+  function onReplayClicked() {
+    setIsReplayOn(!isReplayOn);
+  }
+
+  function changeToNextTP() {
+    const nt = timeData.length;
+    if (nt > 0) {
+      console.log("[changeToNextTP] currentTP=", currentTP);
+      setCurrentTP(prevTP => prevTP % nt + 1);
+    }
+  }
+
+  useEffect(() => {
+    if (isReplayOn) {
+      setReplayTimer(setInterval(() => {
+        console.log("interval tick");
+        changeToNextTP();
+      }, 50));
+    } else {
+      clearInterval(replayTimer);
+    }
+  }, [isReplayOn]);
 
   return (
     <div>
@@ -160,8 +183,9 @@ export default function Model() {
       <table
         style={{
           position: 'absolute',
-          top: '25px',
-          left: '25px',
+          top: '85vh',
+          left: '35vw',
+          width: '30vw',
           background: 'white',
           padding: '12px',
         }}
@@ -178,10 +202,10 @@ export default function Model() {
                 onChange={(ev) => setCurrentTP(Number(ev.target.value))}
               />
             </td>
-          </tr>
-          <tr>
             <td>
-              <p>DevMessage: {devMessage}</p>
+              <button onClick={onReplayClicked}>
+                {isReplayOn ? "Pause" : "Play"}
+              </button>
             </td>
           </tr>
         </tbody>
