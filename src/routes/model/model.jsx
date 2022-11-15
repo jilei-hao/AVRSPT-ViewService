@@ -17,6 +17,7 @@ export default function Model() {
   const [timeData, setTimeData] = useState([]);
   const [replayTimer, setReplayTimer] = useState({});
   const [isReplayOn, setIsReplayOn] = useState(false);
+  const [frameTimeInMS, setFrameTimeInMS] = useState(50);
 
   const BASE_URL = 'http://10.102.165.25:8000/bavcta008/mesh_ds/vtp';
   //const BASE_URL = 'http://192.168.50.37:8000/bavcta008/mesh_ds/vtp';
@@ -158,24 +159,14 @@ export default function Model() {
     setIsReplayOn(!isReplayOn);
   }
 
-  function changeToNextTP() {
-    const nt = timeData.length;
-    if (nt > 0) {
-      console.log("[changeToNextTP] currentTP=", currentTP);
-      setCurrentTP(prevTP => prevTP % nt + 1);
-    }
-  }
-
   useEffect(() => {
+    clearInterval(replayTimer);
     if (isReplayOn) {
       setReplayTimer(setInterval(() => {
-        console.log("interval tick");
-        changeToNextTP();
-      }, 50));
-    } else {
-      clearInterval(replayTimer);
+        setCurrentTP(prevTP => prevTP % timeData.length + 1);
+      }, frameTimeInMS));
     }
-  }, [isReplayOn]);
+  }, [frameTimeInMS, isReplayOn]);
 
   return (
     <div>
