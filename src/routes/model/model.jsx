@@ -6,7 +6,9 @@ import vtkActor           from '@kitware/vtk.js/Rendering/Core/Actor';
 import vtkMapper          from '@kitware/vtk.js/Rendering/Core/Mapper';
 import vtkHttpDataAccessHelper from '@kitware/vtk.js//IO/Core/DataAccessHelper/HttpDataAccessHelper';
 import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
-import vtkPolyData from '@kitware/vtk.js//Common/DataModel/PolyData';
+import vtkPolyData from '@kitware/vtk.js/Common/DataModel/PolyData';
+import vtkLookupTable from '@kitware/vtk.js/Common/Core/LookupTable';
+import vtkScalarBarActor from '@kitware/vtk.js/Rendering/Core/ScalarBarActor'
 
 export default function Model() {
   const vtkContainerRef = useRef(null);
@@ -93,11 +95,30 @@ export default function Model() {
 
       const mapper = vtkMapper.newInstance();
       mapper.setInputData(vtkPolyData.newInstance());
+      mapper.setColorModeToMapScalars();
+      mapper.setScalarModeToUsePointData();
+      mapper.setScalarRange(2.9, 3.1);
+
+      const lut = vtkLookupTable.newInstance();
+      lut.setNumberOfColors(2);
+      lut.setAboveRangeColor([1,0.87,0.74,1]);
+      lut.setBelowRangeColor([1,1,1,1]);
+      lut.setNanColor([1,0.87,0.74,1])
+      lut.setUseAboveRangeColor(true);
+      lut.setUseBelowRangeColor(true);
+      lut.build();
+      mapper.setLookupTable(lut);
+
+      const scalarBar = vtkScalarBarActor.newInstance();
+      scalarBar.setScalarsToColors(lut);
+
       const actor = vtkActor.newInstance();
       actor.setMapper(mapper);
       const renderer = fullScreenRenderer.getRenderer();
       const renderWindow = fullScreenRenderer.getRenderWindow();
+      renderer.setBackground(0, 0, 0);
       renderer.addActor(actor);
+      //renderer.addActor(scalarBar);
       renderer.resetCamera();
 
       if (!hasDataDownloaded) {
@@ -122,6 +143,8 @@ export default function Model() {
         actor,
         mapper,
       };
+
+      window.vtkContext = context;
     }
 
     return () => {
