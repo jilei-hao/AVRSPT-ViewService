@@ -197,7 +197,7 @@ export default function Model() {
       <table
         style={{
           position: 'absolute',
-          top: '85vh',
+          bottom: '3vh',
           left: '35vw',
           width: '30vw',
           background: 'white',
