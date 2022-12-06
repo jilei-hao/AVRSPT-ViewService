@@ -10,6 +10,8 @@ import vtkPolyData from '@kitware/vtk.js/Common/DataModel/PolyData';
 import vtkLookupTable from '@kitware/vtk.js/Common/Core/LookupTable';
 import vtkScalarBarActor from '@kitware/vtk.js/Rendering/Core/ScalarBarActor'
 
+import styles from '../../app.module.css'
+
 export default function Model() {
   const vtkContainerRef = useRef(null);
   const context = useRef(null); // stores vtk related objects
@@ -21,7 +23,7 @@ export default function Model() {
   const [isReplayOn, setIsReplayOn] = useState(false);
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
 
-  const BASE_URL = 'http://10.102.165.25:8000/bavcta008/mesh_ds/vtp';
+  const BASE_URL = 'http://10.102.180.67:8000/bavcta008/vtp/decimated';
   //const BASE_URL = 'http://192.168.50.37:8000/bavcta008/mesh_ds/vtp';
   
   const { fetchBinary } = vtkHttpDataAccessHelper;
@@ -29,26 +31,26 @@ export default function Model() {
   function downloadData() {
     console.log("[doanloadData] downloading started");
     const files = [
-      'seg3d_bavcta008_ds_00.nii.vtp',
-      'seg3d_bavcta008_ds_01.nii.vtp',
-      'seg3d_bavcta008_ds_02.nii.vtp',
-      'seg3d_bavcta008_ds_03.nii.vtp',
-      'seg3d_bavcta008_ds_04.nii.vtp',
-      'seg3d_bavcta008_ds_05.nii.vtp',
-      'seg3d_bavcta008_ds_06.nii.vtp',
-      'seg3d_bavcta008_ds_07.nii.vtp',
-      'seg3d_bavcta008_ds_08.nii.vtp',
-      'seg3d_bavcta008_ds_09.nii.vtp',
-      'seg3d_bavcta008_ds_10.nii.vtp',
-      'seg3d_bavcta008_ds_11.nii.vtp',
-      'seg3d_bavcta008_ds_12.nii.vtp',
-      'seg3d_bavcta008_ds_13.nii.vtp',
-      'seg3d_bavcta008_ds_14.nii.vtp',
-      'seg3d_bavcta008_ds_15.nii.vtp',
-      'seg3d_bavcta008_ds_16.nii.vtp',
-      'seg3d_bavcta008_ds_17.nii.vtp',
-      'seg3d_bavcta008_ds_18.nii.vtp',
-      'seg3d_bavcta008_ds_19.nii.vtp'
+      'seg3d_bavcta008_ds_00_dec.vtp',
+      'seg3d_bavcta008_ds_01_dec.vtp',
+      'seg3d_bavcta008_ds_02_dec.vtp',
+      'seg3d_bavcta008_ds_03_dec.vtp',
+      'seg3d_bavcta008_ds_04_dec.vtp',
+      'seg3d_bavcta008_ds_05_dec.vtp',
+      'seg3d_bavcta008_ds_06_dec.vtp',
+      'seg3d_bavcta008_ds_07_dec.vtp',
+      'seg3d_bavcta008_ds_08_dec.vtp',
+      'seg3d_bavcta008_ds_09_dec.vtp',
+      'seg3d_bavcta008_ds_10_dec.vtp',
+      'seg3d_bavcta008_ds_11_dec.vtp',
+      'seg3d_bavcta008_ds_12_dec.vtp',
+      'seg3d_bavcta008_ds_13_dec.vtp',
+      'seg3d_bavcta008_ds_14_dec.vtp',
+      'seg3d_bavcta008_ds_15_dec.vtp',
+      'seg3d_bavcta008_ds_16_dec.vtp',
+      'seg3d_bavcta008_ds_17_dec.vtp',
+      'seg3d_bavcta008_ds_18_dec.vtp',
+      'seg3d_bavcta008_ds_19_dec.vtp'
     ];
     return Promise.all(
       files.map((filename) => 
@@ -182,6 +184,14 @@ export default function Model() {
     setIsReplayOn(!isReplayOn);
   }
 
+  function onPreviousClicked() {
+    setCurrentTP(prevTP => (prevTP - 1) % timeData.length);
+  }
+
+  function onNextClicked() {
+    setCurrentTP(prevTP => prevTP % timeData.length + 1);
+  }
+
   useEffect(() => {
     clearInterval(replayTimer);
     if (isReplayOn) {
@@ -194,36 +204,48 @@ export default function Model() {
   return (
     <div>
       <div ref={vtkContainerRef} />
-      <table
-        style={{
-          position: 'absolute',
-          bottom: '3vh',
-          left: '35vw',
-          width: '30vw',
-          background: 'white',
-          padding: '12px',
-        }}
-      >
-        <tbody>
-          <tr>
-            <td>
-              <input
-                ref={tpSlider}
-                type="range"
-                min="1"
-                max="1"
-                value={currentTP}
-                onChange={(ev) => setCurrentTP(Number(ev.target.value))}
-              />
-            </td>
-            <td>
-              <button onClick={onReplayClicked}>
-                {isReplayOn ? "Pause" : "Play"}
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class={styles.control_panel}>
+        <div class={styles.replay_panel}>
+          <div class={styles.tp_slider}>
+            <button class={styles.tp_slider_button}
+              onClick={onPreviousClicked}
+            >
+              <span style={{fontSize: '20px'}}>
+                {'<|'}
+              </span>
+            </button>
+            <input
+              ref={tpSlider}
+              class={styles.touch_slider}
+              type="range"
+              min="1"
+              max="1"
+              value={currentTP}
+              onChange={(ev) => setCurrentTP(Number(ev.target.value))}
+            />
+            <button class={styles.tp_slider_button}
+              onClick={onNextClicked}
+            >
+              <span style={{fontSize: '20px'}}>
+                {'|>'}
+              </span>
+            </button>
+          </div>
+          <button 
+            onClick={onReplayClicked}
+            style={{
+              width: '10vw',
+              height: '10vh',
+              verticalAlign: 'middle',
+            }}
+          >
+            <span style={{fontSize: '20px'}}>
+              {isReplayOn ? "Pause" : "Play"}
+            </span>
+          </button>
+          
+        </div>
+      </div>
     </div>
   );
 }

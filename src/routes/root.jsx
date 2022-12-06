@@ -1,7 +1,7 @@
 export default function Root() {
     return (
       <>
-        <div>Root</div>
+        <h1>Aortic Valve Repair Surgical Planning Tool</h1>
       </>
     );
   }
