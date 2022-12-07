@@ -211,7 +211,7 @@ export default function Model() {
               onClick={onPreviousClicked}
             >
               <span style={{fontSize: '20px'}}>
-                {'<|'}
+                {'◄▮'}
               </span>
             </button>
             <input
@@ -227,7 +227,7 @@ export default function Model() {
               onClick={onNextClicked}
             >
               <span style={{fontSize: '20px'}}>
-                {'|>'}
+                {'▮►'}
               </span>
             </button>
           </div>
@@ -240,7 +240,7 @@ export default function Model() {
             }}
           >
             <span style={{fontSize: '20px'}}>
-              {isReplayOn ? "Pause" : "Play"}
+              {isReplayOn ? "▮▮" : "▶"}
             </span>
           </button>
           
