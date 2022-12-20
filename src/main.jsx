@@ -15,48 +15,12 @@ import Slices from "./routes/slices/slices";
 import Volume from "./routes/volume/volume";
 import Sandbox from "./routes/sandbox/sandbox";
 
-// const router = createBrowserRouter([
-//   {
-//     path: "/",
-//     element: <Root />,
-//   },
-//   {
-//     path: "/Model",
-//     element: <Model />,
-//   },
-//   {
-//     path: "/Slices",
-//     element: <Slices />,
-//   },
-//   {
-//     path: "/Volume",
-//     element: <Volume />,
-//   },
-//   {
-//     path: "/Sandbox",
-//     element: <Sandbox />,
-//   }
-// ]);
+import styles from './app.module.css'
+
 export default function App() {
   return (
     <Router>
-      <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/about">About</Link>
-            </li>
-            <li>
-              <Link to="/users">Users</Link>
-            </li>
-          </ul>
-        </nav>
-
-        {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
+      <div className={styles.vtk_viewport}>
         <Switch>
           <Route path="/model">
             <Model />
@@ -66,6 +30,9 @@ export default function App() {
           </Route>
           <Route path="/volume">
             <Volume />
+          </Route>
+          <Route path="/sandbox">
+            <Sandbox />
           </Route>
         </Switch>
       </div>

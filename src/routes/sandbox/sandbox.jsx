@@ -2,12 +2,18 @@ import React from 'react';
 
 import {
   View,
+  GeometryRepresentation,
+  PolyData,
+  DataArray,
+  PointData,
   VolumeRepresentation,
   VolumeController,
   Reader,
 } from 'react-vtk-js';
 
-function Example(props) {
+import styles from '../../app.module.css'
+
+function Sandbox(props) {
   const array = [];
   while (array.length < 1000) {
     array.push(Math.random());
@@ -19,7 +25,7 @@ function Example(props) {
           <VolumeController />
           <Reader
             vtkClass='vtkXMLImageDataReader'
-            url='http://10.102.180.67:8000/dist/img3d_bavcta008_baseline_00.vti'
+            url='https://data.kitware.com/api/v1/item/59e12e988d777f31ac6455c5/download'
           />
         </VolumeRepresentation>
       </View>
@@ -27,4 +33,4 @@ function Example(props) {
   );
 }
 
-export default Example;
+export default Sandbox;
