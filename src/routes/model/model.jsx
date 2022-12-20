@@ -29,7 +29,7 @@ export default function Model() {
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
   function downloadData() {
-    console.log("[doanloadData] downloading started");
+    console.log("[downloadData] started");
     const files = [
       'seg3d_bavcta008_ds_00_dec.vtp',
       'seg3d_bavcta008_ds_01_dec.vtp',
@@ -111,16 +111,12 @@ export default function Model() {
       lut.build();
       mapper.setLookupTable(lut);
 
-      const scalarBar = vtkScalarBarActor.newInstance();
-      scalarBar.setScalarsToColors(lut);
-
       const actor = vtkActor.newInstance();
       actor.setMapper(mapper);
       const renderer = fullScreenRenderer.getRenderer();
       const renderWindow = fullScreenRenderer.getRenderWindow();
       renderer.setBackground(0, 0, 0);
       renderer.addActor(actor);
-      //renderer.addActor(scalarBar);
       renderer.resetCamera();
 
       if (!hasDataDownloaded) {
@@ -131,8 +127,6 @@ export default function Model() {
             .sort((a, b) => getDataTimeStep(a) - getDataTimeStep(b));
           setTimeData([...sorted]);
           updateSlider(sorted.length);
-          renderer.getActiveCamera().setPosition(0, 55, -22);
-          renderer.getActiveCamera().setViewUp(0, 0, -1);
           setVisibleDataset(timeData[0]);
           setHasDataDownloaded(true);
         });
@@ -151,7 +145,6 @@ export default function Model() {
 
     return () => {
       if (context.current) {
-        console.log("[(Effect)vtkContainerRef: Cleaning up");
         const { fullScreenRenderer, actor, mapper } = context.current;
         actor.delete();
         mapper.delete();
@@ -210,7 +203,7 @@ export default function Model() {
             <button class={styles.tp_slider_button}
               onClick={onPreviousClicked}
             >
-              <span style={{fontSize: '20px'}}>
+              <span style={{fontSize: '25px', color: 'black'}}>
                 {'◄▮'}
               </span>
             </button>
@@ -226,7 +219,7 @@ export default function Model() {
             <button class={styles.tp_slider_button}
               onClick={onNextClicked}
             >
-              <span style={{fontSize: '20px'}}>
+              <span style={{fontSize: '25px', color: 'black'}}>
                 {'▮►'}
               </span>
             </button>
@@ -239,7 +232,7 @@ export default function Model() {
               verticalAlign: 'middle',
             }}
           >
-            <span style={{fontSize: '20px'}}>
+            <span style={{fontSize: '60px', color: 'black'}}>
               {isReplayOn ? "▮▮" : "▶"}
             </span>
           </button>
