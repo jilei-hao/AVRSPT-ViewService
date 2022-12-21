@@ -9,8 +9,6 @@ import '@kitware/vtk.js/IO/Core/DataAccessHelper/HtmlDataAccessHelper';
 import '@kitware/vtk.js/IO/Core/DataAccessHelper/JSZipDataAccessHelper';
 
 import vtkFullScreenRenderWindow from '@kitware/vtk.js/Rendering/Misc/FullScreenRenderWindow';
-import vtkActor  from '@kitware/vtk.js/Rendering/Core/Actor';
-import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
 import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
 import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
 import vtkColorTransferFunction from '@kitware/vtk.js/Rendering/Core/ColorTransferFunction';
@@ -18,14 +16,11 @@ import vtkPiecewiseFunction from '@kitware/vtk.js/Common/DataModel/PiecewiseFunc
 
 import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
 import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
-import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
-import vtkImageSlice from '@kitware/vtk.js/Rendering/Core/ImageSlice';
 import vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData';
-import vtkConeSource from '@kitware/vtk.js/Filters/Sources/ConeSource';
 
 import styles from '../../app.module.css'
 
-export default function Slices() {
+export default function Example() {
   console.log("Render App");
   const vtkContainerRef = useRef(null);
   const context = useRef(null); // vtk related objects
@@ -33,7 +28,7 @@ export default function Slices() {
   const timeData = useRef([]);
   const [currentTP, setCurrentTP] = useState(1);
 
-  //const BASE_URL = 'http://192.168.50.37:8000/sample/'
+  //const BASE_URL = 'http://192.168.50.37:8000'
   const BASE_URL = 'http://10.102.180.67:8000'
 
   const { fetchBinary } = vtkHttpDataAccessHelper;
@@ -101,8 +96,6 @@ export default function Slices() {
     return Promise.all(
       files.map((fn) => 
         httpReader.setUrl(`${BASE_URL}/${fn}`).then(() => {
-          console.log("Reading: ", `${BASE_URL}/${fn}`);
-          console.log("-- outputdata: ", httpReader.getOutputData(0));
           return httpReader.getOutputData(0);
         })
       )
@@ -112,11 +105,9 @@ export default function Slices() {
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
     if (!context.current) {
-      console.log("rebuilding context...", context.current);
-
       const fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
         rootContainer: vtkContainerRef.current, // html element containing this window
-        background: [0.3, 0.3, 0.3],
+        background: [0.1, 0.1, 0.1],
       });
 
       const mapper = vtkVolumeMapper.newInstance();
@@ -153,37 +144,24 @@ export default function Slices() {
 
     return () => {
       if (context.current) {
-        console.log("<effect>[vtkContainerRef]cleaning up...");
-
         const { 
-          fullScreenRenderWindow, actor, mapper,
+          fullScreenRenderWindow, actor, mapper, renderer
         } = context.current;
-        
+
         actor.delete();
         mapper.delete();
+        renderer.delete();
         fullScreenRenderWindow.delete();
         context.current = null;
       }
     };
   }, [vtkContainerRef]);
 
-  function updateColorLevel(level) {
-    if (context.current) {
-      renderWindow.render();
-    }
-  }
-  
-  function updateColorWindow(window) {
-    if (context.current) {
-      renderWindow.render();
-    }
-  }
-
   function onRenderClicked() {
     if (context.current) {
       console.log("[onRenderClicked] timeData: ", timeData);
-      const {renderWindow, renderer } = context.current;
-      // renderer.getActiveCamera.setPosition
+      const {renderWindow } = context.current;
+      setVisibleDataset(timeData.current[currentTP - 1]);
       renderWindow.render();
     }
   }
@@ -192,7 +170,6 @@ export default function Slices() {
     <div>
       <div ref={vtkContainerRef} />
       <div className={styles.control_panel}>
-        <span>Sandbox</span>
         <button onClick={onRenderClicked}>
           Manual Render
         </button>

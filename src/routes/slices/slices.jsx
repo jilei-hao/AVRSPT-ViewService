@@ -4,26 +4,107 @@ import { useState, useRef, useEffect } from 'react';
 import '@kitware/vtk.js/Rendering/Profiles/Geometry';
 
 // Force DataAccessHelper to have access to various data source
-import '@kitware/vtk.js/IO/Core/DataAccessHelper/HttpDataAccessHelper';
-import '@kitware/vtk.js/IO/Core/DataAccessHelper/HttpDataAccessHelper';
-import '@kitware/vtk.js/IO/Core/DataAccessHelper/HttpDataAccessHelper';
+import vtkHttpDataAccessHelper from '@kitware/vtk.js/IO/Core/DataAccessHelper/HttpDataAccessHelper';
+import '@kitware/vtk.js/IO/Core/DataAccessHelper/HtmlDataAccessHelper';
+import '@kitware/vtk.js/IO/Core/DataAccessHelper/JSZipDataAccessHelper';
 
 import vtkFullScreenRenderWindow from '@kitware/vtk.js/Rendering/Misc/FullScreenRenderWindow';
-import vtkActor           from '@kitware/vtk.js/Rendering/Core/Actor';
-import vtkMapper          from '@kitware/vtk.js/Rendering/Core/Mapper';
+import vtkActor  from '@kitware/vtk.js/Rendering/Core/Actor';
+import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
+import vtkRenderer from '@kitware/vtk.js/Rendering/Core/Renderer'
+import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
+import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
+import vtkColorTransferFunction from '@kitware/vtk.js/Rendering/Core/ColorTransferFunction';
+import vtkPiecewiseFunction from '@kitware/vtk.js/Common/DataModel/PiecewiseFunction';
+
 import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
-import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
-import vtkImageSlice from '@kitware/vtk.js/Rendering/Core/ImageSlice';
+import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
+import vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData';
 import vtkConeSource from '@kitware/vtk.js/Filters/Sources/ConeSource';
 
 import styles from '../../app.module.css'
 
 export default function Slices() {
+  console.log("Render App");
   const vtkContainerRef = useRef(null);
   const context = useRef(null); // vtk related objects
-  const [hasDataDownloaded, setHasDataDownloaded] = useState(false);
+  const hasDownloadingStarted = useRef(false);
+  const timeData = useRef([]);
+  const [currentTP, setCurrentTP] = useState(1);
 
-  const BASE_URL = 'https://kitware.github.io/vtk-js/data/volume/'
+  //const BASE_URL = 'http://192.168.50.37:8000'
+  const BASE_URL = 'http://10.102.180.67:8000'
+
+  const { fetchBinary } = vtkHttpDataAccessHelper;
+
+  function setVisibleDataset(ds) {
+    console.log("[setVisibleDataset] timeData.length=", timeData.current.length);
+    if (context.current) {
+      const { renderWindow, mapper, renderer, actor } = context.current;
+      mapper.setInputData(ds);
+      console.log("-- input data set", ds);
+
+      mapper.setSampleDistance(1.1);
+      mapper.setPreferSizeOverAccuracy(true);
+      mapper.setBlendModeToComposite();
+      mapper.setIpScalarRange(0.0, 1.0);
+
+      const  opacityFunction = vtkPiecewiseFunction.newInstance();
+      opacityFunction.addPoint(-3024, 0.1);
+      opacityFunction.addPoint(-637.62, 0.1);
+      opacityFunction.addPoint(700, 0.5);
+      opacityFunction.addPoint(3071, 0.9);
+      actor.getProperty().setScalarOpacity(0, opacityFunction);
+
+      const colorTransferFunction = vtkColorTransferFunction.newInstance();
+      colorTransferFunction.addRGBPoint(0, 0, 0, 0);
+      colorTransferFunction.addRGBPoint(1, 1, 1, 1);
+      actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
+
+      actor.getProperty().setScalarOpacityUnitDistance(0, 3.0);
+      actor.getProperty().setInterpolationTypeToLinear();
+      actor.getProperty().setShade(true);
+      actor.getProperty().setAmbient(0.1);
+      actor.getProperty().setDiffuse(0.9);
+      actor.getProperty().setSpecular(0.2);
+      actor.getProperty().setSpecularPower(10.0);
+
+      renderer.resetCamera();
+      renderer.getActiveCamera().elevation(-70);
+      renderWindow.render();
+    }
+  }
+
+  function downloadData() {
+    console.log("[downloadData] started");
+    const files = [
+      'dist/img3d_bavcta008_baseline_00.vti'
+    ];
+    return Promise.all(
+      files.map((fn) => 
+        fetchBinary(`${BASE_URL}/${fn}`).then((binary) => {
+          const reader = vtkXMLImageDataReader.newInstance();
+          reader.parseAsArrayBuffer(binary);
+          return reader.getOutputData(0);
+        })
+      )
+    )
+  };
+
+  function downloadSample() {
+    console.log("[downloadSample] started");
+    const files = [
+      'sample/headsq.vti'
+    ];
+    const httpReader = vtkHttpDataSetReader.newInstance({ fetchGzip: true });
+    return Promise.all(
+      files.map((fn) => 
+        httpReader.setUrl(`${BASE_URL}/${fn}`).then(() => {
+          return httpReader.getOutputData(0);
+        })
+      )
+    );
+  }
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -32,136 +113,77 @@ export default function Slices() {
 
       const fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
         rootContainer: vtkContainerRef.current, // html element containing this window
+        background: [0.1, 0.1, 0.1],
       });
+
+      const mapper = vtkVolumeMapper.newInstance();
+      mapper.setInputData(vtkImageData.newInstance());
 
       const renderWindow = fullScreenRenderWindow.getRenderWindow();
       const renderer = fullScreenRenderWindow.getRenderer();
+      const interactor = renderWindow.getInteractor();
+      interactor.setDesiredUpdateRate(15.0);
 
-      const imageActorI = vtkImageSlice.newInstance();
-      const imageActorJ = vtkImageSlice.newInstance();
-      const imageActorK = vtkImageSlice.newInstance();
+      const actor = vtkVolume.newInstance();
+      actor.setMapper(mapper);
+      //renderer.addVolume(actor);
 
-      // const testActor = vtkActor.newInstance();
-      // renderer.addActor(testActor);
-      // const coneSource = vtkConeSource.newInstance({
-      //   center: [0, 0, 0],
-      //   height: 50.0,
-      // });
-      // const mapper = vtkMapper.newInstance();
-      // mapper.setInputData(coneSource);
-      // testActor.setMapper(mapper);
+      const coneActor = vtkActor.newInstance();
+      const coneMapper = vtkMapper.newInstance();
+      const cone = vtkConeSource.newInstance({height: 10});
+      coneMapper.setInputConnection(cone.getOutputPort());
+      coneActor.setMapper(coneActor);
+      renderer.addActor(coneActor);
 
-      renderer.addActor(imageActorK);
-      renderer.addActor(imageActorJ);
-      renderer.addActor(imageActorI);
-      
-      const imageMapperI = vtkImageMapper.newInstance();
-      const imageMapperJ = vtkImageMapper.newInstance();
-      const imageMapperK = vtkImageMapper.newInstance();
-
-      console.log("imageActorI(outside) isDeleted: ", imageActorI.isDeleted());
-
-
-      if (!hasDataDownloaded) {
-        const reader = vtkHttpDataSetReader.newInstance({
-          fetchGzip: true,
+      if (!hasDownloadingStarted.current) {
+        hasDownloadingStarted.current = true;
+        downloadSample().then((downloadedData) => {
+          console.log("Data Downloaded: ", downloadedData);
+          timeData.current = downloadedData;
+          //setVisibleDataset(timeData.current[currentTP - 1]);
         });
-        reader.setUrl(`${BASE_URL}/headsq.vti`, { loadData: true })
-          .then(() => {
-            if (!imageActorI || imageActorI.isDeleted())
-            {
-              console.log("Page re-rendered, abandoning data loading");
-              return;
-            }
-
-            const data = reader.getOutputData();
-            const dataRange = data.getPointData().getScalars().getRange();
-            const extent = data.getExtent();
-
-            console.log("Data Retrieved: ", data);
-            console.log("dataRange: ", dataRange);
-            console.log("extent:", extent);
-            
-            imageMapperI.setInputData(data);
-            imageMapperI.setISlice(30);
-            imageActorI.setMapper(imageMapperI);
-            console.log("slice I set");
-
-            imageMapperJ.setInputData(data);
-            imageMapperJ.setJSlice(30);
-            imageActorJ.setMapper(imageMapperJ);
-            console.log("slice J set");
-
-            imageMapperK.setInputData(data);
-            imageMapperK.setKSlice(30);
-            imageActorK.setMapper(imageMapperK);
-            console.log("slice K set");
-
-            // Set Color Window and Level
-            updateColorLevel((Range[1] + Range[2]) / 2);
-            updateColorWindow((Range[1]));
-
-            renderer.resetCamera();
-            renderer.resetCameraClippingRange();
-
-            renderWindow.render();
-
-            console.log("render called");
-            setHasDataDownloaded(true);
-          }
-        );
       }
-
+      
       context.current = {
         fullScreenRenderWindow,
         renderWindow,
         renderer,
-        imageActorI,
-        imageActorJ,
-        imageActorK,
-        imageMapperI,
-        imageMapperJ,
-        imageMapperK
+        actor,
+        mapper,
+        cone,
+        coneMapper,
+        coneActor
       };
 
-      window.vtkContext = context;
+      window.vtkContext = context.current;
     }
 
     return () => {
       if (context.current) {
-        console.log("container ref cleaning up...", context.current)
-        const { fullScreenRenderWindow, imageActorI, imageActorJ, imageActorK, 
-          imageMapperI, imageMapperJ, imageMapperK } = context.current;
-        imageActorI.delete();
-        imageActorJ.delete();
-        imageActorK.delete();
-        imageMapperI.delete();
-        imageMapperJ.delete();
-        imageMapperK.delete();
+        console.log("<effect>[vtkContainerRef]cleaning up...");
+
+        const { 
+          fullScreenRenderWindow, actor, mapper, renderer,
+          cone, coneMapper, coneActor,
+        } = context.current;
+
+        cone.delete();
+        coneMapper.delete();
+        coneActor.delete();
+        actor.delete();
+        mapper.delete();
+        renderer.delete();
         fullScreenRenderWindow.delete();
         context.current = null;
       }
     };
   }, [vtkContainerRef]);
 
-  function updateColorLevel(level) {
+  function onRenderClicked() {
     if (context.current) {
-      const {imageActorI, imageActorJ, imageActorK, renderWindow} = context.current;
-      imageActorI.getProperty().setColorLevel(level);
-      imageActorJ.getProperty().setColorLevel(level);
-      imageActorK.getProperty().setColorLevel(level);
-
-      renderWindow.render();
-    }
-  }
-  
-  function updateColorWindow(window) {
-    if (context.current) {
-      const {imageActorI, imageActorJ, imageActorK, renderWindow} = context.current;
-      imageActorI.getProperty().setColorWindow(window);
-      imageActorJ.getProperty().setColorWindow(window);
-      imageActorK.getProperty().setColorWindow(window);
-
+      console.log("[onRenderClicked] timeData: ", timeData);
+      const {renderWindow } = context.current;
+      setVisibleDataset(timeData.current[currentTP - 1]);
       renderWindow.render();
     }
   }
@@ -170,7 +192,9 @@ export default function Slices() {
     <div>
       <div ref={vtkContainerRef} />
       <div className={styles.control_panel}>
-        <button>Button</button>
+        <button onClick={onRenderClicked}>
+          Manual Render
+        </button>
       </div>
     </div>
   );
