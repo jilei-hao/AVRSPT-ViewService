@@ -23,8 +23,8 @@ export default function Model() {
   const [isReplayOn, setIsReplayOn] = useState(false);
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
 
-  const BASE_URL = 'http://10.102.180.67:8000/bavcta008/vtp/decimated';
-  //const BASE_URL = 'http://192.168.50.37:8000/bavcta008/mesh_ds/vtp';
+  //const BASE_URL = 'http://10.102.180.67:8000/bavcta008/vtp/decimated';
+  const BASE_URL = 'http://192.168.50.37:8000/bavcta008/mesh_ds/vtp';
   
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
@@ -197,10 +197,10 @@ export default function Model() {
   return (
     <div>
       <div ref={vtkContainerRef} />
-      <div class={styles.control_panel}>
-        <div class={styles.replay_panel}>
-          <div class={styles.tp_slider}>
-            <button class={styles.tp_slider_button}
+      <div className={styles.control_panel}>
+        <div className={styles.replay_panel}>
+          <div className={styles.tp_slider}>
+            <button className={styles.tp_slider_button}
               onClick={onPreviousClicked}
             >
               <span style={{fontSize: '25px', color: 'black'}}>
@@ -209,14 +209,14 @@ export default function Model() {
             </button>
             <input
               ref={tpSlider}
-              class={styles.touch_slider}
+              className={styles.touch_slider}
               type="range"
               min="1"
               max="1"
               value={currentTP}
               onChange={(ev) => setCurrentTP(Number(ev.target.value))}
             />
-            <button class={styles.tp_slider_button}
+            <button className={styles.tp_slider_button}
               onClick={onNextClicked}
             >
               <span style={{fontSize: '25px', color: 'black'}}>

@@ -27,11 +27,12 @@ export default function Volume() {
   const hasDownloadingStarted = useRef(false);
   const timeData = useRef([]);
   const tpSlider = useRef(null); // ref to the tp slider
-  const [currentTP, setCurrentTP] = useState(1);
+  const [currentTP, setCurrentTP] = useState(1); // 0-based index (display index is 1-based)
   const [replayTimer, setReplayTimer] = useState({});
   const [isReplayOn, setIsReplayOn] = useState(false);
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
-
+  const [nT, setNT] = useState(20);
+  
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
   /* Initialize renderWindow, renderer, mapper and actor */
@@ -46,73 +47,106 @@ export default function Volume() {
       const renderer = fullScreenRenderWindow.getRenderer();
       const interactor = renderWindow.getInteractor();
       interactor.setDesiredUpdateRate(15.0);
+
+      const tpActors = [];
       
-      const reader = vtkXMLImageDataReader.newInstance();
-      const mapper = vtkVolumeMapper.newInstance();
-      const actor = vtkVolume.newInstance();
-      mapper.setInputConnection(reader.getOutputPort());
-      actor.setMapper(mapper);
-      renderer.addVolume(actor);
+      for (let i = 0; i < nT; i++) {
+        const reader = vtkXMLImageDataReader.newInstance();
+        const mapper = vtkVolumeMapper.newInstance();
+        const actor = vtkVolume.newInstance();
 
-      // Configure Color and Contrast
-      mapper.setSampleDistance(1.1);
-      mapper.setPreferSizeOverAccuracy(true);
-      mapper.setBlendModeToComposite();
-      mapper.setIpScalarRange(0.0, 1.0);
+        mapper.setInputConnection(reader.getOutputPort());
+        actor.setMapper(mapper);
+        initMapperConfig(mapper);
+        initActorConfig(actor);
+        renderer.addVolume(actor);
 
-      const  opacityFunction = vtkPiecewiseFunction.newInstance();
-      opacityFunction.addPoint(-3024, 0.1);
-      opacityFunction.addPoint(-637.62, 0.1);
-      opacityFunction.addPoint(700, 0.5);
-      opacityFunction.addPoint(3071, 0.9);
-      actor.getProperty().setScalarOpacity(0, opacityFunction);
+        tpActors.push({ reader, mapper, actor });
+      }
 
-      const colorTransferFunction = vtkColorTransferFunction.newInstance();
-      colorTransferFunction.addRGBPoint(0, 0, 0, 0);
-      colorTransferFunction.addRGBPoint(1, 1, 1, 1);
-      actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
-
-      actor.getProperty().setScalarOpacityUnitDistance(0, 3.0);
-      actor.getProperty().setInterpolationTypeToLinear();
-      actor.getProperty().setShade(true);
-      actor.getProperty().setAmbient(0.1);
-      actor.getProperty().setDiffuse(0.9);
-      actor.getProperty().setSpecular(0.2);
-      actor.getProperty().setSpecularPower(10.0);
-
+      context.current = {
+        fullScreenRenderWindow, renderWindow, renderer, tpActors
+      };
+      
       // Start Downloading Data
       if (!hasDownloadingStarted.current) {
         hasDownloadingStarted.current = true;
         downloadData().then((downloadedData) => {
           console.log("Data Downloaded: ", downloadedData);
           timeData.current = [...downloadedData];
-          setVisibleDataset(timeData.current[currentTP - 1]);
+          connectDataWithActors();
+          setVisibleDataset();
           updateSlider(downloadedData.length);
         });
       }
       
-      context.current = {
-        fullScreenRenderWindow, renderWindow, renderer,
-        actor, mapper, reader,
-      };
-
       window.vtkContext = context.current; // for browser debugging
     }
 
     return () => {
       if (context.current) {
-        const { 
-          fullScreenRenderWindow, actor, mapper, reader,
-        } = context.current;
-
-        reader.delete();
-        actor.delete();
-        mapper.delete();
+        const { fullScreenRenderWindow, tpActors } = context.current;
+        tpActors.forEach(element => {
+          const { reader, actor, mapper } = element;
+          reader.delete();
+          actor.delete();
+          mapper.delete();
+        });
         fullScreenRenderWindow.delete();
         context.current = null;
       }
     };
   }, [vtkContainerRef]);
+
+  function connectDataWithActors() {
+    if (!context.current)
+      return;
+
+    const data = timeData.current;
+    const { tpActors } = context.current;
+
+    if (!tpActors || tpActors.length === 0)
+      return;
+
+    let cnt = data.length;
+    for (let i = 0; i < nT; i++) {
+      tpActors[i].reader.parseAsArrayBuffer(data[i]);
+      cnt--;
+      if (cnt < 0)
+        break;
+    }
+  }
+
+  function initMapperConfig(mapper) {
+    // Configure Color and Contrast
+    mapper.setSampleDistance(5);
+    mapper.setPreferSizeOverAccuracy(true);
+    mapper.setBlendModeToComposite();
+    mapper.setIpScalarRange(0.0, 1.0);
+  }
+
+  function initActorConfig(actor) {
+    actor.setVisibility(false);
+    const  opacityFunction = vtkPiecewiseFunction.newInstance();
+    opacityFunction.addPoint(-3024, 0.1);
+    opacityFunction.addPoint(-637.62, 0.1);
+    opacityFunction.addPoint(700, 0.5);
+    opacityFunction.addPoint(3071, 0.9);
+    actor.getProperty().setScalarOpacity(0, opacityFunction);
+
+    const colorTransferFunction = vtkColorTransferFunction.newInstance();
+    colorTransferFunction.addRGBPoint(0, 0, 0, 0);
+    colorTransferFunction.addRGBPoint(1, 1, 1, 1);
+    actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
+
+    actor.getProperty().setScalarOpacityUnitDistance(0, 3.0);
+    actor.getProperty().setInterpolationTypeToLinear();
+    actor.getProperty().setShade(true);
+    actor.getProperty().setAmbient(0.1);
+    actor.getProperty().setDiffuse(0.9);
+    actor.getProperty().setSpecular(0.2);
+    actor.getProperty().setSpecularPower(10.0);
+  }
 
   const BASE_URL = 'http://192.168.50.37:8000'
   //const BASE_URL = 'http://10.102.180.67:8000'
@@ -151,15 +185,13 @@ export default function Volume() {
     )
   };
 
-  function setVisibleDataset(ds) {
+  function setVisibleDataset() {
     if (context.current) {
-      const { renderWindow, mapper, renderer, actor, reader } = context.current;
-      //mapper.setInputData(ds);
-      console.log("[setVisibleDataset] input data: ", ds);
-      reader.parseAsArrayBuffer(ds);
-
-      renderer.resetCamera();
-      //renderer.getActiveCamera().elevation(-70);
+      const { renderWindow, renderer, tpActors } = context.current;
+      tpActors.forEach((e, i) => 
+        e.actor.setVisibility(i == currentTP)
+      );
+      //renderer.resetCamera();
       renderWindow.render();
     }
   }
@@ -207,9 +239,9 @@ export default function Volume() {
     <div>
       <div ref={vtkContainerRef} />
       <div className={styles.control_panel}>
-      <div class={styles.replay_panel}>
-          <div class={styles.tp_slider}>
-            <button class={styles.tp_slider_button}
+      <div className={styles.replay_panel}>
+          <div className={styles.tp_slider}>
+            <button className={styles.tp_slider_button}
               onClick={onPreviousClicked}
             >
               <span style={{fontSize: '25px', color: 'black'}}>
@@ -218,14 +250,14 @@ export default function Volume() {
             </button>
             <input
               ref={tpSlider}
-              class={styles.touch_slider}
+              className={styles.touch_slider}
               type="range"
               min="1"
               max="1"
-              value={currentTP}
+              value={currentTP + 1}
               onChange={(ev) => setCurrentTP(Number(ev.target.value))}
             />
-            <button class={styles.tp_slider_button}
+            <button className={styles.tp_slider_button}
               onClick={onNextClicked}
             >
               <span style={{fontSize: '25px', color: 'black'}}>
