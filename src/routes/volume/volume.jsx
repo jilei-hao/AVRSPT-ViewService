@@ -74,8 +74,12 @@ export default function Volume() {
         downloadData().then((downloadedData) => {
           console.log("Data Downloaded: ", downloadedData);
           timeData.current = [...downloadedData];
-          connectDataWithActors();
-          setVisibleDataset();
+          for (let i = 0; i < timeData.current.length; i++) {
+            connectDataWithActor(i).then(tp => {
+              if (tp === currentTP)
+                updateVisibleDataset(true);
+            });
+          }
           updateSlider(downloadedData.length);
         });
       }
@@ -98,23 +102,16 @@ export default function Volume() {
     };
   }, [vtkContainerRef]);
 
-  function connectDataWithActors() {
+  async function connectDataWithActor(tp) {
     if (!context.current)
       return;
 
     const data = timeData.current;
     const { tpActors } = context.current;
 
-    if (!tpActors || tpActors.length === 0)
-      return;
+    tpActors[tp].reader.parseAsArrayBuffer(data[tp]);
 
-    let cnt = data.length;
-    for (let i = 0; i < nT; i++) {
-      tpActors[i].reader.parseAsArrayBuffer(data[i]);
-      cnt--;
-      if (cnt < 0)
-        break;
-    }
+    return Promise.resolve(tp);
   }
 
   function initMapperConfig(mapper) {
@@ -185,13 +182,15 @@ export default function Volume() {
     )
   };
 
-  function setVisibleDataset() {
-    if (context.current) {
+  function updateVisibleDataset(resetCamera = false) {
+    if (context.current && timeData.current.length > 0) {
       const { renderWindow, renderer, tpActors } = context.current;
       tpActors.forEach((e, i) => 
         e.actor.setVisibility(i == currentTP)
       );
-      //renderer.resetCamera();
+
+      if (resetCamera)
+        renderer.resetCamera();
       renderWindow.render();
     }
   }
@@ -206,11 +205,8 @@ export default function Volume() {
 
   useEffect(() => {
     if (context.current) {
-      const { renderWindow } = context.current;
       console.log("Current TP Changed to: ", currentTP);
-      const ds = timeData.current[Number(currentTP - 1)];
-      setVisibleDataset(ds);
-      renderWindow.render();
+      updateVisibleDataset();
     }
   }, [currentTP]);
 
