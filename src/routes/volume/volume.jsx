@@ -102,7 +102,7 @@ export default function Volume() {
     };
   }, [vtkContainerRef]);
 
-  async function connectDataWithActor(tp) {
+  function connectDataWithActor(tp) {
     if (!context.current)
       return;
 
@@ -145,33 +145,32 @@ export default function Volume() {
     actor.getProperty().setSpecularPower(10.0);
   }
 
-  const BASE_URL = 'http://192.168.50.37:8000'
-  //const BASE_URL = 'http://10.102.180.67:8000'
+  //const BASE_URL = 'http://192.168.50.37:8000'
+  const BASE_URL = 'http://10.102.180.67:8000'
 
   function downloadData() {
     console.log("[downloadData] started");
     const files = [
-      'dist/img3d_ds_bavcta008_baseline_00.vti',
-      'dist/img3d_ds_bavcta008_baseline_01.vti',
-      'dist/img3d_ds_bavcta008_baseline_02.vti',
-      'dist/img3d_ds_bavcta008_baseline_03.vti',
-      'dist/img3d_ds_bavcta008_baseline_04.vti',
-      'dist/img3d_ds_bavcta008_baseline_05.vti',
-      'dist/img3d_ds_bavcta008_baseline_06.vti',
-      'dist/img3d_ds_bavcta008_baseline_07.vti',
-      'dist/img3d_ds_bavcta008_baseline_08.vti',
-      'dist/img3d_ds_bavcta008_baseline_09.vti',
-      'dist/img3d_ds_bavcta008_baseline_10.vti',
-      'dist/img3d_ds_bavcta008_baseline_11.vti',
-      'dist/img3d_ds_bavcta008_baseline_12.vti',
-      'dist/img3d_ds_bavcta008_baseline_13.vti',
-      'dist/img3d_ds_bavcta008_baseline_14.vti',
-      'dist/img3d_ds_bavcta008_baseline_15.vti',
-      'dist/img3d_ds_bavcta008_baseline_16.vti',
-      'dist/img3d_ds_bavcta008_baseline_17.vti',
-      'dist/img3d_ds_bavcta008_baseline_18.vti',
-      'dist/img3d_ds_bavcta008_baseline_19.vti',
-
+      'dist/volume/cropped_ds/img_slice_cropped_rs_00.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_01.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_02.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_03.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_04.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_05.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_06.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_07.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_08.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_09.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_10.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_11.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_12.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_13.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_14.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_15.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_16.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_17.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_18.vti',
+      'dist/volume/cropped_ds/img_slice_cropped_rs_19.vti',
     ];
     return Promise.all(
       files.map((fn) => 

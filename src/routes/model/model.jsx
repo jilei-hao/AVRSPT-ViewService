@@ -23,8 +23,8 @@ export default function Model() {
   const [isReplayOn, setIsReplayOn] = useState(false);
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
 
-  //const BASE_URL = 'http://10.102.180.67:8000/bavcta008/vtp/decimated';
-  const BASE_URL = 'http://192.168.50.37:8000/bavcta008/mesh_ds/vtp';
+  const BASE_URL = 'http://10.102.180.67:8000/bavcta008/vtp/decimated';
+  //const BASE_URL = 'http://192.168.50.37:8000/bavcta008/mesh_ds/vtp';
   
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
