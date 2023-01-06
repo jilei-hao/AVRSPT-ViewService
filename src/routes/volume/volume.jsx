@@ -32,7 +32,7 @@ export default function Volume() {
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
   const [nT, setNT] = useState(20);
   const [IPSMin, setIPSMin] = useState(0);
-  const [IPSMax, setIPSMax] = useState(100);
+  const [IPSMax, setIPSMax] = useState(1);
   const [blendMode, setBlendMode] = useState(0); // Composite
   
   const { fetchBinary } = vtkHttpDataAccessHelper;
@@ -42,7 +42,8 @@ export default function Volume() {
     if (!context.current) {
       const fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
         rootContainer: vtkContainerRef.current, // html element containing this window
-        background: [0.003, 0.086, 0.153],
+        // background: [0.003, 0.086, 0.153],
+        background: [0, 0, 0],
       });
 
       const renderWindow = fullScreenRenderWindow.getRenderWindow();
@@ -121,25 +122,14 @@ export default function Volume() {
     mapper.setSampleDistance(3);
     mapper.setPreferSizeOverAccuracy(true);
     mapper.setBlendModeToComposite();
-    mapper.setIpScalarRange(0.0, 1.0);
+    mapper.setIpScalarRange(IPSMin, IPSMax);
   }
 
   function initActorConfig(actor) {
-    actor.setVisibility(false);
-    const  opacityFunction = vtkPiecewiseFunction.newInstance();
-    opacityFunction.addPoint(-3024, 0.1);
-    opacityFunction.addPoint(-637.62, 0.1);
-    opacityFunction.addPoint(700, 0.5);
-    opacityFunction.addPoint(3071, 0.9);
-    actor.getProperty().setScalarOpacity(0, opacityFunction);
-
-    const colorTransferFunction = vtkColorTransferFunction.newInstance();
-    colorTransferFunction.addRGBPoint(0, 0, 0, 0);
-    colorTransferFunction.addRGBPoint(1, 1, 1, 1);
-    actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
-
+    updatePiecewiseFunction(actor);
     actor.getProperty().setScalarOpacityUnitDistance(0, 3.0);
-    actor.getProperty().setInterpolationTypeToLinear();
+    actor.getProperty().setInterpolationTypeToNearest();
+    //actor.getProperty().setInterpolationTypeToLinear();
     actor.getProperty().setShade(true);
     actor.getProperty().setAmbient(0.1);
     actor.getProperty().setDiffuse(0.9);
@@ -147,8 +137,8 @@ export default function Volume() {
     actor.getProperty().setSpecularPower(10.0);
   }
 
-  const BASE_URL = 'http://192.168.50.37:8000'
-  // const BASE_URL = 'http://10.102.180.67:8000'
+  // const BASE_URL = 'http://192.168.50.37:8000'
+  const BASE_URL = 'http://10.102.180.67:8000'
 
   function downloadData() {
     console.log("[downloadData] started");
@@ -190,8 +180,11 @@ export default function Volume() {
         e.actor.setVisibility(i == currentTP)
       );
 
-      if (resetCamera)
+      if (resetCamera) {
         renderer.resetCamera();
+        renderer.getActiveCamera().elevation(-70);
+      }
+      
       renderWindow.render();
     }
   }
@@ -231,14 +224,52 @@ export default function Volume() {
     }
   }, [frameTimeInMS, isReplayOn]);
 
+  function updateBlendMode(mode) {
+    if (context.current) {
+      context.current.tpActors.forEach((e) => {
+        const { actor, mapper } = e;
+        mapper.setBlendMode(mode);
+        mapper.setIpScalarRange(IPSMin, IPSMax);
+        updatePiecewiseFunction(actor);
+      });
+    }
+  }
+
+  function updatePiecewiseFunction(actor) {
+    const colorTransferFunction = vtkColorTransferFunction.newInstance();
+    colorTransferFunction.addRGBPoint(-1024, 0, 0, 0);
+    colorTransferFunction.addRGBPoint(-300, 0, 0, 0);
+    colorTransferFunction.addRGBPoint(461, 1, 1, 1);
+    colorTransferFunction.addRGBPoint(1925, 1, 1, 1);
+
+    actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
+
+    const opacityFunction = vtkPiecewiseFunction.newInstance();
+    opacityFunction.addPoint(-1024, 0.0);
+    opacityFunction.addPoint(-300, 0.1);
+    opacityFunction.addPoint(461, 0.9);
+    opacityFunction.addPoint(1925, 1.0);
+
+    actor.getProperty().setScalarOpacity(0, opacityFunction);
+  }
+
   useEffect(() => {
     if (context.current) {
-      context.current.tpActors.forEach((element) => {
-        element.mapper.setBlendMode(blendMode);
-      })
+      updateBlendMode(blendMode);
       updateVisibleDataset();
     }
   }, [blendMode])
+
+  useEffect(() => {
+    if (context.current && blendMode == 3) {
+      context.current.tpActors.forEach((e) => {
+        const { actor, mapper } = e;
+        mapper.setIpScalarRange(IPSMin, IPSMax);
+        updatePiecewiseFunction(actor);
+      })
+      updateVisibleDataset();
+    }
+  }, [IPSMin, IPSMax])
 
   return (
     <div>
@@ -302,7 +333,7 @@ export default function Volume() {
         >
           <span>IP&nbsp;Scalar&nbsp;Min</span>
           <input className={styles.touch_slider}
-            type="range" min="1" max="100" value={IPSMin}
+            type="range" min="0" max="1" step="0.01" value={IPSMin}
             onChange={(ev)=>setIPSMin(ev.target.value)}
           />
         </div>
@@ -311,7 +342,7 @@ export default function Volume() {
         >
           <span>IP&nbsp;Scalar&nbsp;Max</span>
           <input className={styles.touch_slider}
-            type="range" min="1" max="100" value={IPSMax}
+            type="range" min="0" max="1" step="0.01" value={IPSMax}
             onChange={(ev)=>setIPSMax(ev.target.value)}
           />
         </div>
