@@ -2,28 +2,23 @@
     -webkit-appearance: none;  /* Override default CSS styles */
     appearance: none;
     width: 125%; /* Full-width */
-    height: 15px; /* Specified height */
-    background: #919191; /* Grey background */
+    height: 30px; /* Specified height */
+    background: white; /* Grey background */
     outline: none; /* Remove outline */
-    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-    transition: opacity .2s;
+    opacity: 1; /* Set transparency (for mouse-over effects on hover) */
     margin-top: auto;
     margin-bottom: auto;
+    border-radius: 5px;
     vertical-align: middle;
-}
-
-.touch_slider:hover {
-    opacity: 1;
 }
   
 .touch_slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    background: #303030;
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+    background: rgb(31, 177, 200);
     cursor: pointer;
 }
 
@@ -37,6 +32,7 @@
     justify-content: center;
     align-content: center;
     padding: 10px;
+    background-color: orange;
 }
 
 .control_panel {
@@ -45,7 +41,7 @@
     left: 30vw;
     width: 40vw;
     border-radius: 10px;
-    background: white;
+    background: blue;
     padding: 12px;
 }
 
@@ -61,4 +57,41 @@
     margin-top: auto;
     margin-bottom: auto;
     border-radius: 20%;
+}
+
+.blending_panel {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 3vh;
+    left: 3vw;
+    width: 20vw;
+    height: auto;
+    padding: 12px;
+    border-radius: 10px;
+    background-color: purple;
+    opacity: 1;
+}
+
+.panel_item_vertical {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: #999;
+    height: 40px;
+    padding: 2px;
+    margin: 1px;
+}
+
+.touch_select {
+    width: auto;
+    height: 5vh;
+    border: 1px solid #999;
+    font-size: 16px;
+    color: #1c87c9;
+    background-color: #eee;
+    margin-left: 5px;
+    margin-right: 5px;
+    border-radius: 5px;
 }

@@ -21,7 +21,6 @@ import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
 import styles from '../../app.module.css'
 
 export default function Volume() {
-  console.log("Render App");
   const vtkContainerRef = useRef(null);
   const context = useRef(null); // vtk related objects
   const hasDownloadingStarted = useRef(false);
@@ -32,6 +31,9 @@ export default function Volume() {
   const [isReplayOn, setIsReplayOn] = useState(false);
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
   const [nT, setNT] = useState(20);
+  const [IPSMin, setIPSMin] = useState(0);
+  const [IPSMax, setIPSMax] = useState(100);
+  const [blendMode, setBlendMode] = useState(0); // Composite
   
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
@@ -40,7 +42,7 @@ export default function Volume() {
     if (!context.current) {
       const fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
         rootContainer: vtkContainerRef.current, // html element containing this window
-        background: [0.1, 0.1, 0.1],
+        background: [0.003, 0.086, 0.153],
       });
 
       const renderWindow = fullScreenRenderWindow.getRenderWindow();
@@ -116,7 +118,7 @@ export default function Volume() {
 
   function initMapperConfig(mapper) {
     // Configure Color and Contrast
-    mapper.setSampleDistance(5);
+    mapper.setSampleDistance(3);
     mapper.setPreferSizeOverAccuracy(true);
     mapper.setBlendModeToComposite();
     mapper.setIpScalarRange(0.0, 1.0);
@@ -145,8 +147,8 @@ export default function Volume() {
     actor.getProperty().setSpecularPower(10.0);
   }
 
-  //const BASE_URL = 'http://192.168.50.37:8000'
-  const BASE_URL = 'http://10.102.180.67:8000'
+  const BASE_URL = 'http://192.168.50.37:8000'
+  // const BASE_URL = 'http://10.102.180.67:8000'
 
   function downloadData() {
     console.log("[downloadData] started");
@@ -214,27 +216,35 @@ export default function Volume() {
   }
 
   function onPreviousClicked() {
-    setCurrentTP(prevTP => (prevTP - 1) % timeData.current.length);
+    const l = timeData.current.length;
+    setCurrentTP(prevTP => l - 1 - (l - prevTP) % l);
   }
 
   function onNextClicked() {
-    setCurrentTP(prevTP => prevTP % timeData.current.length + 1);
+    setCurrentTP(prevTP => (prevTP + 1) % timeData.current.length);
   }
 
   useEffect(() => {
     clearInterval(replayTimer);
     if (isReplayOn) {
-      setReplayTimer(setInterval(() => {
-        setCurrentTP(prevTP => prevTP % timeData.current.length + 1);
-      }, frameTimeInMS));
+      setReplayTimer(setInterval(onNextClicked, frameTimeInMS));
     }
   }, [frameTimeInMS, isReplayOn]);
+
+  useEffect(() => {
+    if (context.current) {
+      context.current.tpActors.forEach((element) => {
+        element.mapper.setBlendMode(blendMode);
+      })
+      updateVisibleDataset();
+    }
+  }, [blendMode])
 
   return (
     <div>
       <div ref={vtkContainerRef} />
       <div className={styles.control_panel}>
-      <div className={styles.replay_panel}>
+        <div className={styles.replay_panel}>
           <div className={styles.tp_slider}>
             <button className={styles.tp_slider_button}
               onClick={onPreviousClicked}
@@ -250,7 +260,7 @@ export default function Volume() {
               min="1"
               max="1"
               value={currentTP + 1}
-              onChange={(ev) => setCurrentTP(Number(ev.target.value))}
+              onChange={(ev) => setCurrentTP(Number(ev.target.value - 1))}
             />
             <button className={styles.tp_slider_button}
               onClick={onNextClicked}
@@ -272,7 +282,38 @@ export default function Volume() {
               {isReplayOn ? "▮▮" : "▶"}
             </span>
           </button>
-          
+        </div>
+      </div>
+      <div className={styles.blending_panel}>
+        <div className={styles.panel_item_vertical}>
+          <span>Blend&nbsp;Mode</span>
+          <select className={styles.touch_select} 
+            value={blendMode}
+            onChange={(ev)=>setBlendMode(ev.target.value)}
+          >
+            <option value="0">Composite</option>
+            <option value="1">Maximum Intensity</option>
+            <option value="2">Minimum Intensity</option>
+            <option value="3">Average Intensity</option>
+          </select>
+        </div>
+        <div id="ips-min" className={styles.panel_item_vertical}
+          style={{visibility: blendMode==3 ? 'visible' : 'hidden'}}
+        >
+          <span>IP&nbsp;Scalar&nbsp;Min</span>
+          <input className={styles.touch_slider}
+            type="range" min="1" max="100" value={IPSMin}
+            onChange={(ev)=>setIPSMin(ev.target.value)}
+          />
+        </div>
+        <div id="ips-max" className={styles.panel_item_vertical}
+          style={{visibility: blendMode==3 ? 'visible' : 'hidden'}}
+        >
+          <span>IP&nbsp;Scalar&nbsp;Max</span>
+          <input className={styles.touch_slider}
+            type="range" min="1" max="100" value={IPSMax}
+            onChange={(ev)=>setIPSMax(ev.target.value)}
+          />
         </div>
       </div>
     </div>
