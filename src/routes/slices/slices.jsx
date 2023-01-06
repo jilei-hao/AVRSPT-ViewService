@@ -45,75 +45,6 @@ export default function Slices() {
 
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
-  function setVisibleDataset(ds) {
-    console.log("[setVisibleDataset] timeData.length=", timeData.current.length);
-    if (context.current) {
-      const { renderWindow, mapper, renderer, actor } = context.current;
-      mapper.setInputData(ds);
-      console.log("-- input data set", ds);
-
-      mapper.setSampleDistance(1.1);
-      mapper.setPreferSizeOverAccuracy(true);
-      mapper.setBlendModeToComposite();
-      mapper.setIpScalarRange(0.0, 1.0);
-
-      const  opacityFunction = vtkPiecewiseFunction.newInstance();
-      opacityFunction.addPoint(-3024, 0.1);
-      opacityFunction.addPoint(-637.62, 0.1);
-      opacityFunction.addPoint(700, 0.5);
-      opacityFunction.addPoint(3071, 0.9);
-      actor.getProperty().setScalarOpacity(0, opacityFunction);
-
-      const colorTransferFunction = vtkColorTransferFunction.newInstance();
-      colorTransferFunction.addRGBPoint(0, 0, 0, 0);
-      colorTransferFunction.addRGBPoint(1, 1, 1, 1);
-      actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
-
-      actor.getProperty().setScalarOpacityUnitDistance(0, 3.0);
-      actor.getProperty().setInterpolationTypeToLinear();
-      actor.getProperty().setShade(true);
-      actor.getProperty().setAmbient(0.1);
-      actor.getProperty().setDiffuse(0.9);
-      actor.getProperty().setSpecular(0.2);
-      actor.getProperty().setSpecularPower(10.0);
-
-      renderer.resetCamera();
-      renderer.getActiveCamera().elevation(-70);
-      renderWindow.render();
-    }
-  }
-
-  function downloadData() {
-    console.log("[downloadData] started");
-    const files = [
-      'dist/img3d_bavcta008_baseline_00.vti'
-    ];
-    return Promise.all(
-      files.map((fn) => 
-        fetchBinary(`${BASE_URL}/${fn}`).then((binary) => {
-          const reader = vtkXMLImageDataReader.newInstance();
-          reader.parseAsArrayBuffer(binary);
-          return reader.getOutputData(0);
-        })
-      )
-    )
-  };
-
-  function downloadSample() {
-    console.log("[downloadSample] started");
-    const files = [
-      'sample/headsq.vti'
-    ];
-    const httpReader = vtkHttpDataSetReader.newInstance({ fetchGzip: true });
-    return Promise.all(
-      files.map((fn) => 
-        httpReader.setUrl(`${BASE_URL}/${fn}`).then(() => {
-          return httpReader.getOutputData(0);
-        })
-      )
-    );
-  }
-
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
     if (!context.current) {
@@ -124,57 +55,124 @@ export default function Slices() {
         background: [0.1, 0.1, 0.1],
       });
 
-      const mapper = vtkVolumeMapper.newInstance();
-      mapper.setInputData(vtkImageData.newInstance());
+      const mapper = vtkImageMapper.newInstance();
+      const reader = vtkXMLImageDataReader.newInstance();
+      mapper.setInputConnection(reader.getOutputPort());
+      mapper.setSliceAtFocalPoint(true);
+      mapper.setSlicingMode(SlicingMode.Z);
 
       const renderWindow = fullScreenRenderWindow.getRenderWindow();
       const renderer = fullScreenRenderWindow.getRenderer();
       const interactor = renderWindow.getInteractor();
       interactor.setDesiredUpdateRate(15.0);
 
-      const actor = vtkVolume.newInstance();
+      const actor = vtkImageSlice.newInstance();
       actor.setMapper(mapper);
-      //renderer.addVolume(actor);
+      renderer.addActor(actor);
 
-      // const coneActor = vtkActor.newInstance();
-      // const coneMapper = vtkMapper.newInstance();
-      // const cone = vtkConeSource.newInstance({height: 10});
-      // coneMapper.setInputConnection(cone.getOutputPort());
-      // coneActor.setMapper(coneActor);
-      // renderer.addActor(coneActor);
+      // const rtSource = vtkRTAnalyticSource.newInstance();
+      // rtSource.setWholeExtent(0, 200, 0, 200, 0, 200);
+      // rtSource.setCenter(100, 100, 100);
+      // rtSource.setStandardDeviation(0.3);
 
-      const rtSource = vtkRTAnalyticSource.newInstance();
-      rtSource.setWholeExtent(0, 200, 0, 200, 0, 200);
-      rtSource.setCenter(100, 100, 100);
-      rtSource.setStandardDeviation(0.3);
-
-      const rtMapper = vtkImageMapper.newInstance();
-      rtMapper.setInputConnection(rtSource.getOutputPort());
-      rtMapper.setSliceAtFocalPoint(true);
-      rtMapper.setSlicingMode(SlicingMode.Z);
-      // mapper.setZSlice(5);
-
-      const rgb = vtkColorTransferFunction.newInstance();
-      rgb.addRGBPoint(0, 0, 0, 0);
-      rgb.addRGBPoint(255, 1, 1, 1);
-
-      const ofun = vtkPiecewiseFunction.newInstance();
-      ofun.addPoint(0, 1);
-      ofun.addPoint(150, 1);
-      ofun.addPoint(180, 0);
-      ofun.addPoint(255, 0);
-
-      const rtActor = vtkImageSlice.newInstance();
-      rtActor.getProperty().setColorWindow(255);
-      rtActor.getProperty().setColorLevel(127);
-      // Uncomment this if you want to use a fixed colorwindow/level
-      // actor.getProperty().setRGBTransferFunction(rgb);
-
-      rtActor.getProperty().setPiecewiseFunction(ofun);
-      rtActor.setMapper(rtMapper);
-      renderer.addActor(rtActor);
+      // const rtMapper = vtkImageMapper.newInstance();
+      // rtMapper.setInputConnection(rtSource.getOutputPort());
+      // rtMapper.setSliceAtFocalPoint(true);
+      // rtMapper.setSlicingMode(SlicingMode.Z);
+      // // mapper.setZSlice(5);
 
       
+      
+      // const rgb = vtkColorTransferFunction.newInstance();
+      // rgb.addRGBPoint(0, 0, 0, 0);
+      // rgb.addRGBPoint(255, 1, 1, 1);
+
+      // const ofun = vtkPiecewiseFunction.newInstance();
+      // ofun.addPoint(0, 1);
+      // ofun.addPoint(150, 1);
+      // ofun.addPoint(180, 0);
+      // ofun.addPoint(255, 0);
+
+      // const rtActor = vtkImageSlice.newInstance();
+      // rtActor.getProperty().setColorWindow(255);
+      // rtActor.getProperty().setColorLevel(127);
+      // // Uncomment this if you want to use a fixed colorwindow/level
+      // // actor.getProperty().setRGBTransferFunction(rgb);
+
+      // rtActor.getProperty().setPiecewiseFunction(ofun);
+      // rtActor.setMapper(rtMapper);
+      // renderer.addActor(rtActor);
+
+      // if (!hasDownloadingStarted.current) {
+      //   hasDownloadingStarted.current = true;
+      //   downloadSample().then((downloadedData) => {
+      //     console.log("Data Downloaded: ", downloadedData);
+      //     timeData.current = downloadedData;
+      //     //setVisibleDataset(timeData.current[currentTP - 1]);
+      //   });
+      // }
+      
+      context.current = {
+        fullScreenRenderWindow, renderWindow, renderer,
+        actor, mapper, reader
+        // rtActor, rtMapper, rtSource,
+      };
+
+      if (!hasDownloadingStarted.current) {
+        hasDownloadingStarted.current = true;
+        downloadData().then((data) => {
+          console.log('Data Downloaded!', data[0]);
+          if (context.current) {
+            context.current.reader.parseAsArrayBuffer(data[0]);
+          }
+          
+          updateVisibleDataset();
+        })
+      }
+
+      window.vtkContext = context.current;
+    }
+
+    return () => {
+      if (context.current) {
+        console.log("<effect>[vtkContainerRef]cleaning up...");
+        const { 
+          fullScreenRenderWindow, actor, mapper, renderer, reader
+          // rtActor, rtMapper, rtSource,
+        } = context.current;
+
+        // rtSource.delete();
+        // rtMapper.delete();
+        // rtActor.delete();
+        actor.delete();
+        mapper.delete();
+        renderer.delete();
+        reader.delete();
+        fullScreenRenderWindow.delete();
+        context.current = null;
+      }
+    };
+  }, [vtkContainerRef]);
+
+  function downloadData() {
+    console.log("[downloadData] started");
+    const files = [
+      'dist/fullres/img3d_bavcta008_baseline_00.vti'
+    ];
+    return Promise.all(
+      files.map((fn) => 
+        fetchBinary(`${BASE_URL}/${fn}`).then((binary) => {
+          return binary;
+        })
+      )
+    )
+  };
+
+  function updateVisibleDataset() {
+    if (context.current) {
+      const { renderWindow, renderer, mapper } = context.current;
+
+      console.log("Updating visible dataset");
 
       const iStyle = vtkInteractorStyleImage.newInstance();
       iStyle.setInteractionMode('IMAGE_SLICING');
@@ -183,12 +181,12 @@ export default function Slices() {
       const camera = renderer.getActiveCamera();
       const position = camera.getFocalPoint();
       // offset along the slicing axis
-      const normal = rtMapper.getSlicingModeNormal();
+      const normal = mapper.getSlicingModeNormal();
       position[0] += normal[0];
       position[1] += normal[1];
       position[2] += normal[2];
       camera.setPosition(...position);
-      switch (rtMapper.getSlicingMode()) {
+      switch (mapper.getSlicingMode()) {
         case SlicingMode.X:
           camera.setViewUp([0, 1, 0]);
           break;
@@ -203,58 +201,46 @@ export default function Slices() {
       camera.setParallelProjection(true);
       renderer.resetCamera();
       renderWindow.render();
-
-
-      // if (!hasDownloadingStarted.current) {
-      //   hasDownloadingStarted.current = true;
-      //   downloadSample().then((downloadedData) => {
-      //     console.log("Data Downloaded: ", downloadedData);
-      //     timeData.current = downloadedData;
-      //     //setVisibleDataset(timeData.current[currentTP - 1]);
-      //   });
-      // }
-      
-      context.current = {
-        fullScreenRenderWindow,
-        renderWindow,
-        renderer,
-        actor,
-        mapper,
-        // cone,
-        // coneMapper,
-        // coneActor,
-        rtActor,
-        rtMapper,
-        rtSource,
-      };
-
-      window.vtkContext = context.current;
     }
+    
+    // console.log("[setVisibleDataset] timeData.length=", timeData.current.length);
+    // if (context.current) {
+    //   const { renderWindow, mapper, renderer, actor } = context.current;
+    //   mapper.setInputData(ds);
+    //   console.log("-- input data set", ds);
 
-    return () => {
-      if (context.current) {
-        console.log("<effect>[vtkContainerRef]cleaning up...");
+    //   mapper.setSampleDistance(1.1);
+    //   mapper.setPreferSizeOverAccuracy(true);
+    //   mapper.setBlendModeToComposite();
+    //   mapper.setIpScalarRange(0.0, 1.0);
 
-        const { 
-          fullScreenRenderWindow, actor, mapper, renderer,
-          //cone, coneMapper, coneActor,
-          rtActor, rtMapper, rtSource,
-        } = context.current;
+    //   const  opacityFunction = vtkPiecewiseFunction.newInstance();
+    //   opacityFunction.addPoint(-3024, 0.1);
+    //   opacityFunction.addPoint(-637.62, 0.1);
+    //   opacityFunction.addPoint(700, 0.5);
+    //   opacityFunction.addPoint(3071, 0.9);
+    //   actor.getProperty().setScalarOpacity(0, opacityFunction);
 
-        // cone.delete();
-        // coneMapper.delete();
-        // coneActor.delete();
-        rtSource.delete();
-        rtMapper.delete();
-        rtActor.delete();
-        actor.delete();
-        mapper.delete();
-        renderer.delete();
-        fullScreenRenderWindow.delete();
-        context.current = null;
-      }
-    };
-  }, [vtkContainerRef]);
+    //   const colorTransferFunction = vtkColorTransferFunction.newInstance();
+    //   colorTransferFunction.addRGBPoint(0, 0, 0, 0);
+    //   colorTransferFunction.addRGBPoint(1, 1, 1, 1);
+    //   actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
+
+    //   actor.getProperty().setScalarOpacityUnitDistance(0, 3.0);
+    //   actor.getProperty().setInterpolationTypeToLinear();
+    //   actor.getProperty().setShade(true);
+    //   actor.getProperty().setAmbient(0.1);
+    //   actor.getProperty().setDiffuse(0.9);
+    //   actor.getProperty().setSpecular(0.2);
+    //   actor.getProperty().setSpecularPower(10.0);
+
+    //   renderer.resetCamera();
+    //   renderer.getActiveCamera().elevation(-70);
+    //   renderWindow.render();
+    // }
+  }
+
+  
 
   function onRenderClicked() {
     if (context.current) {
