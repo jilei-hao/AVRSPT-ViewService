@@ -4,6 +4,7 @@ import '@kitware/vtk.js/Rendering/Profiles/Geometry';
 import vtkFullScreenRenderWindow from '@kitware/vtk.js/Rendering/Misc/FullScreenRenderWindow';
 import vtkActor           from '@kitware/vtk.js/Rendering/Core/Actor';
 import vtkMapper          from '@kitware/vtk.js/Rendering/Core/Mapper';
+import vtkRenderer from '@kitware/vtk.js/Rendering/Core/Renderer';
 import vtkHttpDataAccessHelper from '@kitware/vtk.js/IO/Core/DataAccessHelper/HttpDataAccessHelper';
 import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
 import vtkPolyData from '@kitware/vtk.js/Common/DataModel/PolyData';
@@ -23,34 +24,34 @@ export default function Model() {
   const [isReplayOn, setIsReplayOn] = useState(false);
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
 
-  const BASE_URL = 'http://10.102.180.67:8000/bavcta008/vtp/decimated';
-  //const BASE_URL = 'http://192.168.50.37:8000/bavcta008/mesh_ds/vtp';
+  const BASE_URL = 'http://10.102.180.67:8000/';
+  //const BASE_URL = 'http://192.168.50.37:8000/';
   
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
   function downloadData() {
     console.log("[downloadData] started");
     const files = [
-      'seg3d_bavcta008_ds_00_dec.vtp',
-      'seg3d_bavcta008_ds_01_dec.vtp',
-      'seg3d_bavcta008_ds_02_dec.vtp',
-      'seg3d_bavcta008_ds_03_dec.vtp',
-      'seg3d_bavcta008_ds_04_dec.vtp',
-      'seg3d_bavcta008_ds_05_dec.vtp',
-      'seg3d_bavcta008_ds_06_dec.vtp',
-      'seg3d_bavcta008_ds_07_dec.vtp',
-      'seg3d_bavcta008_ds_08_dec.vtp',
-      'seg3d_bavcta008_ds_09_dec.vtp',
-      'seg3d_bavcta008_ds_10_dec.vtp',
-      'seg3d_bavcta008_ds_11_dec.vtp',
-      'seg3d_bavcta008_ds_12_dec.vtp',
-      'seg3d_bavcta008_ds_13_dec.vtp',
-      'seg3d_bavcta008_ds_14_dec.vtp',
-      'seg3d_bavcta008_ds_15_dec.vtp',
-      'seg3d_bavcta008_ds_16_dec.vtp',
-      'seg3d_bavcta008_ds_17_dec.vtp',
-      'seg3d_bavcta008_ds_18_dec.vtp',
-      'seg3d_bavcta008_ds_19_dec.vtp'
+      'dist/model/mesh_dc90_bavcta008_01.vtp',
+      'dist/model/mesh_dc90_bavcta008_02.vtp',
+      'dist/model/mesh_dc90_bavcta008_03.vtp',
+      'dist/model/mesh_dc90_bavcta008_04.vtp',
+      'dist/model/mesh_dc90_bavcta008_05.vtp',
+      'dist/model/mesh_dc90_bavcta008_06.vtp',
+      'dist/model/mesh_dc90_bavcta008_07.vtp',
+      'dist/model/mesh_dc90_bavcta008_08.vtp',
+      'dist/model/mesh_dc90_bavcta008_09.vtp',
+      'dist/model/mesh_dc90_bavcta008_10.vtp',
+      'dist/model/mesh_dc90_bavcta008_11.vtp',
+      'dist/model/mesh_dc90_bavcta008_12.vtp',
+      'dist/model/mesh_dc90_bavcta008_13.vtp',
+      'dist/model/mesh_dc90_bavcta008_14.vtp',
+      'dist/model/mesh_dc90_bavcta008_15.vtp',
+      'dist/model/mesh_dc90_bavcta008_16.vtp',
+      'dist/model/mesh_dc90_bavcta008_17.vtp',
+      'dist/model/mesh_dc90_bavcta008_18.vtp',
+      'dist/model/mesh_dc90_bavcta008_19.vtp',
+      'dist/model/mesh_dc90_bavcta008_20.vtp',
     ];
     return Promise.all(
       files.map((filename) => 
@@ -117,6 +118,7 @@ export default function Model() {
       const renderWindow = fullScreenRenderer.getRenderWindow();
       renderer.setBackground(0, 0, 0);
       renderer.addActor(actor);
+      renderer.setViewport(0, 0, 1, 1)
       renderer.resetCamera();
 
       if (!hasDataDownloaded) {

@@ -39,6 +39,9 @@ export default function Slices() {
   const hasDownloadingStarted = useRef(false);
   const timeData = useRef([]);
   const [currentTP, setCurrentTP] = useState(1);
+  const zSlider = useRef(null);
+  const [zPosition, setZPosition] = useState(0);
+  const [zRange, setZRange] = useState([0, 0]);
 
   //const BASE_URL = 'http://192.168.50.37:8000'
   const BASE_URL = 'http://10.102.180.67:8000'
@@ -55,66 +58,39 @@ export default function Slices() {
         background: [0.1, 0.1, 0.1],
       });
 
-      const mapper = vtkImageMapper.newInstance();
-      const reader = vtkXMLImageDataReader.newInstance();
-      mapper.setInputConnection(reader.getOutputPort());
-      mapper.setSliceAtFocalPoint(true);
-      mapper.setSlicingMode(SlicingMode.Z);
-
       const renderWindow = fullScreenRenderWindow.getRenderWindow();
-      const renderer = fullScreenRenderWindow.getRenderer();
-      const interactor = renderWindow.getInteractor();
-      interactor.setDesiredUpdateRate(15.0);
 
-      const actor = vtkImageSlice.newInstance();
-      actor.setMapper(mapper);
-      renderer.addActor(actor);
+      const reader = vtkXMLImageDataReader.newInstance();
 
-      // const rtSource = vtkRTAnalyticSource.newInstance();
-      // rtSource.setWholeExtent(0, 200, 0, 200, 0, 200);
-      // rtSource.setCenter(100, 100, 100);
-      // rtSource.setStandardDeviation(0.3);
+      const renderPipelines = [];
+      const slicingModeMap = [SlicingMode.X, SlicingMode.Y, SlicingMode.Z];
+      const viewPortPosition = [
+        [0, 0.5, 0.5, 1], 
+        [0.5, 0, 1, 0.5],
+        [0.5, 0.5, 1, 1]
+      ]
 
-      // const rtMapper = vtkImageMapper.newInstance();
-      // rtMapper.setInputConnection(rtSource.getOutputPort());
-      // rtMapper.setSliceAtFocalPoint(true);
-      // rtMapper.setSlicingMode(SlicingMode.Z);
-      // // mapper.setZSlice(5);
+      for (let i = 0; i < 3; ++i) {
+        const mapper = vtkImageMapper.newInstance();
+        const actor = vtkImageSlice.newInstance();
+        const renderer = vtkRenderer.newInstance();
 
-      
-      
-      // const rgb = vtkColorTransferFunction.newInstance();
-      // rgb.addRGBPoint(0, 0, 0, 0);
-      // rgb.addRGBPoint(255, 1, 1, 1);
+        mapper.setInputConnection(reader.getOutputPort());
+        mapper.setSliceAtFocalPoint(true);
+        mapper.setSlicingMode(slicingModeMap[i]);
 
-      // const ofun = vtkPiecewiseFunction.newInstance();
-      // ofun.addPoint(0, 1);
-      // ofun.addPoint(150, 1);
-      // ofun.addPoint(180, 0);
-      // ofun.addPoint(255, 0);
-
-      // const rtActor = vtkImageSlice.newInstance();
-      // rtActor.getProperty().setColorWindow(255);
-      // rtActor.getProperty().setColorLevel(127);
-      // // Uncomment this if you want to use a fixed colorwindow/level
-      // // actor.getProperty().setRGBTransferFunction(rgb);
-
-      // rtActor.getProperty().setPiecewiseFunction(ofun);
-      // rtActor.setMapper(rtMapper);
-      // renderer.addActor(rtActor);
-
-      // if (!hasDownloadingStarted.current) {
-      //   hasDownloadingStarted.current = true;
-      //   downloadSample().then((downloadedData) => {
-      //     console.log("Data Downloaded: ", downloadedData);
-      //     timeData.current = downloadedData;
-      //     //setVisibleDataset(timeData.current[currentTP - 1]);
-      //   });
-      // }
+        actor.setMapper(mapper);
+        renderer.addActor(actor);
+        renderer.setViewport(...viewPortPosition[i]);
+        renderWindow.addRenderer(renderer);
+        
+        const pipeline = { mapper, actor, renderer };
+        renderPipelines[i] = pipeline;
+      }
       
       context.current = {
-        fullScreenRenderWindow, renderWindow, renderer,
-        actor, mapper, reader
+        fullScreenRenderWindow, renderWindow, reader, 
+        renderPipelines,
         // rtActor, rtMapper, rtSource,
       };
 
@@ -125,7 +101,6 @@ export default function Slices() {
           if (context.current) {
             context.current.reader.parseAsArrayBuffer(data[0]);
           }
-          
           updateVisibleDataset();
         })
       }
@@ -137,18 +112,18 @@ export default function Slices() {
       if (context.current) {
         console.log("<effect>[vtkContainerRef]cleaning up...");
         const { 
-          fullScreenRenderWindow, actor, mapper, renderer, reader
-          // rtActor, rtMapper, rtSource,
+          fullScreenRenderWindow, reader, renderPipelines,
         } = context.current;
 
-        // rtSource.delete();
-        // rtMapper.delete();
-        // rtActor.delete();
-        actor.delete();
-        mapper.delete();
-        renderer.delete();
         reader.delete();
         fullScreenRenderWindow.delete();
+        renderPipelines.forEach((e) => {
+          const { mapper, actor, renderer } = e;
+          mapper.delete();
+          actor.delete();
+          renderer.delete();
+        });
+
         context.current = null;
       }
     };
@@ -173,6 +148,10 @@ export default function Slices() {
       const { renderWindow, renderer, mapper } = context.current;
 
       console.log("Updating visible dataset");
+
+      zSlider.current.min = mapper.getBoundsForSlice()[2];
+      zSlider.current.max = mapper.getBoundsForSlice()[5];
+      zSlider.current.step = 1.0;
 
       const iStyle = vtkInteractorStyleImage.newInstance();
       iStyle.setInteractionMode('IMAGE_SLICING');
@@ -240,24 +219,20 @@ export default function Slices() {
     // }
   }
 
-  
-
-  function onRenderClicked() {
+  useEffect(() => {
     if (context.current) {
-      console.log("[onRenderClicked] timeData: ", timeData);
-      const {renderWindow } = context.current;
-      setVisibleDataset(timeData.current[currentTP - 1]);
-      renderWindow.render();
+      context.current.mapper.setZSlice(zPosition);
     }
-  }
+  }, [zPosition])
 
   return (
     <div>
       <div ref={vtkContainerRef} />
       <div className={styles.control_panel}>
-        <button onClick={onRenderClicked}>
-          Manual Render
-        </button>
+        <input ref={zSlider} className={styles.touch_slider} type="range"
+          value={zPosition}
+          onChange={(ev)=>setZPosition(Number(ev.target.value))}
+        />
       </div>
     </div>
   );

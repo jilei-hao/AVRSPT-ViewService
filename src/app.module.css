@@ -36,6 +36,7 @@
 }
 
 .control_panel {
+    display: flex;
     position: absolute;
     bottom: 3vh;
     left: 30vw;
