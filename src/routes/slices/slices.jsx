@@ -21,6 +21,8 @@ import vtkRTAnalyticSource from '@kitware/vtk.js/Filters/Sources/RTAnalyticSourc
 import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
 import vtkImageSlice from '@kitware/vtk.js/Rendering/Core/ImageSlice';
 import vtkInteractorStyleImage from '@kitware/vtk.js/Interaction/Style/InteractorStyleImage';
+import vtkInteractorStyleManipulator from '@kitware/vtk.js/Interaction/Style/InteractorStyleManipulator';
+import Manipulators from '@kitware/vtk.js/Interaction/Manipulators';
 
 import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
 import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
@@ -154,7 +156,7 @@ export default function Slices() {
   function downloadData() {
     console.log("[downloadData] started");
     const files = [
-      'dist/fullres/img3d_bavcta008_baseline_00.vti'
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti'
     ];
     return Promise.all(
       files.map((fn) => 
