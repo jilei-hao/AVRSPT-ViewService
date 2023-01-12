@@ -43,8 +43,33 @@ export default function Slices() {
   const [zPosition, setZPosition] = useState(0);
   const [zRange, setZRange] = useState([0, 0]);
 
-  //const BASE_URL = 'http://192.168.50.37:8000'
-  const BASE_URL = 'http://10.102.180.67:8000'
+  const ViewportPos = {
+    top_left: [0, 0.5, 0.5, 1],
+    top_right: [0.5, 0.5, 1, 1],
+    bottom_left: [0, 0, 0.5, 0.5],
+    bottom_right: [0.5, 0, 1, 0.5]
+  };
+
+  const slicingConfig = [
+    {
+      mode: SlicingMode.X, 
+      viewportPos: ViewportPos.top_right,
+      viewUp: [0, 0, 1],
+    }, 
+    {
+      mode: SlicingMode.Y, 
+      viewportPos: ViewportPos.bottom_right,
+      viewUp: [0, 0, 1,]
+    },
+    {
+      mode: SlicingMode.Z, 
+      viewportPos: ViewportPos.top_left,
+      viewUp: [0, -1, 0]
+    }
+  ];
+
+  const BASE_URL = 'http://192.168.50.37:8000'
+  // const BASE_URL = 'http://10.102.180.67:8000'
 
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
@@ -63,12 +88,6 @@ export default function Slices() {
       const reader = vtkXMLImageDataReader.newInstance();
 
       const renderPipelines = [];
-      const slicingModeMap = [SlicingMode.X, SlicingMode.Y, SlicingMode.Z];
-      const viewPortPosition = [
-        [0, 0.5, 0.5, 1], 
-        [0.5, 0, 1, 0.5],
-        [0.5, 0.5, 1, 1]
-      ]
 
       for (let i = 0; i < 3; ++i) {
         const mapper = vtkImageMapper.newInstance();
@@ -77,12 +96,16 @@ export default function Slices() {
 
         mapper.setInputConnection(reader.getOutputPort());
         mapper.setSliceAtFocalPoint(true);
-        mapper.setSlicingMode(slicingModeMap[i]);
+        mapper.setSlicingMode(slicingConfig[i].mode);
 
         actor.setMapper(mapper);
         renderer.addActor(actor);
-        renderer.setViewport(...viewPortPosition[i]);
+        renderer.setViewport(...(slicingConfig[i].viewportPos));
         renderWindow.addRenderer(renderer);
+
+        const camera = renderer.getActiveCamera();
+        camera.setViewUp(...(slicingConfig[i].viewUp));
+        camera.setParallelProjection(true);
         
         const pipeline = { mapper, actor, renderer };
         renderPipelines[i] = pipeline;
@@ -91,7 +114,6 @@ export default function Slices() {
       context.current = {
         fullScreenRenderWindow, renderWindow, reader, 
         renderPipelines,
-        // rtActor, rtMapper, rtSource,
       };
 
       if (!hasDownloadingStarted.current) {
@@ -145,40 +167,32 @@ export default function Slices() {
 
   function updateVisibleDataset() {
     if (context.current) {
-      const { renderWindow, renderer, mapper } = context.current;
+      const { renderWindow, renderPipelines } = context.current;
 
       console.log("Updating visible dataset");
 
-      zSlider.current.min = mapper.getBoundsForSlice()[2];
-      zSlider.current.max = mapper.getBoundsForSlice()[5];
-      zSlider.current.step = 1.0;
+      for (let i = 0; i < 3; i++) {
+        const { mapper, actor, renderer } = renderPipelines[i];
+        const camera = renderer.getActiveCamera();
+        const position = camera.getFocalPoint();
+
+        // offset along the slicing axis
+        const normal = mapper.getSlicingModeNormal();
+        position[0] += normal[0];
+        position[1] += normal[1];
+        position[2] += normal[2];
+        camera.setPosition(...position);
+        renderer.resetCamera();
+      }
+
+      // zSlider.current.min = mapper.getBoundsForSlice()[2];
+      // zSlider.current.max = mapper.getBoundsForSlice()[5];
+      // zSlider.current.step = 1.0;
 
       const iStyle = vtkInteractorStyleImage.newInstance();
       iStyle.setInteractionMode('IMAGE_SLICING');
       renderWindow.getInteractor().setInteractorStyle(iStyle);
 
-      const camera = renderer.getActiveCamera();
-      const position = camera.getFocalPoint();
-      // offset along the slicing axis
-      const normal = mapper.getSlicingModeNormal();
-      position[0] += normal[0];
-      position[1] += normal[1];
-      position[2] += normal[2];
-      camera.setPosition(...position);
-      switch (mapper.getSlicingMode()) {
-        case SlicingMode.X:
-          camera.setViewUp([0, 1, 0]);
-          break;
-        case SlicingMode.Y:
-          camera.setViewUp([1, 0, 0]);
-          break;
-        case SlicingMode.Z:
-          camera.setViewUp([0, 1, 0]);
-          break;
-        default:
-      }
-      camera.setParallelProjection(true);
-      renderer.resetCamera();
       renderWindow.render();
     }
     
@@ -219,11 +233,11 @@ export default function Slices() {
     // }
   }
 
-  useEffect(() => {
-    if (context.current) {
-      context.current.mapper.setZSlice(zPosition);
-    }
-  }, [zPosition])
+  // useEffect(() => {
+  //   if (context.current) {
+  //     context.current.mapper.setZSlice(zPosition);
+  //   }
+  // }, [zPosition])
 
   return (
     <div>
