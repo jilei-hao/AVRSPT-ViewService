@@ -22,7 +22,6 @@ import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
 import vtkImageSlice from '@kitware/vtk.js/Rendering/Core/ImageSlice';
 import vtkInteractorStyleImage from '@kitware/vtk.js/Interaction/Style/InteractorStyleImage';
 import vtkInteractorStyleManipulator from '@kitware/vtk.js/Interaction/Style/InteractorStyleManipulator';
-import Manipulators from '@kitware/vtk.js/Interaction/Manipulators';
 
 import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
 import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
@@ -30,7 +29,42 @@ import vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData';
 import vtkConeSource from '@kitware/vtk.js/Filters/Sources/ConeSource';
 import Constants from '@kitware/vtk.js/Rendering/Core/ImageMapper/Constants';
 
+import macro from '@kitware/vtk.js/macro';
+
 import styles from '../../app.module.css'
+import GestureCameraManipulator from '@kitware/vtk.js/Interaction/Manipulators/GestureCameraManipulator';
+import MouseCameraTrackballPanManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseCameraTrackballPanManipulator';
+import MouseCameraTrackballRotateManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseCameraTrackballRotateManipulator';
+
+function InteractorStyleImageTouch(publicAPI, model) {
+  model.classHierarchy.push('InteractorStyleImageTouch');
+
+  publicAPI.handleStartPan = (callData) => {
+    model.previousTranslation = callData.translation;
+    const touches = callData.touches;
+    model.lastSlicePosition = callData.touches[Object.keys(touches)[0]].y;
+
+    console.log("StartPan callData:", touches[Object.keys(touches)[0]]);
+    publicAPI.startSlice();
+  }
+
+  publicAPI.superHandleEndPan = publicAPI.handleEndPan;
+  publicAPI.handleEndPan = () => {
+    console.log("EndPan");
+    publicAPI.endSlice();
+  }
+};
+
+function extend(publicAPI, model, initialValues = {}) {
+  vtkInteractorStyleImage.extend(publicAPI, model, initialValues);
+
+  InteractorStyleImageTouch(publicAPI, model);
+}
+
+const createImageTouchStyle = macro.newInstance(extend, 'InteractorStyleImageTouch');
+
+
+
 
 const { SlicingMode } = Constants;
 
@@ -191,9 +225,37 @@ export default function Slices() {
       // zSlider.current.max = mapper.getBoundsForSlice()[5];
       // zSlider.current.step = 1.0;
 
-      const iStyle = vtkInteractorStyleImage.newInstance();
+      // const iStyle = vtkInteractorStyleImage.newInstance();
+      const iStyle = createImageTouchStyle();
       iStyle.setInteractionMode('IMAGE_SLICING');
       renderWindow.getInteractor().setInteractorStyle(iStyle);
+
+      // const iStyle = vtkInteractorStyleManipulator.newInstance();
+      // const gm = GestureCameraManipulator.newInstance();
+      // gm.setRotateEnabled(false);
+      // gm.setPanEnabled(false);
+      // gm.onStartPan(()=>console.log("onStartPan"));
+
+      // const mm = MouseCameraTrackballRotateManipulator.newInstance();
+      // mm.setButton(3);
+      // mm.setShift(false);
+      // mm.setControl(false);
+      // mm.setAlt(false);
+      // mm.setDragEnabled(true);
+
+      // console.log("mm: ", mm);
+
+      // // mm.setScrollEnabled(false);
+      // // mm.setDragEnabled(true);
+      
+
+      // console.log("gm: ", gm);
+      
+      // iStyle.removeAllManipulators();
+      // //iStyle.addGestureManipulator(gm);
+      // iStyle.addMouseManipulator(mm);
+      // renderWindow.getInteractor().setInteractorStyle(iStyle);
+      
 
       renderWindow.render();
     }
