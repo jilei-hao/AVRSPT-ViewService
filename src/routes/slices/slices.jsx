@@ -39,18 +39,25 @@ import MouseCameraTrackballRotateManipulator from '@kitware/vtk.js/Interaction/M
 function InteractorStyleImageTouch(publicAPI, model) {
   model.classHierarchy.push('InteractorStyleImageTouch');
 
+  publicAPI.startPan = ()=>console.log("StartPan Override!");
+
   publicAPI.handleStartPan = (callData) => {
     model.previousTranslation = callData.translation;
     const touches = callData.touches;
+    callData['position'] = {
+      x: callData.touches[Object.keys(touches)[0]].x,
+      y: callData.touches[Object.keys(touches)[0]].y
+    }
     model.lastSlicePosition = callData.touches[Object.keys(touches)[0]].y;
 
-    console.log("StartPan callData:", touches[Object.keys(touches)[0]]);
+    
     publicAPI.startSlice();
+    console.log("StartPan state:", model.state);
   }
 
   publicAPI.superHandleEndPan = publicAPI.handleEndPan;
   publicAPI.handleEndPan = () => {
-    console.log("EndPan");
+    console.log("EndPan state:", model.state);
     publicAPI.endSlice();
   }
 };
@@ -75,6 +82,7 @@ export default function Slices() {
   const hasDownloadingStarted = useRef(false);
   const timeData = useRef([]);
   const [currentTP, setCurrentTP] = useState(1);
+  const [nT, setNT] = useState(20);
   const zSlider = useRef(null);
   const [zPosition, setZPosition] = useState(0);
   const [zRange, setZRange] = useState([0, 0]);
@@ -104,11 +112,48 @@ export default function Slices() {
     }
   ];
 
+<<<<<<< Updated upstream
   // const BASE_URL = 'http://192.168.50.37:8000'
   // const BASE_URL = 'http://10.102.180.67:8000'
   const BASE_URL = 'http://10.102.156.9:8000/'
+=======
+  // const BASE_URL = 'http://192.168.50.37:8000';
+  // const BASE_URL = 'http://10.102.180.67:8000';
+  const BASE_URL = 'http://10.102.156.9:8000';
+>>>>>>> Stashed changes
 
   const { fetchBinary } = vtkHttpDataAccessHelper;
+
+  function downloadData() {
+    console.log("[downloadData] started");
+    const files = [
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_01.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_02.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_03.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_04.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_05.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_06.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_07.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_08.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_09.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_16.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_17.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_18.vti',
+      'dist/volume/ds/img3d_ds_bavcta008_baseline_19.vti',
+    ];
+    return Promise.all(
+      files.map((fn) => 
+        fetchBinary(`${BASE_URL}/${fn}`).then((binary) => {return binary;})
+      )
+    )
+  };
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -121,42 +166,67 @@ export default function Slices() {
       });
 
       const renderWindow = fullScreenRenderWindow.getRenderWindow();
+      const iStyle = createImageTouchStyle();
+      iStyle.setInteractionMode('IMAGE_SLICING');
+      renderWindow.getInteractor().setInteractorStyle(iStyle);
 
-      const reader = vtkXMLImageDataReader.newInstance();
-
-      const renderPipelines = [];
-
-      for (let i = 0; i < 3; ++i) {
-        const mapper = vtkImageMapper.newInstance();
-        const actor = vtkImageSlice.newInstance();
-        const renderer = vtkRenderer.newInstance();
-
-        mapper.setInputConnection(reader.getOutputPort());
-        mapper.setSliceAtFocalPoint(true);
-        mapper.setSlicingMode(slicingConfig[i].mode);
-
-        actor.setMapper(mapper);
-        renderer.addActor(actor);
+      // Setup 3 renderes for the x, y, z viewports
+      const sliceRenderers = [];
+      for (let i = 0; i < 3; i++) {
+        sliceRenderers.push(vtkRenderer.newInstance());
         renderer.setViewport(...(slicingConfig[i].viewportPos));
         renderWindow.addRenderer(renderer);
+      }
 
-        const camera = renderer.getActiveCamera();
-        camera.setViewUp(...(slicingConfig[i].viewUp));
-        camera.setParallelProjection(true);
-        
-        const pipeline = { mapper, actor, renderer };
-        renderPipelines[i] = pipeline;
+      // Setup tp actors
+      const tpActors = [];
+      for (let t = 0; t < nT; t++) {
+        const reader = vtkXMLImageDataReader.newInstance();
+        const renderPipelines = [];
+
+        for (let i = 0; i < 3; ++i) {
+          const mapper = vtkImageMapper.newInstance();
+          const actor = vtkImageSlice.newInstance();
+
+          mapper.setInputConnection(reader.getOutputPort());
+          mapper.setSliceAtFocalPoint(true);
+          mapper.setSlicingMode(slicingConfig[i].mode);
+
+          actor.setMapper(mapper);
+          actor.setVisibility(false);
+          sliceRenderers[i].addActor(actor);
+
+          const colorTransferFunction = vtkColorTransferFunction.newInstance();
+          colorTransferFunction.addRGBPoint(0, 0, 0, 0);
+          colorTransferFunction.addRGBPoint(1, 1, 1, 1);
+          actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
+
+          // const camera = renderer.getActiveCamera();
+          // camera.setViewUp(...(slicingConfig[i].viewUp));
+          // camera.setParallelProjection(true);
+          
+          const pipeline = { mapper, actor };
+          renderPipelines[i] = pipeline;
+        }
+
+        tpActors.push({ reader, renderPipelines });
       }
       
       context.current = {
-        fullScreenRenderWindow, renderWindow, reader, 
-        renderPipelines,
+        fullScreenRenderWindow, renderWindow, tpActors, sliceRenderers,
       };
 
       if (!hasDownloadingStarted.current) {
         hasDownloadingStarted.current = true;
         downloadData().then((data) => {
-          console.log('Data Downloaded!', data[0]);
+          console.log('All Data Downloaded!', data);
+          timeData.current = [...data];
+          for (let i = 0; i < timeData.current.length; i++) {
+            connectDataWithActor(i).then(tp => {
+              if (tp === currentTP)
+                updateVisibleDataset(true);
+            })
+          }
           if (context.current) {
             context.current.reader.parseAsArrayBuffer(data[0]);
           }
@@ -171,11 +241,25 @@ export default function Slices() {
       if (context.current) {
         console.log("<effect>[vtkContainerRef]cleaning up...");
         const { 
-          fullScreenRenderWindow, reader, renderPipelines,
+          fullScreenRenderWindow, tpActors, sliceRenderers,
         } = context.current;
 
-        reader.delete();
         fullScreenRenderWindow.delete();
+
+        sliceRenderers.forEach((ren) => {
+          ren.delete();
+        })
+
+        tpActors.forEach((tp) => {
+          const { reader, renderPipelines } = tp;
+          renderPipelines.forEach((dim) => {
+            const { mapper, actor } = dim;
+            mapper.delete();
+            actor.delete();
+          })
+          reader.delete();
+        })
+
         renderPipelines.forEach((e) => {
           const { mapper, actor, renderer } = e;
           mapper.delete();
@@ -188,38 +272,42 @@ export default function Slices() {
     };
   }, [vtkContainerRef]);
 
-  function downloadData() {
-    console.log("[downloadData] started");
-    const files = [
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti'
-    ];
-    return Promise.all(
-      files.map((fn) => 
-        fetchBinary(`${BASE_URL}/${fn}`).then((binary) => {
-          return binary;
-        })
-      )
-    )
-  };
+  function connectDataWithActor(tp) {
+    if (!context.current)
+      return;
 
-  function updateVisibleDataset() {
+    const data = timeData.current;
+    const { tpActors } = context.current;
+    tpActors[tp].reader.parseAsArrayBuffer(data[tp]);
+    return Promise.resolve(tp);
+  }
+  
+
+  function updateVisibleDataset(resetCamera = false) {
     if (context.current) {
-      const { renderWindow, renderPipelines } = context.current;
+      const { renderWindow, tpActors, sliceRenderers } = context.current;
 
       console.log("Updating visible dataset");
 
-      for (let i = 0; i < 3; i++) {
-        const { mapper, actor, renderer } = renderPipelines[i];
-        const camera = renderer.getActiveCamera();
-        const position = camera.getFocalPoint();
+      tpActors.forEach((e, i) => {
+        e.actor.setVisibility(i == currentTP);
+      })
 
-        // offset along the slicing axis
-        const normal = mapper.getSlicingModeNormal();
-        position[0] += normal[0];
-        position[1] += normal[1];
-        position[2] += normal[2];
-        camera.setPosition(...position);
-        renderer.resetCamera();
+      if (resetCamera) {
+        for (let d = 0; d < 3; d++) {
+          const { mapper } = tpActors[currentTP].renderPipelines[d];
+          const renderer = sliceRenderers[d]
+          const camera = renderer.getActiveCamera();
+          const position = camera.getFocalPoint();
+  
+          // offset along the slicing axis
+          const normal = mapper.getSlicingModeNormal();
+          position[0] += normal[0];
+          position[1] += normal[1];
+          position[2] += normal[2];
+          camera.setPosition(...position);
+          renderer.resetCamera();
+        }
       }
 
       // zSlider.current.min = mapper.getBoundsForSlice()[2];
@@ -227,37 +315,8 @@ export default function Slices() {
       // zSlider.current.step = 1.0;
 
       // const iStyle = vtkInteractorStyleImage.newInstance();
-      const iStyle = createImageTouchStyle();
-      iStyle.setInteractionMode('IMAGE_SLICING');
-      renderWindow.getInteractor().setInteractorStyle(iStyle);
 
-      // const iStyle = vtkInteractorStyleManipulator.newInstance();
-      // const gm = GestureCameraManipulator.newInstance();
-      // gm.setRotateEnabled(false);
-      // gm.setPanEnabled(false);
-      // gm.onStartPan(()=>console.log("onStartPan"));
-
-      // const mm = MouseCameraTrackballRotateManipulator.newInstance();
-      // mm.setButton(3);
-      // mm.setShift(false);
-      // mm.setControl(false);
-      // mm.setAlt(false);
-      // mm.setDragEnabled(true);
-
-      // console.log("mm: ", mm);
-
-      // // mm.setScrollEnabled(false);
-      // // mm.setDragEnabled(true);
       
-
-      // console.log("gm: ", gm);
-      
-      // iStyle.removeAllManipulators();
-      // //iStyle.addGestureManipulator(gm);
-      // iStyle.addMouseManipulator(mm);
-      // renderWindow.getInteractor().setInteractorStyle(iStyle);
-      
-
       renderWindow.render();
     }
     
