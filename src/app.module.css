@@ -1,98 +1,115 @@
 .touch_slider {
-    -webkit-appearance: none;  /* Override default CSS styles */
-    appearance: none;
-    width: 125%; /* Full-width */
-    height: 30px; /* Specified height */
-    background: white; /* Grey background */
-    outline: none; /* Remove outline */
-    opacity: 1; /* Set transparency (for mouse-over effects on hover) */
-    margin-top: auto;
-    margin-bottom: auto;
-    border-radius: 5px;
-    vertical-align: middle;
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 200px; /* Full-width */
+  height: 15px; /* Specified height */
+  background: white; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 1; /* Set transparency (for mouse-over effects on hover) */
+  margin-top: auto;
+  margin-bottom: auto;
+  border-radius: 5px;
+  vertical-align: middle;
 }
   
 .touch_slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    border-radius: 5px;
-    width: 30px;
-    height: 30px;
-    background: rgb(31, 177, 200);
-    cursor: pointer;
-}
-
-.touch_button-m {
-
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  background: rgb(102, 102, 102);
+  cursor: pointer;
 }
 
 .replay_panel {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-content: center;
-    padding: 10px;
-    background-color: orange;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+  vertical-align: center;
+  width: auto;
+  background-color: rgb(219, 218, 218);
 }
 
 .control_panel {
-    display: flex;
-    position: absolute;
-    bottom: 3vh;
-    left: 30vw;
-    width: 40vw;
-    border-radius: 10px;
-    background: blue;
-    padding: 12px;
+  display: flex;
+  position: absolute;
+  justify-content: center;
+  bottom: 0vh;
+  left: 0vw;
+  width: 100vw;
+  height: 5vh;
+  font-size: 5vh;
+  border-radius: 0px;
+  background: grey;
+  padding: 5px;
 }
 
 .tp_slider {
-    display: flex;
-    margin-left: auto;
-    margin-right: auto;
+  display: flex;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
-.tp_slider_button {
-    width: 5vw;
-    height: 5vh;
-    margin-top: auto;
-    margin-bottom: auto;
-    border-radius: 20%;
+.toolbar_button__s {
+  width: 45px;
+  height: 45px;
+  margin-left: 5px;
+  margin-right: 5px;
+  border-radius: 5%;
+  border: none;
+}
+
+.icon_image__s {
+  width: 100%;
+  height: 100%;
+}
+
+.tp_slider_button__play {
+  width: 7vw;
+  height: 7vh;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 5px;
+  margin-right: 5px;
+  border-radius: 20%;
+  vertical-align: middle;
 }
 
 .blending_panel {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 3vh;
-    left: 3vw;
-    width: 20vw;
-    height: auto;
-    padding: 12px;
-    border-radius: 10px;
-    background-color: purple;
-    opacity: 1;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 3vh;
+  left: 3vw;
+  width: 20vw;
+  height: auto;
+  padding: 12px;
+  border-radius: 10px;
+  background-color: purple;
+  opacity: 1;
 }
 
 .panel_item_vertical {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    background-color: #999;
-    height: 40px;
-    padding: 2px;
-    margin: 1px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: #999;
+  height: 40px;
+  padding: 2px;
+  margin: 1px;
 }
 
 .touch_select {
-    width: auto;
-    height: 5vh;
-    border: 1px solid #999;
-    font-size: 16px;
-    color: #1c87c9;
-    background-color: #eee;
-    margin-left: 5px;
-    margin-right: 5px;
-    border-radius: 5px;
+  width: auto;
+  height: 5vh;
+  border: 1px solid #999;
+  font-size: 16px;
+  color: #1c87c9;
+  background-color: #eee;
+  margin-left: 5px;
+  margin-right: 5px;
+  border-radius: 5px;
 }

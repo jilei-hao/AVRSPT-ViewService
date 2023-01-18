@@ -36,6 +36,15 @@ import GestureCameraManipulator from '@kitware/vtk.js/Interaction/Manipulators/G
 import MouseCameraTrackballPanManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseCameraTrackballPanManipulator';
 import MouseCameraTrackballRotateManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseCameraTrackballRotateManipulator';
 
+import btn_play from '../../assets/btn_play__idle.svg'
+import btn_prev from '../../assets/btn_prev__idle.svg'
+import btn_next from '../../assets/btn_next__idle.svg'
+
+
+// const BASE_URL = 'http://192.168.50.37:8000'
+// const BASE_URL = 'http://10.102.180.67:8000'
+const BASE_URL = 'http://10.102.156.9:8000/'
+
 function InteractorStyleImageTouch(publicAPI, model) {
   model.classHierarchy.push('InteractorStyleImageTouch');
 
@@ -70,9 +79,6 @@ function extend(publicAPI, model, initialValues = {}) {
 
 const createImageTouchStyle = macro.newInstance(extend, 'InteractorStyleImageTouch');
 
-
-
-
 const { SlicingMode } = Constants;
 
 export default function Slices() {
@@ -80,10 +86,15 @@ export default function Slices() {
   const vtkContainerRef = useRef(null);
   const context = useRef(null); // vtk related objects
   const hasDownloadingStarted = useRef(false);
+  const hasDownloadingFinished = useRef(false);
   const timeData = useRef([]);
+  const tpSlider = useRef(null); // ref to the tp slider
+  const [isReplayOn, setIsReplayOn] = useState(false);
   const [currentTP, setCurrentTP] = useState(1);
+  const [frameTimeInMS, setFrameTimeInMS] = useState(50);
+  const [replayTimer, setReplayTimer] = useState({});
   const [nT, setNT] = useState(20);
-  const zSlider = useRef(null);
+  //const zSlider = useRef(null);
   const [zPosition, setZPosition] = useState(0);
   const [zRange, setZRange] = useState([0, 0]);
 
@@ -112,10 +123,6 @@ export default function Slices() {
     }
   ];
 
-  // const BASE_URL = 'http://192.168.50.37:8000'
-  // const BASE_URL = 'http://10.102.180.67:8000'
-  const BASE_URL = 'http://10.102.156.9:8000/'
-
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
   function downloadData() {
@@ -124,23 +131,23 @@ export default function Slices() {
       'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti',
       'dist/volume/ds/img3d_ds_bavcta008_baseline_01.vti',
       'dist/volume/ds/img3d_ds_bavcta008_baseline_02.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_03.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_04.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_05.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_06.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_07.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_08.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_09.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_16.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_17.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_18.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_19.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_03.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_04.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_05.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_06.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_07.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_08.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_09.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_16.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_17.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_18.vti',
+      // 'dist/volume/ds/img3d_ds_bavcta008_baseline_19.vti',
     ];
     return Promise.all(
       files.map((fn) => 
@@ -153,6 +160,8 @@ export default function Slices() {
   useEffect(() => {
     if (!context.current) {
       console.log("rebuilding context...", context.current);
+      console.log("-- has download started: ", hasDownloadingStarted.current);
+      console.log("-- has doanload finished: ", hasDownloadingFinished.current);
 
       const fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
         rootContainer: vtkContainerRef.current, // html element containing this window
@@ -167,8 +176,12 @@ export default function Slices() {
       // Setup 3 renderes for the x, y, z viewports
       const sliceRenderers = [];
       for (let i = 0; i < 3; i++) {
-        sliceRenderers.push(vtkRenderer.newInstance());
+        const renderer = vtkRenderer.newInstance();
+        sliceRenderers.push(renderer);
         renderer.setViewport(...(slicingConfig[i].viewportPos));
+        const camera = renderer.getActiveCamera();
+        camera.setViewUp(...(slicingConfig[i].viewUp));
+        camera.setParallelProjection(true);
         renderWindow.addRenderer(renderer);
       }
 
@@ -194,10 +207,6 @@ export default function Slices() {
           colorTransferFunction.addRGBPoint(0, 0, 0, 0);
           colorTransferFunction.addRGBPoint(1, 1, 1, 1);
           actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
-
-          // const camera = renderer.getActiveCamera();
-          // camera.setViewUp(...(slicingConfig[i].viewUp));
-          // camera.setParallelProjection(true);
           
           const pipeline = { mapper, actor };
           renderPipelines[i] = pipeline;
@@ -210,8 +219,9 @@ export default function Slices() {
         fullScreenRenderWindow, renderWindow, tpActors, sliceRenderers,
       };
 
-      if (!hasDownloadingStarted.current) {
+      if (!hasDownloadingStarted.current || hasDownloadingFinished.current) {
         hasDownloadingStarted.current = true;
+        hasDownloadingFinished.current = false;
         downloadData().then((data) => {
           console.log('All Data Downloaded!', data);
           timeData.current = [...data];
@@ -221,10 +231,9 @@ export default function Slices() {
                 updateVisibleDataset(true);
             })
           }
-          if (context.current) {
-            context.current.reader.parseAsArrayBuffer(data[0]);
-          }
-          updateVisibleDataset();
+
+          updateSlider(data.length);
+          hasDownloadingFinished.current = true;
         })
       }
 
@@ -254,13 +263,6 @@ export default function Slices() {
           reader.delete();
         })
 
-        renderPipelines.forEach((e) => {
-          const { mapper, actor, renderer } = e;
-          mapper.delete();
-          actor.delete();
-          renderer.delete();
-        });
-
         context.current = null;
       }
     };
@@ -275,17 +277,18 @@ export default function Slices() {
     tpActors[tp].reader.parseAsArrayBuffer(data[tp]);
     return Promise.resolve(tp);
   }
-  
 
   function updateVisibleDataset(resetCamera = false) {
-    if (context.current) {
+    if (context.current && timeData.current.length > 0) {
       const { renderWindow, tpActors, sliceRenderers } = context.current;
 
       console.log("Updating visible dataset");
 
       tpActors.forEach((e, i) => {
-        e.actor.setVisibility(i == currentTP);
-      })
+        e.renderPipelines.forEach((rp) => {
+          rp.actor.setVisibility(i == currentTP);
+        });
+      });
 
       if (resetCamera) {
         for (let d = 0; d < 3; d++) {
@@ -313,8 +316,77 @@ export default function Slices() {
       
       renderWindow.render();
     }
-    
-    // console.log("[setVisibleDataset] timeData.length=", timeData.current.length);
+  }
+
+  function updateSlider(len) {
+    if (context.current && tpSlider.current) {
+      const slider = tpSlider.current;
+      slider.min = 1;
+      slider.max = len;
+    }
+  }
+
+  useEffect(() => {
+    if (context.current) {
+      console.log("Current TP Changed to: ", currentTP);
+      updateVisibleDataset();
+    }
+  }, [currentTP]);
+
+  function onReplayClicked() {
+    setIsReplayOn(!isReplayOn);
+  }
+
+  function onPreviousClicked() {
+    const l = timeData.current.length;
+    setCurrentTP(prevTP => l - 1 - (l - prevTP) % l);
+  }
+
+  function onNextClicked() {
+    setCurrentTP(prevTP => (prevTP + 1) % timeData.current.length);
+  }
+
+  useEffect(() => {
+    clearInterval(replayTimer);
+    if (isReplayOn) {
+      setReplayTimer(setInterval(onNextClicked, frameTimeInMS));
+    }
+  }, [frameTimeInMS, isReplayOn]);
+
+  return (
+    <div>
+      <div ref={vtkContainerRef} />
+      <div className={styles.control_panel}>
+        <div className={styles.replay_panel}>
+          <button className={styles.toolbar_button__s}
+            onClick={onPreviousClicked}
+          >
+            <img className={styles.icon_image__s} src={ btn_prev }/>
+          </button>
+          <input className={styles.touch_slider} ref={tpSlider}
+            type="range" min="1" max="1"
+            value={currentTP + 1}
+            onChange={(ev) => setCurrentTP(Number(ev.target.value - 1))}
+          />
+          <button className={styles.toolbar_button__s}
+            onClick={onNextClicked}
+          >
+            <img className={styles.icon_image__s} src={ btn_next }/>
+          </button>
+          <button className={styles.toolbar_button__s}
+            onClick={onReplayClicked}
+          >
+            <img className={styles.icon_image__s} 
+            src={ isReplayOn ? btn_play : btn_play } />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
     // if (context.current) {
     //   const { renderWindow, mapper, renderer, actor } = context.current;
     //   mapper.setInputData(ds);
@@ -348,24 +420,3 @@ export default function Slices() {
     //   renderer.resetCamera();
     //   renderer.getActiveCamera().elevation(-70);
     //   renderWindow.render();
-    // }
-  }
-
-  // useEffect(() => {
-  //   if (context.current) {
-  //     context.current.mapper.setZSlice(zPosition);
-  //   }
-  // }, [zPosition])
-
-  return (
-    <div>
-      <div ref={vtkContainerRef} />
-      <div className={styles.control_panel}>
-        <input ref={zSlider} className={styles.touch_slider} type="range"
-          value={zPosition}
-          onChange={(ev)=>setZPosition(Number(ev.target.value))}
-        />
-      </div>
-    </div>
-  );
-}

@@ -20,6 +20,10 @@ import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
 
 import styles from '../../app.module.css'
 
+// const BASE_URL = 'http://192.168.50.37:8000'
+// const BASE_URL = 'http://10.102.180.67:8000'
+const BASE_URL = 'http://10.102.156.9:8000/'
+
 export default function Volume() {
   const vtkContainerRef = useRef(null);
   const context = useRef(null); // vtk related objects
@@ -137,8 +141,7 @@ export default function Volume() {
     actor.getProperty().setSpecularPower(10.0);
   }
 
-  // const BASE_URL = 'http://192.168.50.37:8000'
-  const BASE_URL = 'http://10.102.180.67:8000'
+
 
   function downloadData() {
     console.log("[downloadData] started");
