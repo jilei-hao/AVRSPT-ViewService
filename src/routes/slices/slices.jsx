@@ -112,15 +112,9 @@ export default function Slices() {
     }
   ];
 
-<<<<<<< Updated upstream
   // const BASE_URL = 'http://192.168.50.37:8000'
   // const BASE_URL = 'http://10.102.180.67:8000'
   const BASE_URL = 'http://10.102.156.9:8000/'
-=======
-  // const BASE_URL = 'http://192.168.50.37:8000';
-  // const BASE_URL = 'http://10.102.180.67:8000';
-  const BASE_URL = 'http://10.102.156.9:8000';
->>>>>>> Stashed changes
 
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
