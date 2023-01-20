@@ -52,9 +52,9 @@ const VIEWPORT_BOUNDS = [0.0, 0.1, 1, 1];
 const BASE_URL = 'http://10.102.172.102:8000/'
 
 const volumeFiles = [
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_01.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_02.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_01.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_02.vti',
   // 'dist/volume/ds/img3d_ds_bavcta008_baseline_03.vti',
   // 'dist/volume/ds/img3d_ds_bavcta008_baseline_04.vti',
   // 'dist/volume/ds/img3d_ds_bavcta008_baseline_05.vti',
@@ -62,12 +62,12 @@ const volumeFiles = [
   // 'dist/volume/ds/img3d_ds_bavcta008_baseline_07.vti',
   // 'dist/volume/ds/img3d_ds_bavcta008_baseline_08.vti',
   // 'dist/volume/ds/img3d_ds_bavcta008_baseline_09.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
   // 'dist/volume/ds/img3d_ds_bavcta008_baseline_16.vti',
   // 'dist/volume/ds/img3d_ds_bavcta008_baseline_17.vti',
   // 'dist/volume/ds/img3d_ds_bavcta008_baseline_18.vti',
@@ -75,26 +75,26 @@ const volumeFiles = [
 ];
 
 const modelFiles = [
-  // 'dist/model/mesh_dc90_bavcta008_01.vtp',
-  // 'dist/model/mesh_dc90_bavcta008_02.vtp',
-  // 'dist/model/mesh_dc90_bavcta008_03.vtp',
-  // 'dist/model/mesh_dc90_bavcta008_04.vtp',
-  // 'dist/model/mesh_dc90_bavcta008_05.vtp',
-  // 'dist/model/mesh_dc90_bavcta008_06.vtp',
-  // 'dist/model/mesh_dc90_bavcta008_07.vtp',
-  // 'dist/model/mesh_dc90_bavcta008_08.vtp',
-  // 'dist/model/mesh_dc90_bavcta008_09.vtp',
-  // 'dist/model/mesh_dc90_bavcta008_10.vtp',
-  'dist/model/dc50/mesh_dc50_bavcta008_11.vtp',
-  'dist/model/dc50/mesh_dc50_bavcta008_12.vtp',
-  'dist/model/dc50/mesh_dc50_bavcta008_13.vtp',
-  'dist/model/dc50/mesh_dc50_bavcta008_14.vtp',
-  'dist/model/dc50/mesh_dc50_bavcta008_15.vtp',
-  'dist/model/dc50/mesh_dc50_bavcta008_16.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_17.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_18.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_19.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_20.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_01.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_02.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_03.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_04.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_05.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_06.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_07.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_08.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_09.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_10.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_11.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_12.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_13.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_14.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_15.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_16.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_17.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_18.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_19.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_20.vtp',
 ];
 
 const nT = volumeFiles.length;
@@ -141,15 +141,13 @@ export default function Slices() {
   const context = useRef(null); // vtk related objects
   const hasDownloadingStarted = useRef(false);
   const hasDownloadingFinished = useRef(false);
-  const timeData = useRef([]);
+  const tpVolumeData = useRef([]);
+  const tpModelData = useRef([]);
   const tpSlider = useRef(null); // ref to the tp slider
   const [isReplayOn, setIsReplayOn] = useState(false);
   const [currentTP, setCurrentTP] = useState(0); // storage tp is 0-based
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
   const [replayTimer, setReplayTimer] = useState({});
-  //const zSlider = useRef(null);
-  const [zPosition, setZPosition] = useState(0);
-  const [zRange, setZRange] = useState([0, 0]);
 
   const ViewportPos = {
     top_left: [0, 0.55, 0.5, 1],
@@ -178,27 +176,78 @@ export default function Slices() {
 
   const { fetchBinary } = vtkHttpDataAccessHelper;
 
-  function downloadData() {
-    console.log("[downloadData] started");
-
-    
-    const fnList = [];
-    
-    // foreach volume file, add the corresponding model file to the object
-    volumeFiles.forEach((e, i) => {
-      fnList.push({volume: e, model: modelFiles[i]});
-    })
-
-    return Promise.all(
-      fnList.map((fnPair) => 
-        fetchBinary(`${BASE_URL}/${fnPair.volume}`).then((bVolume) => 
-          fetchBinary(`${BASE_URL}/${fnPair.model}`).then((bModel) => {
-            return {volume: bVolume, model: bModel};
-          })
-        )
-      )
-    )
+  function downloadData(tp) {
+    console.log("-- downloading started for tp: ", tp);
+    parseVolumeFile(volumeFiles[tp], tp);
+    parseModelFile(modelFiles[tp], tp);
   };
+
+  function parseVolumeFile(fn, i) {
+    fetchBinary(`${BASE_URL}/${fn}`).then((bVolume) => {
+      console.log("-- parsing volume from file: ", i);
+      const reader = vtkXMLImageDataReader.newInstance();
+      reader.parseAsArrayBuffer(bVolume);
+      tpVolumeData.current[i] = reader.getOutputData(0);
+      reader.delete();
+
+      if (i == currentTP)
+        updateVisibleVolume(true);
+    });
+  }
+
+  function updateVisibleVolume(resetCamera = false) {
+    if (context.current) {
+      console.log("updateVisibleVolume data:", tpVolumeData.current[currentTP]);
+      const { sliceRenderers, renderWindow } = context.current;
+      sliceRenderers.forEach((ren) => {
+        const actor = ren.getActors()[0];
+        const mapper = actor.getMapper();
+        mapper.setInputData(tpVolumeData.current[currentTP]);
+
+        if (resetCamera) {
+          const camera = ren.getActiveCamera();
+          const position = camera.getFocalPoint();
+
+          // offset along the slicing axis
+          const normal = mapper.getSlicingModeNormal();
+          position[0] += normal[0];
+          position[1] += normal[1];
+          position[2] += normal[2];
+          camera.setPosition(...position);
+          ren.resetCamera();
+        }
+      })
+      renderWindow.render();
+    }
+  }
+
+  function parseModelFile(fn, i) {
+    fetchBinary(`${BASE_URL}/${fn}`).then((bModel) => {
+      console.log("-- parsing model from file: ", i);
+      const reader = vtkXMLPolyDataReader.newInstance();
+      reader.parseAsArrayBuffer(bModel);
+      tpModelData.current[i] = reader.getOutputData(0);
+      reader.delete();
+
+      if (i == currentTP)
+        updateVisibleModel(true);
+    });
+  }
+
+  function updateVisibleModel(resetCamera = false) {
+    if (context.current) {
+      console.log("updateVisibleModel data:", tpModelData.current[currentTP]);
+      const { modelRenderer, renderWindow } = context.current;
+      const actor = modelRenderer.getActors()[0];
+      const mapper = actor.getMapper();
+      mapper.setInputData(tpModelData.current[currentTP]);
+
+      if (resetCamera)
+        modelRenderer.resetCamera();
+
+      renderWindow.render();
+    }
+  }
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -221,6 +270,21 @@ export default function Slices() {
       const sliceRenderers = [];
       for (let i = 0; i < 3; i++) {
         const renderer = vtkRenderer.newInstance();
+        const mapper = vtkImageMapper.newInstance();
+        const actor = vtkImageSlice.newInstance();
+
+        mapper.setSliceAtFocalPoint(true);
+        mapper.setSlicingMode(slicingConfig[i].mode);
+
+        actor.setMapper(mapper);
+        actor.setVisibility(true);
+        const colorTransferFunction = vtkColorTransferFunction.newInstance();
+        colorTransferFunction.addRGBPoint(0, 0, 0, 0);
+        colorTransferFunction.addRGBPoint(1, 1, 1, 1);
+        actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
+
+        renderer.addActor(actor);
+
         sliceRenderers.push(renderer);
         renderer.setViewport(...(slicingConfig[i].viewportPos));
         const camera = renderer.getActiveCamera();
@@ -231,98 +295,41 @@ export default function Slices() {
 
       // Setup the renderer for the 3d viewport
       const modelRenderer = vtkRenderer.newInstance();
+      const modelActor = vtkActor.newInstance();
+      const modelMapper = vtkMapper.newInstance();
+      modelRenderer.addActor(modelActor);
+      modelActor.setMapper(modelMapper);
+      modelMapper.setScalarRange(2.9, 3.1);
+
+      const lut = vtkLookupTable.newInstance();
+      lut.setNumberOfColors(2);
+      lut.setAboveRangeColor([1,0.87,0.74,1]);
+      lut.setBelowRangeColor([1,1,1,1]);
+      lut.setNanColor([1,0.87,0.74,1]);
+      lut.setUseAboveRangeColor(true);
+      lut.setUseBelowRangeColor(true);
+      lut.build();
+      modelMapper.setLookupTable(lut);
       modelRenderer.setViewport(ViewportPos.bottom_left);
       modelRenderer.resetCamera();
       renderWindow.addRenderer(modelRenderer);
 
       // Setup pipelines to render content for each time points
-      const tpPipelines = [];
-
-      for (let t = 0; t < nT; t++) {
-        // 1. building volume pipelines
-        const volumeReader = vtkXMLImageDataReader.newInstance();
-        
-        // -- slicing actors
-        const slicingActors = [];
-
-        for (let i = 0; i < 3; ++i) {
-          const slicingMapper = vtkImageMapper.newInstance();
-          const slicingActor = vtkImageSlice.newInstance();
-
-          slicingMapper.setInputConnection(volumeReader.getOutputPort());
-          slicingMapper.setSliceAtFocalPoint(true);
-          slicingMapper.setSlicingMode(slicingConfig[i].mode);
-
-          slicingActor.setMapper(slicingMapper);
-          slicingActor.setVisibility(false);
-          sliceRenderers[i].addActor(slicingActor);
-
-          const colorTransferFunction = vtkColorTransferFunction.newInstance();
-          colorTransferFunction.addRGBPoint(0, 0, 0, 0);
-          colorTransferFunction.addRGBPoint(1, 1, 1, 1);
-          slicingActor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
-          
-          slicingActors.push(slicingActor);
-        }
-      
-        // -- volume actor combo (todo)
-        const volumeActor = vtkVolume.newInstance();
-        const volumeMapper = vtkVolumeMapper.newInstance();
-        volumeActor.setMapper(volumeMapper);
-
-        // 2. building model pipelines
-        const modelReader = vtkXMLPolyDataReader.newInstance();
-
-        // -- model actor
-        const modelMapper = vtkMapper.newInstance();
-        const modelActor = vtkActor.newInstance();
-        modelMapper.setInputConnection(modelReader.getOutputPort());
-        modelMapper.setScalarRange(2.9, 3.1);
-
-        const lut = vtkLookupTable.newInstance();
-        lut.setNumberOfColors(2);
-        lut.setAboveRangeColor([1,0.87,0.74,1]);
-        lut.setBelowRangeColor([1,1,1,1]);
-        lut.setNanColor([1,0.87,0.74,1]);
-        lut.setUseAboveRangeColor(true);
-        lut.setUseBelowRangeColor(true);
-        lut.build();
-        modelMapper.setLookupTable(lut);
-        modelActor.setMapper(modelMapper);
-        modelActor.setVisibility(false);
-
-        modelRenderer.addActor(modelActor);
-
-        tpPipelines.push({ 
-          volumeReader, modelReader, 
-          slicingActors, volumeActor, modelActor,
-        });
-      }
       
       context.current = {
-        fullScreenRenderWindow, renderWindow, tpPipelines,
-        sliceRenderers, modelRenderer
+        fullScreenRenderWindow, renderWindow,
+        sliceRenderers, modelRenderer,
       };
 
       if (!hasDownloadingStarted.current || hasDownloadingFinished.current) {
         hasDownloadingStarted.current = true;
         hasDownloadingFinished.current = false;
 
-        downloadData().then((data) => {
-          console.log('All Data Downloaded!', data);
-          hasDownloadingFinished.current = true;
-          timeData.current = [...data];
-
-          for (let i = 0; i < timeData.current.length; i++) {
-            connectData(i).then(tp => {
-              if (tp === currentTP)
-                updateVisibleDataset(true);
-            })
-          }
-
-          updateSlider(timeData.current.length);
-        })
+        for (let i = 0; i < nT; i++)
+          downloadData(i);
       }
+
+      updateSlider(nT);
 
       window.vtkContext = context.current;
     }
@@ -332,98 +339,24 @@ export default function Slices() {
         console.log("<effect>[vtkContainerRef]cleaning up...");
         const { 
           fullScreenRenderWindow, sliceRenderers, modelRenderer,
-          tpPipelines,
         } = context.current;
 
         fullScreenRenderWindow.delete();
-
-        sliceRenderers.forEach((ren) => {
-          ren.delete();
-        })
-
+        sliceRenderers.forEach((ren) => ren.delete());
         modelRenderer.delete();
-
-        tpPipelines.forEach((tp) => {
-          const { 
-            volumeReader, slicingActors, volumeActor,
-            modelReader, modelActor,
-          } = tp;
-
-          volumeActor.delete();
-          slicingActors.forEach((dim) => dim.delete());
-          modelActor.delete();
-          volumeReader.delete();
-          modelReader.delete();
-        })
 
         context.current = null;
       }
     };
   }, [vtkContainerRef]);
 
-  function connectData(tp) {
-    if (!context.current)
-      return;
-
-    console.log("-- connecting data for tp:", tp);
-
-    const data = timeData.current;
-    const { tpPipelines } = context.current;
-
-    const { volumeReader, modelReader, } = tpPipelines[tp];
-    console.log("---- start parsing volume");
-    volumeReader.parseAsArrayBuffer(data[tp].volume);
-    console.log("---- start parsing model");
-    modelReader.parseAsArrayBuffer(data[tp].model);
-    console.log("---- data parsing completed!");
-    
-    return Promise.resolve(tp);
-  }
-
   function updateVisibleDataset(resetCamera = false) {
-    if (context.current && timeData.current.length > 0) {
-      const { 
-        renderWindow, tpPipelines, sliceRenderers, modelRenderer
-      } = context.current;
-
       console.log("Updating visible dataset");
 
-      tpPipelines.forEach((tpp, i) => {
-        tpp.slicingActors.forEach((actor) => {
-          actor.setVisibility(i == currentTP);
-        });
-        
-        tpp.modelActor.setVisibility(i == currentTP);
-      });
-
-      if (resetCamera) {
-        sliceRenderers.forEach((sr, i) => {
-          const slicingActor = tpPipelines[currentTP].slicingActors[i];
-          const renderer = sr;
-          const camera = renderer.getActiveCamera();
-          const position = camera.getFocalPoint();
-  
-          // offset along the slicing axis
-          const normal = slicingActor.getMapper().getSlicingModeNormal();
-          position[0] += normal[0];
-          position[1] += normal[1];
-          position[2] += normal[2];
-          camera.setPosition(...position);
-          renderer.resetCamera();
-        });
-
-        modelRenderer.resetCamera();
-      }
-
-      // zSlider.current.min = mapper.getBoundsForSlice()[2];
-      // zSlider.current.max = mapper.getBoundsForSlice()[5];
-      // zSlider.current.step = 1.0;
-
-      // const iStyle = vtkInteractorStyleImage.newInstance();
-
-      
-      renderWindow.render();
-    }
+      if (tpVolumeData.current.length > 0)
+        updateVisibleVolume(resetCamera);
+      if (tpModelData.current.length > 0)
+        updateVisibleModel(resetCamera);
   }
 
   function updateSlider(len) {
@@ -446,12 +379,12 @@ export default function Slices() {
   }
 
   function onPreviousClicked() {
-    const l = timeData.current.length;
+    const l = nT;
     setCurrentTP(prevTP => l - 1 - (l - prevTP) % l);
   }
 
   function onNextClicked() {
-    setCurrentTP(prevTP => (prevTP + 1) % timeData.current.length);
+    setCurrentTP(prevTP => (prevTP + 1) % nT);
   }
 
   useEffect(() => {
