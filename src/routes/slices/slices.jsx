@@ -46,9 +46,10 @@ import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
 
 const VIEWPORT_BOUNDS = [0.0, 0.1, 1, 1];
 
-const BASE_URL = 'http://192.168.50.37:8000'
+// const BASE_URL = 'http://192.168.50.37:8000'
 // const BASE_URL = 'http://10.102.180.67:8000'
 // const BASE_URL = 'http://10.102.156.9:8000/'
+const BASE_URL = 'http://10.102.172.102:8000/'
 
 const volumeFiles = [
   // 'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti',
