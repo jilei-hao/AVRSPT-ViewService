@@ -21,7 +21,6 @@ import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
 import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
 import vtkColorTransferFunction from '@kitware/vtk.js/Rendering/Core/ColorTransferFunction';
 import vtkPiecewiseFunction from '@kitware/vtk.js/Common/DataModel/PiecewiseFunction';
-import vtkRTAnalyticSource from '@kitware/vtk.js/Filters/Sources/RTAnalyticSource';
 import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
 import vtkImageSlice from '@kitware/vtk.js/Rendering/Core/ImageSlice';
 import vtkInteractorStyleImage from '@kitware/vtk.js/Interaction/Style/InteractorStyleImage';
@@ -30,7 +29,6 @@ import vtkInteractorStyleManipulator from '@kitware/vtk.js/Interaction/Style/Int
 import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
 import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
 import vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData';
-import vtkConeSource from '@kitware/vtk.js/Filters/Sources/ConeSource';
 import Constants from '@kitware/vtk.js/Rendering/Core/ImageMapper/Constants';
 
 import macro from '@kitware/vtk.js/macro';
@@ -51,6 +49,54 @@ const VIEWPORT_BOUNDS = [0.0, 0.1, 1, 1];
 const BASE_URL = 'http://192.168.50.37:8000'
 // const BASE_URL = 'http://10.102.180.67:8000'
 // const BASE_URL = 'http://10.102.156.9:8000/'
+
+const volumeFiles = [
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_01.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_02.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_03.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_04.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_05.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_06.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_07.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_08.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_09.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_16.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_17.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_18.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_19.vti',
+];
+
+const modelFiles = [
+  // 'dist/model/mesh_dc90_bavcta008_01.vtp',
+  // 'dist/model/mesh_dc90_bavcta008_02.vtp',
+  // 'dist/model/mesh_dc90_bavcta008_03.vtp',
+  // 'dist/model/mesh_dc90_bavcta008_04.vtp',
+  // 'dist/model/mesh_dc90_bavcta008_05.vtp',
+  // 'dist/model/mesh_dc90_bavcta008_06.vtp',
+  // 'dist/model/mesh_dc90_bavcta008_07.vtp',
+  // 'dist/model/mesh_dc90_bavcta008_08.vtp',
+  // 'dist/model/mesh_dc90_bavcta008_09.vtp',
+  // 'dist/model/mesh_dc90_bavcta008_10.vtp',
+  'dist/model/mesh_dc90_bavcta008_11.vtp',
+  'dist/model/mesh_dc90_bavcta008_12.vtp',
+  'dist/model/mesh_dc90_bavcta008_13.vtp',
+  'dist/model/mesh_dc90_bavcta008_14.vtp',
+  'dist/model/mesh_dc90_bavcta008_15.vtp',
+  'dist/model/mesh_dc90_bavcta008_16.vtp',
+  'dist/model/mesh_dc90_bavcta008_17.vtp',
+  'dist/model/mesh_dc90_bavcta008_18.vtp',
+  'dist/model/mesh_dc90_bavcta008_19.vtp',
+  'dist/model/mesh_dc90_bavcta008_20.vtp',
+];
+
+const nT = volumeFiles.length;
 
 function InteractorStyleImageTouch(publicAPI, model) {
   model.classHierarchy.push('InteractorStyleImageTouch');
@@ -100,7 +146,6 @@ export default function Slices() {
   const [currentTP, setCurrentTP] = useState(0); // storage tp is 0-based
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
   const [replayTimer, setReplayTimer] = useState({});
-  const [nT, setNT] = useState(20);
   //const zSlider = useRef(null);
   const [zPosition, setZPosition] = useState(0);
   const [zRange, setZRange] = useState([0, 0]);
@@ -135,50 +180,7 @@ export default function Slices() {
   function downloadData() {
     console.log("[downloadData] started");
 
-    const volumeFiles = [
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_01.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_02.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_03.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_04.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_05.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_06.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_07.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_08.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_09.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_16.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_17.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_18.vti',
-      'dist/volume/ds/img3d_ds_bavcta008_baseline_19.vti',
-    ];
-    const modelFiles = [
-      'dist/model/mesh_dc90_bavcta008_01.vtp',
-      'dist/model/mesh_dc90_bavcta008_02.vtp',
-      'dist/model/mesh_dc90_bavcta008_03.vtp',
-      'dist/model/mesh_dc90_bavcta008_04.vtp',
-      'dist/model/mesh_dc90_bavcta008_05.vtp',
-      'dist/model/mesh_dc90_bavcta008_06.vtp',
-      'dist/model/mesh_dc90_bavcta008_07.vtp',
-      'dist/model/mesh_dc90_bavcta008_08.vtp',
-      'dist/model/mesh_dc90_bavcta008_09.vtp',
-      'dist/model/mesh_dc90_bavcta008_10.vtp',
-      'dist/model/mesh_dc90_bavcta008_11.vtp',
-      'dist/model/mesh_dc90_bavcta008_12.vtp',
-      'dist/model/mesh_dc90_bavcta008_13.vtp',
-      'dist/model/mesh_dc90_bavcta008_14.vtp',
-      'dist/model/mesh_dc90_bavcta008_15.vtp',
-      'dist/model/mesh_dc90_bavcta008_16.vtp',
-      'dist/model/mesh_dc90_bavcta008_17.vtp',
-      'dist/model/mesh_dc90_bavcta008_18.vtp',
-      'dist/model/mesh_dc90_bavcta008_19.vtp',
-      'dist/model/mesh_dc90_bavcta008_20.vtp',
-    ]
+    
     const fnList = [];
     
     // foreach volume file, add the corresponding model file to the object
@@ -274,12 +276,13 @@ export default function Slices() {
         const modelMapper = vtkMapper.newInstance();
         const modelActor = vtkActor.newInstance();
         modelMapper.setInputConnection(modelReader.getOutputPort());
+        modelMapper.setScalarRange(2.9, 3.1);
 
         const lut = vtkLookupTable.newInstance();
         lut.setNumberOfColors(2);
         lut.setAboveRangeColor([1,0.87,0.74,1]);
         lut.setBelowRangeColor([1,1,1,1]);
-        lut.setNanColor([1,0.87,0.74,1])
+        lut.setNanColor([1,0.87,0.74,1]);
         lut.setUseAboveRangeColor(true);
         lut.setUseBelowRangeColor(true);
         lut.build();
@@ -367,8 +370,11 @@ export default function Slices() {
     const { tpPipelines } = context.current;
 
     const { volumeReader, modelReader, } = tpPipelines[tp];
+    console.log("---- start parsing volume");
     volumeReader.parseAsArrayBuffer(data[tp].volume);
+    console.log("---- start parsing model");
     modelReader.parseAsArrayBuffer(data[tp].model);
+    console.log("---- data parsing completed!");
     
     return Promise.resolve(tp);
   }
