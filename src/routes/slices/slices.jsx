@@ -44,57 +44,57 @@ import btn_next from '../../assets/btn_next__idle.svg'
 import btn_pause from '../../assets/btn_pause__idle.svg'
 import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
 
+import config from '../../../server-config.json';
+
 const VIEWPORT_BOUNDS = [0.0, 0.1, 1, 1];
 
-// const BASE_URL = 'http://192.168.50.37:8000'
-// const BASE_URL = 'http://10.102.180.67:8000'
-// const BASE_URL = 'http://10.102.156.9:8000/'
-const BASE_URL = 'http://10.102.172.102:8000/'
+
+const BASE_URL = `http://${config.host}:${config.port}`;
 
 const volumeFiles = [
   'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti',
   'dist/volume/ds/img3d_ds_bavcta008_baseline_01.vti',
   'dist/volume/ds/img3d_ds_bavcta008_baseline_02.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_03.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_04.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_05.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_06.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_07.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_08.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_09.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_16.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_17.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_18.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_19.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_03.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_04.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_05.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_06.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_07.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_08.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_09.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_16.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_17.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_18.vti',
+  'dist/volume/ds/img3d_ds_bavcta008_baseline_19.vti',
 ];
 
 const modelFiles = [
   'dist/model/dc90/mesh_dc90_bavcta008_01.vtp',
   'dist/model/dc90/mesh_dc90_bavcta008_02.vtp',
   'dist/model/dc90/mesh_dc90_bavcta008_03.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_04.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_05.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_06.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_07.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_08.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_09.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_10.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_11.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_12.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_13.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_14.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_15.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_16.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_17.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_18.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_19.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_20.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_04.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_05.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_06.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_07.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_08.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_09.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_10.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_11.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_12.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_13.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_14.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_15.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_16.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_17.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_18.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_19.vtp',
+  'dist/model/dc90/mesh_dc90_bavcta008_20.vtp',
 ];
 
 const nT = volumeFiles.length;
