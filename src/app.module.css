@@ -137,3 +137,23 @@
   margin-right: 5px;
   border-radius: 5px;
 }
+
+.dev_panel {
+  position: absolute;
+  top: 80vh;
+  right: 0vw;
+  width: 30vw;
+  padding: 5px;
+  height: 20px;
+  justify-content: center;
+  align-content: center;
+  vertical-align: center;
+  opacity: 70%;
+}
+
+.dev_message {
+  font-size: 15px;
+  font-family:'Courier New', Courier, monospace;
+  font-weight: bold;
+  color: greenyellow;
+}

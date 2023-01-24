@@ -45,6 +45,7 @@ import btn_pause from '../../assets/btn_pause__idle.svg'
 import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
 
 import config from '../../../server-config.json';
+import { States } from '@kitware/vtk.js/Rendering/Core/InteractorStyle/Constants';
 
 const VIEWPORT_BOUNDS = [0.0, 0.1, 1, 1];
 
@@ -54,47 +55,47 @@ const BASE_URL = `http://${config.host}:${config.port}`;
 const volumeFiles = [
   'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti',
   'dist/volume/ds/img3d_ds_bavcta008_baseline_01.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_02.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_03.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_04.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_05.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_06.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_07.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_08.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_09.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_16.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_17.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_18.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_19.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_02.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_03.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_04.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_05.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_06.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_07.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_08.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_09.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_16.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_17.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_18.vti',
+  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_19.vti',
 ];
 
 const modelFiles = [
   'dist/model/dc90/mesh_dc90_bavcta008_01.vtp',
   'dist/model/dc90/mesh_dc90_bavcta008_02.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_03.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_04.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_05.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_06.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_07.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_08.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_09.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_10.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_11.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_12.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_13.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_14.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_15.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_16.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_17.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_18.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_19.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_20.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_03.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_04.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_05.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_06.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_07.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_08.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_09.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_10.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_11.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_12.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_13.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_14.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_15.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_16.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_17.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_18.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_19.vtp',
+  // 'dist/model/dc90/mesh_dc90_bavcta008_20.vtp',
 ];
 
 const nT = volumeFiles.length;
@@ -102,26 +103,45 @@ const nT = volumeFiles.length;
 function InteractorStyleImageTouch(publicAPI, model) {
   model.classHierarchy.push('InteractorStyleImageTouch');
 
-  publicAPI.startPan = ()=>console.log("StartPan Override!");
+  // publicAPI.handleStartPan = (callData) => {
+  //   model.previousTranslation = callData.translation;
+  //   const touches = callData.touches;
+  //   callData['position'] = {
+  //     x: callData.touches[Object.keys(touches)[0]].x,
+  //     y: callData.touches[Object.keys(touches)[0]].y
+  //   }
+  //   model.lastSlicePosition = callData.touches[Object.keys(touches)[0]].y;
+  //   console.log("StartPan:", callData);
+  //   model.state = States.IS_SLICE;
 
-  publicAPI.handleStartPan = (callData) => {
-    model.previousTranslation = callData.translation;
-    const touches = callData.touches;
-    callData['position'] = {
-      x: callData.touches[Object.keys(touches)[0]].x,
-      y: callData.touches[Object.keys(touches)[0]].y
-    }
-    model.lastSlicePosition = callData.touches[Object.keys(touches)[0]].y;
+  //   //publicAPI.startSlice();
+  //   //publicAPI.handlePan(callData);
+  // }
 
-    
-    publicAPI.startSlice();
-    console.log("StartPan state:", model.state);
-  }
+  // publicAPI.superHandleEndPan = publicAPI.handleEndPan;
+  // publicAPI.handleEndPan = () => {
+  //   //publicAPI.endSlice(); 
 
-  publicAPI.superHandleEndPan = publicAPI.handleEndPan;
-  publicAPI.handleEndPan = () => {
-    console.log("EndPan state:", model.state);
-    publicAPI.endSlice();
+  //   //model.state = States.IS_NONE;
+  //   console.log("EndPan: state=", model.state, States);
+  // }
+
+  // // publicAPI.slice = (renderer, pos) => {
+  // //   console.log("slice: ren=", renderer, "pos", pos);
+  // // }
+
+  // publicAPI.handlePan = (callData) => {
+  //   console.log("handlePan: ", callData);
+  //   // const touches = callData.touches;
+  //   // const pos = callData.touches[Object.keys(touches)[0]].y;
+  //   // const renderer = callData.pokedRenderer;
+  //   // publicAPI.slice(renderer, pos);
+  // }
+
+  publicAPI.superHandleLeftButtonPress = publicAPI.handleLeftButtonPress;
+  publicAPI.handleLeftButtonPress = (callData) => {
+    callData.controlKey = true;
+    publicAPI.superHandleLeftButtonPress(callData);
   }
 };
 
@@ -148,6 +168,7 @@ export default function Slices() {
   const [currentTP, setCurrentTP] = useState(0); // storage tp is 0-based
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
   const [replayTimer, setReplayTimer] = useState({});
+  const [devMsg, setDevMsg] = useState("");
 
   const ViewportPos = {
     top_left: [0, 0.55, 0.5, 1],
@@ -185,6 +206,7 @@ export default function Slices() {
   function parseVolumeFile(fn, i) {
     fetchBinary(`${BASE_URL}/${fn}`).then((bVolume) => {
       console.log("-- parsing volume from file: ", i);
+      setDevMsg(`parsing volume: ${i}`);
       const reader = vtkXMLImageDataReader.newInstance();
       reader.parseAsArrayBuffer(bVolume);
       tpVolumeData.current[i] = reader.getOutputData(0);
@@ -224,6 +246,7 @@ export default function Slices() {
   function parseModelFile(fn, i) {
     fetchBinary(`${BASE_URL}/${fn}`).then((bModel) => {
       console.log("-- parsing model from file: ", i);
+      setDevMsg(`parsing model from file: ${i}`);
       const reader = vtkXMLPolyDataReader.newInstance();
       reader.parseAsArrayBuffer(bModel);
       tpModelData.current[i] = reader.getOutputData(0);
@@ -262,9 +285,9 @@ export default function Slices() {
       });
 
       const renderWindow = fullScreenRenderWindow.getRenderWindow();
-      // const iStyle = createImageTouchStyle();
-      // iStyle.setInteractionMode('IMAGE_SLICING');
-      // renderWindow.getInteractor().setInteractorStyle(iStyle);
+      const iStyle = createImageTouchStyle();
+      iStyle.setInteractionMode('IMAGE_SLICING');
+      renderWindow.getInteractor().setInteractorStyle(iStyle);
 
       // Setup 3 renderes for the x, y, z viewports
       const sliceRenderers = [];
@@ -421,6 +444,9 @@ export default function Slices() {
             src={ isReplayOn ? btn_pause : btn_play } />
           </button>
         </div>
+      </div>
+      <div className={styles.dev_panel}>
+        <p className={styles.dev_message}>{ devMsg }</p>
       </div>
     </div>
   );
