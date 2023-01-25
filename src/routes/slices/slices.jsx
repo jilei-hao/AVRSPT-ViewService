@@ -140,8 +140,26 @@ function InteractorStyleImageTouch(publicAPI, model) {
 
   publicAPI.superHandleLeftButtonPress = publicAPI.handleLeftButtonPress;
   publicAPI.handleLeftButtonPress = (callData) => {
+    const ren = callData.pokedRenderer;
+    const renType = ren.get('rendererType')['rendererType'];
+    
+    console.log("Renderer Type: ", renType);
+
     callData.controlKey = true;
-    publicAPI.superHandleLeftButtonPress(callData);
+
+    switch (renType) {
+      case 'slice': {
+        callData.controlKey = true;
+        publicAPI.superHandleLeftButtonPress(callData);
+        break;
+      }
+
+      case 'model': {
+        publicAPI.startRotate();
+      }
+    }
+    
+    
   }
 };
 
@@ -154,6 +172,7 @@ function extend(publicAPI, model, initialValues = {}) {
 const createImageTouchStyle = macro.newInstance(extend, 'InteractorStyleImageTouch');
 
 const { SlicingMode } = Constants;
+const { fetchBinary } = vtkHttpDataAccessHelper;
 
 export default function Slices() {
   console.log("Render App");
@@ -195,7 +214,108 @@ export default function Slices() {
     }
   ];
 
-  const { fetchBinary } = vtkHttpDataAccessHelper;
+  /* Initialize renderWindow, renderer, mapper and actor */
+  useEffect(() => {
+    if (!context.current) {
+      console.log("rebuilding context...", context.current);
+      console.log("-- has download started: ", hasDownloadingStarted.current);
+      console.log("-- has doanload finished: ", hasDownloadingFinished.current);
+
+      const fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
+        rootContainer: vtkContainerRef.current, // html element containing this window
+        background: [0.1, 0.1, 0.1],
+      });
+
+      const renderWindow = fullScreenRenderWindow.getRenderWindow();
+      const iStyle = createImageTouchStyle();
+      iStyle.setInteractionMode('IMAGE_SLICING');
+      renderWindow.getInteractor().setInteractorStyle(iStyle);
+
+      // Setup 3 renderes for the x, y, z viewports
+      const sliceRenderers = [];
+      for (let i = 0; i < 3; i++) {
+        const renderer = vtkRenderer.newInstance();
+        const mapper = vtkImageMapper.newInstance();
+        const actor = vtkImageSlice.newInstance();
+
+        mapper.setSliceAtFocalPoint(true);
+        mapper.setSlicingMode(slicingConfig[i].mode);
+
+        actor.setMapper(mapper);
+        actor.setVisibility(true);
+        const colorTransferFunction = vtkColorTransferFunction.newInstance();
+        colorTransferFunction.addRGBPoint(0, 0, 0, 0);
+        colorTransferFunction.addRGBPoint(1, 1, 1, 1);
+        actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
+
+        renderer.addActor(actor);
+        renderer.set({ rendererType: 'slice', rendererId: i}, true);
+
+        sliceRenderers.push(renderer);
+        renderer.setViewport(...(slicingConfig[i].viewportPos));
+        const camera = renderer.getActiveCamera();
+        camera.setViewUp(...(slicingConfig[i].viewUp));
+        camera.setParallelProjection(true);
+        renderWindow.addRenderer(renderer);
+      }
+
+      // Setup the renderer for the 3d viewport
+      const modelRenderer = vtkRenderer.newInstance();
+      const modelActor = vtkActor.newInstance();
+      const modelMapper = vtkMapper.newInstance();
+      modelRenderer.addActor(modelActor);
+      modelActor.setMapper(modelMapper);
+      modelMapper.setScalarRange(2.9, 3.1);
+
+      const lut = vtkLookupTable.newInstance();
+      lut.setNumberOfColors(2);
+      lut.setAboveRangeColor([1,0.87,0.74,1]);
+      lut.setBelowRangeColor([1,1,1,1]);
+      lut.setNanColor([1,0.87,0.74,1]);
+      lut.setUseAboveRangeColor(true);
+      lut.setUseBelowRangeColor(true);
+      lut.build();
+      modelMapper.setLookupTable(lut);
+      modelRenderer.setViewport(ViewportPos.bottom_left);
+      modelRenderer.resetCamera();
+      modelRenderer.set({ rendererType: 'model', rendererId: 0}, true);
+      renderWindow.addRenderer(modelRenderer);
+
+      // Setup pipelines to render content for each time points
+      
+      context.current = {
+        fullScreenRenderWindow, renderWindow,
+        sliceRenderers, modelRenderer,
+      };
+
+      if (!hasDownloadingStarted.current || hasDownloadingFinished.current) {
+        hasDownloadingStarted.current = true;
+        hasDownloadingFinished.current = false;
+
+        for (let i = 0; i < nT; i++)
+          downloadData(i);
+      }
+
+      updateSlider(nT);
+
+      window.vtkContext = context.current;
+    }
+
+    return () => {
+      if (context.current) {
+        console.log("<effect>[vtkContainerRef]cleaning up...");
+        const { 
+          fullScreenRenderWindow, sliceRenderers, modelRenderer,
+        } = context.current;
+
+        fullScreenRenderWindow.delete();
+        sliceRenderers.forEach((ren) => ren.delete());
+        modelRenderer.delete();
+
+        context.current = null;
+      }
+    };
+  }, [vtkContainerRef]);
 
   function downloadData(tp) {
     console.log("-- downloading started for tp: ", tp);
@@ -271,107 +391,6 @@ export default function Slices() {
       renderWindow.render();
     }
   }
-
-  /* Initialize renderWindow, renderer, mapper and actor */
-  useEffect(() => {
-    if (!context.current) {
-      console.log("rebuilding context...", context.current);
-      console.log("-- has download started: ", hasDownloadingStarted.current);
-      console.log("-- has doanload finished: ", hasDownloadingFinished.current);
-
-      const fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
-        rootContainer: vtkContainerRef.current, // html element containing this window
-        background: [0.1, 0.1, 0.1],
-      });
-
-      const renderWindow = fullScreenRenderWindow.getRenderWindow();
-      const iStyle = createImageTouchStyle();
-      iStyle.setInteractionMode('IMAGE_SLICING');
-      renderWindow.getInteractor().setInteractorStyle(iStyle);
-
-      // Setup 3 renderes for the x, y, z viewports
-      const sliceRenderers = [];
-      for (let i = 0; i < 3; i++) {
-        const renderer = vtkRenderer.newInstance();
-        const mapper = vtkImageMapper.newInstance();
-        const actor = vtkImageSlice.newInstance();
-
-        mapper.setSliceAtFocalPoint(true);
-        mapper.setSlicingMode(slicingConfig[i].mode);
-
-        actor.setMapper(mapper);
-        actor.setVisibility(true);
-        const colorTransferFunction = vtkColorTransferFunction.newInstance();
-        colorTransferFunction.addRGBPoint(0, 0, 0, 0);
-        colorTransferFunction.addRGBPoint(1, 1, 1, 1);
-        actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
-
-        renderer.addActor(actor);
-
-        sliceRenderers.push(renderer);
-        renderer.setViewport(...(slicingConfig[i].viewportPos));
-        const camera = renderer.getActiveCamera();
-        camera.setViewUp(...(slicingConfig[i].viewUp));
-        camera.setParallelProjection(true);
-        renderWindow.addRenderer(renderer);
-      }
-
-      // Setup the renderer for the 3d viewport
-      const modelRenderer = vtkRenderer.newInstance();
-      const modelActor = vtkActor.newInstance();
-      const modelMapper = vtkMapper.newInstance();
-      modelRenderer.addActor(modelActor);
-      modelActor.setMapper(modelMapper);
-      modelMapper.setScalarRange(2.9, 3.1);
-
-      const lut = vtkLookupTable.newInstance();
-      lut.setNumberOfColors(2);
-      lut.setAboveRangeColor([1,0.87,0.74,1]);
-      lut.setBelowRangeColor([1,1,1,1]);
-      lut.setNanColor([1,0.87,0.74,1]);
-      lut.setUseAboveRangeColor(true);
-      lut.setUseBelowRangeColor(true);
-      lut.build();
-      modelMapper.setLookupTable(lut);
-      modelRenderer.setViewport(ViewportPos.bottom_left);
-      modelRenderer.resetCamera();
-      renderWindow.addRenderer(modelRenderer);
-
-      // Setup pipelines to render content for each time points
-      
-      context.current = {
-        fullScreenRenderWindow, renderWindow,
-        sliceRenderers, modelRenderer,
-      };
-
-      if (!hasDownloadingStarted.current || hasDownloadingFinished.current) {
-        hasDownloadingStarted.current = true;
-        hasDownloadingFinished.current = false;
-
-        for (let i = 0; i < nT; i++)
-          downloadData(i);
-      }
-
-      updateSlider(nT);
-
-      window.vtkContext = context.current;
-    }
-
-    return () => {
-      if (context.current) {
-        console.log("<effect>[vtkContainerRef]cleaning up...");
-        const { 
-          fullScreenRenderWindow, sliceRenderers, modelRenderer,
-        } = context.current;
-
-        fullScreenRenderWindow.delete();
-        sliceRenderers.forEach((ren) => ren.delete());
-        modelRenderer.delete();
-
-        context.current = null;
-      }
-    };
-  }, [vtkContainerRef]);
 
   function updateVisibleDataset(resetCamera = false) {
       console.log("Updating visible dataset");
