@@ -53,49 +53,49 @@ const VIEWPORT_BOUNDS = [0.0, 0.1, 1, 1];
 const BASE_URL = `http://${config.host}:${config.port}`;
 
 const volumeFiles = [
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_00.vti',
-  'dist/volume/ds/img3d_ds_bavcta008_baseline_01.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_02.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_03.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_04.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_05.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_06.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_07.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_08.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_09.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_10.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_11.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_12.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_13.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_14.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_15.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_16.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_17.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_18.vti',
-  // 'dist/volume/ds/img3d_ds_bavcta008_baseline_19.vti',
+  'dist/volume/rs40/image_rs40_bavcta008_00.vti',
+  'dist/volume/rs40/image_rs40_bavcta008_01.vti',
+  'dist/volume/rs40/image_rs40_bavcta008_02.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_03.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_04.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_05.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_06.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_07.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_08.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_09.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_10.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_11.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_12.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_13.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_14.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_15.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_16.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_17.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_18.vti',
+  // 'dist/volume/rs40/image_rs40_bavcta008_19.vti',
 ];
 
 const modelFiles = [
-  'dist/model/dc90/mesh_dc90_bavcta008_01.vtp',
-  'dist/model/dc90/mesh_dc90_bavcta008_02.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_03.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_04.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_05.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_06.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_07.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_08.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_09.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_10.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_11.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_12.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_13.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_14.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_15.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_16.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_17.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_18.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_19.vtp',
-  // 'dist/model/dc90/mesh_dc90_bavcta008_20.vtp',
+  'dist/model/dc50/mesh_dc50_bavcta008_01.vtp',
+  'dist/model/dc50/mesh_dc50_bavcta008_02.vtp',
+  'dist/model/dc50/mesh_dc50_bavcta008_03.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_04.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_05.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_06.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_07.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_08.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_09.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_10.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_11.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_12.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_13.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_14.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_15.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_16.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_17.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_18.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_19.vtp',
+  // 'dist/model/dc50/mesh_dc50_bavcta008_20.vtp',
 ];
 
 const nT = volumeFiles.length;
@@ -103,49 +103,18 @@ const nT = volumeFiles.length;
 function InteractorStyleImageTouch(publicAPI, model) {
   model.classHierarchy.push('InteractorStyleImageTouch');
 
-  // publicAPI.handleStartPan = (callData) => {
-  //   model.previousTranslation = callData.translation;
-  //   const touches = callData.touches;
-  //   callData['position'] = {
-  //     x: callData.touches[Object.keys(touches)[0]].x,
-  //     y: callData.touches[Object.keys(touches)[0]].y
-  //   }
-  //   model.lastSlicePosition = callData.touches[Object.keys(touches)[0]].y;
-  //   console.log("StartPan:", callData);
-  //   model.state = States.IS_SLICE;
-
-  //   //publicAPI.startSlice();
-  //   //publicAPI.handlePan(callData);
-  // }
-
-  // publicAPI.superHandleEndPan = publicAPI.handleEndPan;
-  // publicAPI.handleEndPan = () => {
-  //   //publicAPI.endSlice(); 
-
-  //   //model.state = States.IS_NONE;
-  //   console.log("EndPan: state=", model.state, States);
-  // }
-
-  // // publicAPI.slice = (renderer, pos) => {
-  // //   console.log("slice: ren=", renderer, "pos", pos);
-  // // }
-
-  // publicAPI.handlePan = (callData) => {
-  //   console.log("handlePan: ", callData);
-  //   // const touches = callData.touches;
-  //   // const pos = callData.touches[Object.keys(touches)[0]].y;
-  //   // const renderer = callData.pokedRenderer;
-  //   // publicAPI.slice(renderer, pos);
-  // }
-
   publicAPI.superHandleLeftButtonPress = publicAPI.handleLeftButtonPress;
   publicAPI.handleLeftButtonPress = (callData) => {
+    console.log("<LeftButtonPress>");
+
+    const pos = callData.position;
+    model.previousPosition = pos;
+
     const ren = callData.pokedRenderer;
     const renType = ren.get('rendererType')['rendererType'];
+    callData.controlKey = true;
     
     console.log("Renderer Type: ", renType);
-
-    callData.controlKey = true;
 
     switch (renType) {
       case 'slice': {
@@ -155,11 +124,9 @@ function InteractorStyleImageTouch(publicAPI, model) {
       }
 
       case 'model': {
-        publicAPI.startRotate();
+        publicAPI.handleStartRotate(callData);
       }
     }
-    
-    
   }
 };
 
@@ -326,7 +293,7 @@ export default function Slices() {
   function parseVolumeFile(fn, i) {
     fetchBinary(`${BASE_URL}/${fn}`).then((bVolume) => {
       console.log("-- parsing volume from file: ", i);
-      setDevMsg(`parsing volume: ${i}`);
+      //setDevMsg(`parsing volume: ${i}`);
       const reader = vtkXMLImageDataReader.newInstance();
       reader.parseAsArrayBuffer(bVolume);
       tpVolumeData.current[i] = reader.getOutputData(0);
@@ -339,7 +306,7 @@ export default function Slices() {
 
   function updateVisibleVolume(resetCamera = false) {
     if (context.current) {
-      console.log("updateVisibleVolume data:", tpVolumeData.current[currentTP]);
+      //console.log("updateVisibleVolume data:", tpVolumeData.current[currentTP]);
       const { sliceRenderers, renderWindow } = context.current;
       sliceRenderers.forEach((ren) => {
         const actor = ren.getActors()[0];
@@ -366,7 +333,7 @@ export default function Slices() {
   function parseModelFile(fn, i) {
     fetchBinary(`${BASE_URL}/${fn}`).then((bModel) => {
       console.log("-- parsing model from file: ", i);
-      setDevMsg(`parsing model from file: ${i}`);
+      //setDevMsg(`parsing model from file: ${i}`);
       const reader = vtkXMLPolyDataReader.newInstance();
       reader.parseAsArrayBuffer(bModel);
       tpModelData.current[i] = reader.getOutputData(0);
@@ -379,7 +346,7 @@ export default function Slices() {
 
   function updateVisibleModel(resetCamera = false) {
     if (context.current) {
-      console.log("updateVisibleModel data:", tpModelData.current[currentTP]);
+      //console.log("updateVisibleModel data:", tpModelData.current[currentTP]);
       const { modelRenderer, renderWindow } = context.current;
       const actor = modelRenderer.getActors()[0];
       const mapper = actor.getMapper();
