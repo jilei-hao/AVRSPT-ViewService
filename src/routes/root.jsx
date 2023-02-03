@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, createContext, useContext} from 'react';
 
 // Load the rendering pieces we want to use (for both WebGL and WebGPU)
 import '@kitware/vtk.js/Rendering/Profiles/All';
@@ -31,7 +31,7 @@ import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
 import vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData';
 import Constants from '@kitware/vtk.js/Rendering/Core/ImageMapper/Constants';
 
-import macro from '@kitware/vtk.js/macro';
+import macro, { formatNumbersWithThousandSeparator } from '@kitware/vtk.js/macro';
 
 import styles from '../app.module.css'
 import GestureCameraManipulator from '@kitware/vtk.js/Interaction/Manipulators/GestureCameraManipulator';
@@ -49,6 +49,85 @@ import { States } from '@kitware/vtk.js/Rendering/Core/InteractorStyle/Constants
 
 const VIEWPORT_BOUNDS = [0.0, 0.1, 1, 1];
 
+const RenderContext = createContext(null);
+
+function ViewportPanel(props) {
+  // const renderer = useRef(props.renderer);
+  const { renderer, top, left } = props;
+
+  const stylePanel = {
+    display: "flex",
+    flexDirection: "column",
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    verticalAlign: "middle",
+    top: top,
+    left: left,
+    width: "4vw",
+    height: "12vw",
+    borderRadius: "5px",
+    backgroundColor: "rgb(228, 228, 228)",
+    opacity: "1",
+  }
+
+  const styleButton = {
+    width: "3vw",
+    height: "3vw",
+    borderRadius: "2%",
+    marginTop: "2px",
+    marginBottom: "2px",
+    backgroundColor: "rgb(228, 228, 228)",
+  }
+
+  function fullScreen() {
+    console.log("stylePanel::fullScreen()", renderer);
+    renderer.resetCamera();
+    renderer.render();
+  }
+
+  return (
+    <div style={stylePanel}>
+      <button style={styleButton} onClick={fullScreen}>
+        [+]
+      </button>
+      <button style={styleButton}>
+        [-]
+      </button>
+      <button style={styleButton}>
+        [R]
+      </button>
+    </div>
+  );
+}
+
+function ViewportModel(props) {
+  const renderer = useRef(vtkRenderer.newInstance());
+  const getWidthString = (viewPort) => `${100 * (viewPort[2] - viewPort[0])}vw`;
+  const getHeightString = (viewPort) => `${100 * (viewPort[3] - viewPort[1])}vh`;
+
+  // It just renders a border
+  const style = {
+    display: "flex",
+    position: "absolute",
+    width: `${getWidthString(props.viewPort)}`,
+    height: `${getHeightString(props.viewPort)}`,
+    left: `${100 * props.viewPort[0]}vw`,
+    bottom: `${100 * props.viewPort[1]}vh`,
+    backgroundColor: "red",
+    borderRadius: "1px",
+    borderColor: "red",
+  };
+
+
+  return (
+    <div style={style}>
+    </div>
+  );
+  
+  
+
+}
 
 const BASE_URL = `http://${config.host}:${config.port}`;
 
@@ -158,10 +237,16 @@ const createImageTouchStyle = macro.newInstance(extend, 'InteractorStyleImageTou
 const { SlicingMode } = Constants;
 const { fetchBinary } = vtkHttpDataAccessHelper;
 
-export default function Slices() {
+export default function Root() {
+  const emptyContext = {
+    initialized: false,
+    modelRenderer: {},
+    sliceRenderers: [],
+  };
+
   console.log("Render App");
   const vtkContainerRef = useRef(null);
-  const context = useRef(null); // vtk related objects
+  const context = useRef(emptyContext); // vtk related objects
   const hasDownloadingStarted = useRef(false);
   const hasDownloadingFinished = useRef(false);
   const tpVolumeData = useRef([]);
@@ -200,7 +285,7 @@ export default function Slices() {
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
-    if (!context.current) {
+    if (!context.current.initialized) {
       console.log("rebuilding context...", context.current);
       console.log("-- has download started: ", hasDownloadingStarted.current);
       console.log("-- has doanload finished: ", hasDownloadingFinished.current);
@@ -270,6 +355,7 @@ export default function Slices() {
       context.current = {
         fullScreenRenderWindow, renderWindow,
         sliceRenderers, modelRenderer,
+        initialized: true,
       };
 
       if (!hasDownloadingStarted.current || hasDownloadingFinished.current) {
@@ -286,7 +372,7 @@ export default function Slices() {
     }
 
     return () => {
-      if (context.current) {
+      if (context.current.initialized) {
         console.log("<effect>[vtkContainerRef]cleaning up...");
         const { 
           fullScreenRenderWindow, sliceRenderers, modelRenderer,
@@ -296,7 +382,7 @@ export default function Slices() {
         sliceRenderers.forEach((ren) => ren.delete());
         modelRenderer.delete();
 
-        context.current = null;
+        context.current = emptyContext;
       }
     };
   }, [vtkContainerRef]);
@@ -322,7 +408,7 @@ export default function Slices() {
   }
 
   function updateVisibleVolume(resetCamera = false) {
-    if (context.current) {
+    if (context.current.initialized) {
       //console.log("updateVisibleVolume data:", tpVolumeData.current[currentTP]);
       const { sliceRenderers, renderWindow } = context.current;
       sliceRenderers.forEach((ren) => {
@@ -362,7 +448,7 @@ export default function Slices() {
   }
 
   function updateVisibleModel(resetCamera = false) {
-    if (context.current) {
+    if (context.current.initialized) {
       //console.log("updateVisibleModel data:", tpModelData.current[currentTP]);
       const { modelRenderer, renderWindow } = context.current;
       const actor = modelRenderer.getActors()[0];
@@ -394,7 +480,7 @@ export default function Slices() {
   }
 
   useEffect(() => {
-    if (context.current) {
+    if (context.current.initialized) {
       console.log("Current TP Changed to: ", currentTP);
       updateVisibleDataset();
     }
@@ -422,6 +508,7 @@ export default function Slices() {
 
   return (
     <div>
+      <ViewportModel viewPort={VIEWPORT_BOUNDS}></ViewportModel>
       <div ref={vtkContainerRef} />
       <div className={styles.control_panel}>
         <div className={styles.replay_panel}>
@@ -451,42 +538,12 @@ export default function Slices() {
       <div className={styles.dev_panel}>
         <p className={styles.dev_message}>{ devMsg }</p>
       </div>
+      <RenderContext.Provider value={context.current}>
+      ` <ViewportPanel top="50vh" left="45vw" renderer={context.current.modelRenderer}/>
+        <ViewportPanel top="5vh"  left="45vw" renderer={context.current.sliceRenderers[0]}/>
+        <ViewportPanel top="50vh" left="95vw" renderer={context.current.sliceRenderers[1]}/>
+        <ViewportPanel top="5vh"  left="95vw" renderer={context.current.sliceRenderers[2]}/>`
+      </RenderContext.Provider>
     </div>
   );
 }
-
-
-
-    // if (context.current) {
-    //   const { renderWindow, mapper, renderer, actor } = context.current;
-    //   mapper.setInputData(ds);
-    //   console.log("-- input data set", ds);
-
-    //   mapper.setSampleDistance(1.1);
-    //   mapper.setPreferSizeOverAccuracy(true);
-    //   mapper.setBlendModeToComposite();
-    //   mapper.setIpScalarRange(0.0, 1.0);
-
-    //   const  opacityFunction = vtkPiecewiseFunction.newInstance();
-    //   opacityFunction.addPoint(-3024, 0.1);
-    //   opacityFunction.addPoint(-637.62, 0.1);
-    //   opacityFunction.addPoint(700, 0.5);
-    //   opacityFunction.addPoint(3071, 0.9);
-    //   actor.getProperty().setScalarOpacity(0, opacityFunction);
-
-    //   const colorTransferFunction = vtkColorTransferFunction.newInstance();
-    //   colorTransferFunction.addRGBPoint(0, 0, 0, 0);
-    //   colorTransferFunction.addRGBPoint(1, 1, 1, 1);
-    //   actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
-
-    //   actor.getProperty().setScalarOpacityUnitDistance(0, 3.0);
-    //   actor.getProperty().setInterpolationTypeToLinear();
-    //   actor.getProperty().setShade(true);
-    //   actor.getProperty().setAmbient(0.1);
-    //   actor.getProperty().setDiffuse(0.9);
-    //   actor.getProperty().setSpecular(0.2);
-    //   actor.getProperty().setSpecularPower(10.0);
-
-    //   renderer.resetCamera();
-    //   renderer.getActiveCamera().elevation(-70);
-    //   renderWindow.render();

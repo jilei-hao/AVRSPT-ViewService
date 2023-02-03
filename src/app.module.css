@@ -88,9 +88,9 @@
   top: 50vh;
   left: 45vw;
   width: 4vw;
-  height: 4vw;
+  height: 13vw;
   border-radius: 10%;
-  background-color: rgb(218, 218, 218);
+  background-color: rgb(228, 228, 228);
   opacity: 1;
 }
 
@@ -98,7 +98,7 @@
   width: 3vw;
   height: 3vw;
   border-radius: 2%;
-  background-color: white(102, 102, 102);
+  background-color: rgb(228, 228, 228);
 }
 
 .blending_panel {
