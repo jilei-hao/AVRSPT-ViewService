@@ -113,6 +113,7 @@ function InteractorStyleImageTouch(publicAPI, model) {
     const ren = callData.pokedRenderer;
     const renType = ren.get('rendererType')['rendererType'];
     callData.controlKey = true;
+    model.ISITInitRenType = renType;
     
     console.log("Renderer Type: ", renType);
 
@@ -127,6 +128,22 @@ function InteractorStyleImageTouch(publicAPI, model) {
         publicAPI.handleStartRotate(callData);
       }
     }
+  }
+
+  publicAPI.ISITParentHandleMouseMove = publicAPI.handleMouseMove;
+  publicAPI.handleMouseMove = (callData) => {
+    const pos = callData.position;
+    const renderer = callData.pokedRenderer;
+
+    const renType = renderer.get('rendererType')['rendererType'];
+    console.log("<handleMouseMove> renType: ", renType,
+      "; init renType: ", model.ISITInitRenType);
+
+    if (renType != model.ISITInitRenType)
+      return;
+
+
+    publicAPI.ISITParentHandleMouseMove(callData);
   }
 };
 
