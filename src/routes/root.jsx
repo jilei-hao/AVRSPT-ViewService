@@ -1,22 +1,20 @@
 import { useState, useRef, useEffect, createContext, useContext} from 'react';
 
-// Load the rendering pieces we want to use (for both WebGL and WebGPU)
+// vtk general imports
+import macro from '@kitware/vtk.js/macro';
+// -- Load the rendering pieces we want to use (for both WebGL and WebGPU)
 import '@kitware/vtk.js/Rendering/Profiles/All';
-
-// Force DataAccessHelper to have access to various data source
+// -- Force DataAccessHelper to have access to various data source
 import vtkHttpDataAccessHelper from '@kitware/vtk.js/IO/Core/DataAccessHelper/HttpDataAccessHelper';
 import '@kitware/vtk.js/IO/Core/DataAccessHelper/HtmlDataAccessHelper';
 import '@kitware/vtk.js/IO/Core/DataAccessHelper/JSZipDataAccessHelper';
-
+// -- rendering
 import vtkFullScreenRenderWindow from '@kitware/vtk.js/Rendering/Misc/FullScreenRenderWindow';
-
-// Model Rendering
+import Constants from '@kitware/vtk.js/Rendering/Core/ImageMapper/Constants';
 import vtkActor  from '@kitware/vtk.js/Rendering/Core/Actor';
 import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
 import vtkRenderer from '@kitware/vtk.js/Rendering/Core/Renderer'
 import vtkLookupTable from '@kitware/vtk.js/Common/Core/LookupTable';
-
-// Volume and Slice Rendering
 import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
 import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
 import vtkColorTransferFunction from '@kitware/vtk.js/Rendering/Core/ColorTransferFunction';
@@ -25,111 +23,30 @@ import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
 import vtkImageSlice from '@kitware/vtk.js/Rendering/Core/ImageSlice';
 import vtkInteractorStyleImage from '@kitware/vtk.js/Interaction/Style/InteractorStyleImage';
 import vtkInteractorStyleManipulator from '@kitware/vtk.js/Interaction/Style/InteractorStyleManipulator';
-
-import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
-import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
-import vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData';
-import Constants from '@kitware/vtk.js/Rendering/Core/ImageMapper/Constants';
-
-import macro, { formatNumbersWithThousandSeparator } from '@kitware/vtk.js/macro';
-
-import styles from '../app.module.css'
 import GestureCameraManipulator from '@kitware/vtk.js/Interaction/Manipulators/GestureCameraManipulator';
 import MouseCameraTrackballPanManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseCameraTrackballPanManipulator';
 import MouseCameraTrackballRotateManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseCameraTrackballRotateManipulator';
+import { States } from '@kitware/vtk.js/Rendering/Core/InteractorStyle/Constants';
+// -- io
+import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
+import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
+import vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData';
+import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
 
+// application imports
 import btn_play from '../assets/btn_play__idle.svg'
 import btn_prev from '../assets/btn_prev__idle.svg'
 import btn_next from '../assets/btn_next__idle.svg'
 import btn_pause from '../assets/btn_pause__idle.svg'
-import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
-
+import styles from '../app.module.css'
 import config from '../../server-config.json';
-import { States } from '@kitware/vtk.js/Rendering/Core/InteractorStyle/Constants';
+import { RenderContext } from '../shared/model/context';
+// -- components
+import ViewportPanel from '../shared/ui/viewport_panel';
 
-const VIEWPORT_BOUNDS = [0.0, 0.1, 1, 1];
-
-const RenderContext = createContext(null);
-
-function ViewportPanel(props) {
-  // const renderer = useRef(props.renderer);
-  const { renderer, top, left } = props;
-
-  const stylePanel = {
-    display: "flex",
-    flexDirection: "column",
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    verticalAlign: "middle",
-    top: top,
-    left: left,
-    width: "4vw",
-    height: "12vw",
-    borderRadius: "5px",
-    backgroundColor: "rgb(228, 228, 228)",
-    opacity: "1",
-  }
-
-  const styleButton = {
-    width: "3vw",
-    height: "3vw",
-    borderRadius: "2%",
-    marginTop: "2px",
-    marginBottom: "2px",
-    backgroundColor: "rgb(228, 228, 228)",
-  }
-
-  function fullScreen() {
-    console.log("stylePanel::fullScreen()", renderer);
-    renderer.resetCamera();
-    renderer.render();
-  }
-
-  return (
-    <div style={stylePanel}>
-      <button style={styleButton} onClick={fullScreen}>
-        [+]
-      </button>
-      <button style={styleButton}>
-        [-]
-      </button>
-      <button style={styleButton}>
-        [R]
-      </button>
-    </div>
-  );
-}
-
-function ViewportModel(props) {
-  const renderer = useRef(vtkRenderer.newInstance());
-  const getWidthString = (viewPort) => `${100 * (viewPort[2] - viewPort[0])}vw`;
-  const getHeightString = (viewPort) => `${100 * (viewPort[3] - viewPort[1])}vh`;
-
-  // It just renders a border
-  const style = {
-    display: "flex",
-    position: "absolute",
-    width: `${getWidthString(props.viewPort)}`,
-    height: `${getHeightString(props.viewPort)}`,
-    left: `${100 * props.viewPort[0]}vw`,
-    bottom: `${100 * props.viewPort[1]}vh`,
-    backgroundColor: "red",
-    borderRadius: "1px",
-    borderColor: "red",
-  };
-
-
-  return (
-    <div style={style}>
-    </div>
-  );
-  
-  
-
-}
 
 const BASE_URL = `http://${config.host}:${config.port}`;
+const VIEWPORT_BOUNDS = [0.0, 0.1, 1, 1];
 
 const volumeFiles = [
   'dist/volume/rs40/image_rs40_bavcta008_00.vti',
@@ -184,7 +101,7 @@ function InteractorStyleImageTouch(publicAPI, model) {
 
   publicAPI.superHandleLeftButtonPress = publicAPI.handleLeftButtonPress;
   publicAPI.handleLeftButtonPress = (callData) => {
-    console.log("<LeftButtonPress>");
+    // console.log("<LeftButtonPress>");
 
     const pos = callData.position;
     model.previousPosition = pos;
@@ -194,7 +111,7 @@ function InteractorStyleImageTouch(publicAPI, model) {
     callData.controlKey = true;
     model.ISITInitRenType = renType;
     
-    console.log("Renderer Type: ", renType);
+    // console.log("Renderer Type: ", renType);
 
     switch (renType) {
       case 'slice': {
@@ -215,12 +132,11 @@ function InteractorStyleImageTouch(publicAPI, model) {
     const renderer = callData.pokedRenderer;
 
     const renType = renderer.get('rendererType')['rendererType'];
-    console.log("<handleMouseMove> renType: ", renType,
-      "; init renType: ", model.ISITInitRenType);
+    // console.log("<handleMouseMove> renType: ", renType,
+    //   "; init renType: ", model.ISITInitRenType);
 
     if (renType != model.ISITInitRenType)
       return;
-
 
     publicAPI.ISITParentHandleMouseMove(callData);
   }
@@ -238,15 +154,10 @@ const { SlicingMode } = Constants;
 const { fetchBinary } = vtkHttpDataAccessHelper;
 
 export default function Root() {
-  const emptyContext = {
-    initialized: false,
-    modelRenderer: {},
-    sliceRenderers: [],
-  };
-
-  console.log("Render App");
+  // console.log("Render App");
   const vtkContainerRef = useRef(null);
-  const context = useRef(emptyContext); // vtk related objects
+  const context = useRef(null); // vtk related objects
+  const [contextState, setContextState] = useState(null);
   const hasDownloadingStarted = useRef(false);
   const hasDownloadingFinished = useRef(false);
   const tpVolumeData = useRef([]);
@@ -257,6 +168,7 @@ export default function Root() {
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
   const [replayTimer, setReplayTimer] = useState({});
   const [devMsg, setDevMsg] = useState("");
+
 
   const ViewportPos = {
     top_left: [0, 0.55, 0.5, 1],
@@ -285,10 +197,10 @@ export default function Root() {
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
-    if (!context.current.initialized) {
+    if (!context.current) {
       console.log("rebuilding context...", context.current);
-      console.log("-- has download started: ", hasDownloadingStarted.current);
-      console.log("-- has doanload finished: ", hasDownloadingFinished.current);
+      // console.log("-- has download started: ", hasDownloadingStarted.current);
+      // console.log("-- has doanload finished: ", hasDownloadingFinished.current);
 
       const fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
         rootContainer: vtkContainerRef.current, // html element containing this window
@@ -369,10 +281,11 @@ export default function Root() {
       updateSlider(nT);
 
       window.vtkContext = context.current;
+      setContextState(context.current);
     }
 
     return () => {
-      if (context.current.initialized) {
+      if (context.current) {
         console.log("<effect>[vtkContainerRef]cleaning up...");
         const { 
           fullScreenRenderWindow, sliceRenderers, modelRenderer,
@@ -382,7 +295,7 @@ export default function Root() {
         sliceRenderers.forEach((ren) => ren.delete());
         modelRenderer.delete();
 
-        context.current = emptyContext;
+        context.current = null;
       }
     };
   }, [vtkContainerRef]);
@@ -408,7 +321,7 @@ export default function Root() {
   }
 
   function updateVisibleVolume(resetCamera = false) {
-    if (context.current.initialized) {
+    if (context.current) {
       //console.log("updateVisibleVolume data:", tpVolumeData.current[currentTP]);
       const { sliceRenderers, renderWindow } = context.current;
       sliceRenderers.forEach((ren) => {
@@ -448,7 +361,7 @@ export default function Root() {
   }
 
   function updateVisibleModel(resetCamera = false) {
-    if (context.current.initialized) {
+    if (context.current) {
       //console.log("updateVisibleModel data:", tpModelData.current[currentTP]);
       const { modelRenderer, renderWindow } = context.current;
       const actor = modelRenderer.getActors()[0];
@@ -463,7 +376,7 @@ export default function Root() {
   }
 
   function updateVisibleDataset(resetCamera = false) {
-      console.log("Updating visible dataset");
+      // console.log("Updating visible dataset");
 
       if (tpVolumeData.current.length > 0)
         updateVisibleVolume(resetCamera);
@@ -480,7 +393,7 @@ export default function Root() {
   }
 
   useEffect(() => {
-    if (context.current.initialized) {
+    if (context.current) {
       console.log("Current TP Changed to: ", currentTP);
       updateVisibleDataset();
     }
@@ -508,7 +421,6 @@ export default function Root() {
 
   return (
     <div>
-      <ViewportModel viewPort={VIEWPORT_BOUNDS}></ViewportModel>
       <div ref={vtkContainerRef} />
       <div className={styles.control_panel}>
         <div className={styles.replay_panel}>
@@ -538,11 +450,11 @@ export default function Root() {
       <div className={styles.dev_panel}>
         <p className={styles.dev_message}>{ devMsg }</p>
       </div>
-      <RenderContext.Provider value={context.current}>
-      ` <ViewportPanel top="50vh" left="45vw" renderer={context.current.modelRenderer}/>
-        <ViewportPanel top="5vh"  left="45vw" renderer={context.current.sliceRenderers[0]}/>
-        <ViewportPanel top="50vh" left="95vw" renderer={context.current.sliceRenderers[1]}/>
-        <ViewportPanel top="5vh"  left="95vw" renderer={context.current.sliceRenderers[2]}/>`
+      <RenderContext.Provider value={contextState}>
+      ` <ViewportPanel top="50vh" left="45vw" renType="model" renId="0"/>
+        <ViewportPanel top="5vh"  left="45vw" renType="slice" renId="0"/>
+        <ViewportPanel top="5vh"  left="95vw" renType="slice" renId="1"/>`
+        <ViewportPanel top="50vh" left="95vw" renType="slice" renId="2"/>
       </RenderContext.Provider>
     </div>
   );
