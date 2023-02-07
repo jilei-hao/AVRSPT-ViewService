@@ -44,8 +44,8 @@ import { RenderContext } from '../shared/model/context';
 // -- components
 import ViewportPanel from '../shared/ui/viewport_panel';
 import { 
-  canvasBox, tiledView, viewBoxes,
-  slicingConfig, viewPanelPos 
+  canvasBox, tiledView, viewBoxes, sliceViewMap, viewPanelPos, viewConfig,
+  modelViewMap, getViewIdFromPos
 } from "../shared/model/layout"
 
 
@@ -171,8 +171,7 @@ export default function Root() {
   const [frameTimeInMS, setFrameTimeInMS] = useState(50);
   const [replayTimer, setReplayTimer] = useState({});
   const [devMsg, setDevMsg] = useState("");
-  const [modelPanelVisibility, setModelPanelVisibility] = useState("visible");
-  const [slicePanelVisibility, setSlicePanelVisibility] = useState(["visible", "visible", "visible"]);
+  const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -193,14 +192,17 @@ export default function Root() {
 
       // Setup 3 renderes for the x, y, z viewports
       const sliceRenderers = [];
+
       for (let i = 0; i < 3; i++) {
         const renderer = vtkRenderer.newInstance();
         const mapper = vtkImageMapper.newInstance();
         const actor = vtkImageSlice.newInstance();
+        const sliceViewConfig = viewConfig[sliceViewMap[i]];
+        const sliceRenConfig = sliceViewConfig.renConfig;
 
+        // configure mapping and actor
         mapper.setSliceAtFocalPoint(true);
-        mapper.setSlicingMode(slicingConfig[i].mode);
-
+        mapper.setSlicingMode(sliceRenConfig.mode);
         actor.setMapper(mapper);
         actor.setVisibility(true);
         const colorTransferFunction = vtkColorTransferFunction.newInstance();
@@ -208,22 +210,31 @@ export default function Root() {
         colorTransferFunction.addRGBPoint(1, 1, 1, 1);
         actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
 
+        // configure renderer
         renderer.addActor(actor);
-        renderer.set({ rendererType: 'slice', rendererId: i}, true);
+        renderer.set({ 
+          rendererType: sliceRenConfig.renType, 
+          rendererId: sliceRenConfig.renId,
+          viewId: sliceViewConfig.viewId,
+          }, true);
+        renderer.setViewport(...viewBoxes[sliceViewConfig.position]);
 
-        sliceRenderers.push(renderer);
-        console.log(slicingConfig[i].viewportPos);
-        renderer.setViewport(...slicingConfig[i].viewportPos);
+        // configure camera orientation
         const camera = renderer.getActiveCamera();
-        camera.setViewUp(...(slicingConfig[i].viewUp));
+        camera.setViewUp(...sliceRenConfig.viewUp);
         camera.setParallelProjection(true);
+
         renderWindow.addRenderer(renderer);
+        sliceRenderers.push(renderer);
       }
 
       // Setup the renderer for the 3d viewport
       const modelRenderer = vtkRenderer.newInstance();
       const modelActor = vtkActor.newInstance();
       const modelMapper = vtkMapper.newInstance();
+      const modelViewConfig = viewConfig[modelViewMap[0]];
+      const modelRenConfig = modelViewConfig.renConfig;
+
       modelRenderer.addActor(modelActor);
       modelActor.setMapper(modelMapper);
       modelMapper.setScalarRange(2.9, 3.1);
@@ -237,9 +248,14 @@ export default function Root() {
       lut.setUseBelowRangeColor(true);
       lut.build();
       modelMapper.setLookupTable(lut);
-      modelRenderer.setViewport(...viewBoxes.bottomLeft);
+      modelRenderer.setViewport(...viewBoxes[modelViewConfig.position]);
       modelRenderer.resetCamera();
-      modelRenderer.set({ rendererType: 'model', rendererId: 0}, true);
+      modelRenderer.set({ 
+        rendererType: modelRenConfig.renType, 
+        rendererId: modelRenConfig.renId,
+        viewId: modelViewConfig.viewId
+      }, true);
+
       renderWindow.addRenderer(modelRenderer);
 
       // Setup pipelines to render content for each time points
@@ -399,24 +415,15 @@ export default function Root() {
   }, [frameTimeInMS, isReplayOn]);
 
   // let viewPanel control other panel's visibility
-  function onLayoutChange(renType, renId, isFullScreen) {
+  function handleLayoutChange(viewId, isFullScreen) {
     const thisVis = "visible";
     const otherVis = isFullScreen ? "hidden" : "visible";
+    
+    let newVis = [otherVis, otherVis, otherVis, otherVis];
+    newVis[viewId] = thisVis;
+    // console.log(`handleLayoutChange (${viewId}): newVis: `, newVis);
 
-    console.log("onLayoutChange: ", renType, renId);
-    let newVis = [otherVis, otherVis, otherVis];
-    switch (renType) {
-      case "model":
-        setModelPanelVisibility(thisVis);
-        setSlicePanelVisibility(newVis);
-        break;
-      case "slice": {
-        setModelPanelVisibility(otherVis);
-        newVis[renId] = thisVis;
-        setSlicePanelVisibility(newVis);
-        break;
-      }
-    }
+    setViewPanelVis(newVis);
   }
 
   return (
@@ -451,17 +458,21 @@ export default function Root() {
         <p className={styles.dev_message}>{ devMsg }</p>
       </div>
       <RenderContext.Provider value={context.current}>
-      ` <ViewportPanel pos={viewPanelPos.bottomLeft}  renType="model" renId="0" 
-          onLayoutChange={onLayoutChange} panelVisibility={modelPanelVisibility}
+      ` <ViewportPanel viewId={getViewIdFromPos("topLeft")}
+          onLayoutChange={handleLayoutChange} 
+          panelVis={viewPanelVis[getViewIdFromPos("topLeft")]}
         />
-        <ViewportPanel pos={viewPanelPos.topLeft}     renType="slice" renId="0" 
-          onLayoutChange={onLayoutChange} panelVisibility={slicePanelVisibility[0]}
+        <ViewportPanel viewId={getViewIdFromPos("topRight")}
+          onLayoutChange={handleLayoutChange} 
+          panelVis={viewPanelVis[getViewIdFromPos("topRight")]}
         />
-        <ViewportPanel pos={viewPanelPos.topRight}    renType="slice" renId="1" 
-          onLayoutChange={onLayoutChange} panelVisibility={slicePanelVisibility[1]}
+        <ViewportPanel viewId={getViewIdFromPos("bottomLeft")}
+          onLayoutChange={handleLayoutChange} 
+          panelVis={viewPanelVis[getViewIdFromPos("bottomLeft")]}
         />`
-        <ViewportPanel pos={viewPanelPos.bottomRight} renType="slice" renId="2" 
-          onLayoutChange={onLayoutChange} panelVisibility={slicePanelVisibility[2]}
+        <ViewportPanel viewId={getViewIdFromPos("bottomRight")}
+          onLayoutChange={handleLayoutChange} 
+          panelVis={viewPanelVis[getViewIdFromPos("bottomRight")]}
         />
       </RenderContext.Provider>
     </div>

@@ -47,23 +47,53 @@ export const viewPanelPos = {
   "bottomRight": { "top": "50vh", "left": "95vw"},
 }
 
-export const slicingConfig = [
+export const viewConfig = [
   {
-    id: 0,
-    mode: SlicingMode.Z, 
-    viewportPos: viewBoxes["topLeft"],
-    viewUp: [0, -1, 0],
-  }, 
-  {
-    id: 1,
-    mode: SlicingMode.X, 
-    viewportPos: viewBoxes["topRight"],
-    viewUp: [0, 0, 1,]
+    viewId: 0,
+    position: "topLeft",
+    renConfig: { 
+      renType: "slice",
+      renId: 0, // unique for each ren type
+      viewUp: [0, -1, 0],
+      mode: SlicingMode.Z
+    }
   },
   {
-    id: 2,
-    mode: SlicingMode.Y, 
-    viewportPos: viewBoxes["bottomRight"],
-    viewUp: [0, 0, 1]
+    viewId: 1,
+    position: "topRight",
+    renConfig: { 
+      renType: "slice",
+      renId: 1, // unique for each ren type
+      viewUp: [0, 0, 1],
+      mode: SlicingMode.X
+    }
+  },
+  {
+    viewId: 2,
+    position: "bottomLeft",
+    renConfig: { 
+      renType: "model",
+      renId: 0, // unique for each ren type
+    }
+  },
+  {
+    viewId: 3,
+    position: "bottomRight",
+    renConfig: { 
+      renType: "slice",
+      renId: 2, // unique for each ren type
+      viewUp: [0, 0, 1],
+      mode: SlicingMode.Y
+    }
+  },
+]
+
+export const sliceViewMap = [0, 1, 3] // top left, top right, bottom right
+export const modelViewMap = [2]; // bottom left
+export const getViewIdFromPos = (pos) => {
+  for (let i = 0; i < viewConfig.length; i++) {
+    if (viewConfig[i].position == pos)
+      return viewConfig[i].viewId;
   }
-];
+  return -1;
+}
