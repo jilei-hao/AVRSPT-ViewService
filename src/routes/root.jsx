@@ -22,11 +22,6 @@ import vtkPiecewiseFunction from '@kitware/vtk.js/Common/DataModel/PiecewiseFunc
 import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
 import vtkImageSlice from '@kitware/vtk.js/Rendering/Core/ImageSlice';
 import vtkInteractorStyleImage from '@kitware/vtk.js/Interaction/Style/InteractorStyleImage';
-import vtkInteractorStyleManipulator from '@kitware/vtk.js/Interaction/Style/InteractorStyleManipulator';
-import GestureCameraManipulator from '@kitware/vtk.js/Interaction/Manipulators/GestureCameraManipulator';
-import MouseCameraTrackballPanManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseCameraTrackballPanManipulator';
-import MouseCameraTrackballRotateManipulator from '@kitware/vtk.js/Interaction/Manipulators/MouseCameraTrackballRotateManipulator';
-import { States } from '@kitware/vtk.js/Rendering/Core/InteractorStyle/Constants';
 // -- io
 import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
 import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
@@ -42,10 +37,10 @@ import styles from '../app.module.css'
 import config from '../../server-config.json';
 import { RenderContext } from '../shared/model/context';
 // -- components
-import ViewportPanel from '../shared/ui/viewport_panel';
+import ViewPanelGroup from '../shared/ui/viewport_panel';
 import { 
-  canvasBox, tiledView, viewBoxes, sliceViewMap, viewPanelPos, viewConfig,
-  modelViewMap, getViewIdFromPos
+  canvasBox, viewBoxes, sliceViewMap, viewPanelPos, viewConfig,
+  modelViewMap, 
 } from "../shared/model/layout"
 
 
@@ -458,21 +453,8 @@ export default function Root() {
         <p className={styles.dev_message}>{ devMsg }</p>
       </div>
       <RenderContext.Provider value={context.current}>
-      ` <ViewportPanel viewId={getViewIdFromPos("topLeft")}
-          onLayoutChange={handleLayoutChange} 
-          panelVis={viewPanelVis[getViewIdFromPos("topLeft")]}
-        />
-        <ViewportPanel viewId={getViewIdFromPos("topRight")}
-          onLayoutChange={handleLayoutChange} 
-          panelVis={viewPanelVis[getViewIdFromPos("topRight")]}
-        />
-        <ViewportPanel viewId={getViewIdFromPos("bottomLeft")}
-          onLayoutChange={handleLayoutChange} 
-          panelVis={viewPanelVis[getViewIdFromPos("bottomLeft")]}
-        />`
-        <ViewportPanel viewId={getViewIdFromPos("bottomRight")}
-          onLayoutChange={handleLayoutChange} 
-          panelVis={viewPanelVis[getViewIdFromPos("bottomRight")]}
+        <ViewPanelGroup onLayoutChange={handleLayoutChange}
+          viewPanelVis={viewPanelVis}
         />
       </RenderContext.Provider>
     </div>

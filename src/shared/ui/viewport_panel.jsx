@@ -1,13 +1,13 @@
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useState, useRef, useEffect } from "react"
 import { RenderContext } from "../model/context";
 import { 
-  canvasBox, tiledView, viewBoxes, viewPanelPos,
-  viewConfig,
+  canvasBox, tiledView, viewBoxes, viewPanelPos, viewConfig,
+  getViewIdFromPos,
 } from "../model/layout"
 
 // const RenderContext = createContext("default");
 
-export default function ViewportPanel(props) {
+export function ViewportPanel(props) {
   const { viewId, onLayoutChange, panelVis} = props;
   const viewConf = viewConfig[viewId];
   const strPos = viewConf.position;
@@ -20,6 +20,7 @@ export default function ViewportPanel(props) {
   const [left, setLeft] = useState(pos.left);
   const getInfo = () => `Viewport Panel <${viewId}>: ${renType}-${renId}`;
   const renContext = useContext(RenderContext);
+  const isFullScreen = useRef(false);
   // console.log(getInfo(), panelVis);
 
   const stylePanel = {
@@ -33,9 +34,9 @@ export default function ViewportPanel(props) {
     left: left,
     visibility: panelVis,
     width: "4vw",
-    height: "12vw",
-    borderRadius: "5px",
-    backgroundColor: "rgb(228, 228, 228)",
+    height: "9vw",
+    borderRadius: "2vw",
+    backgroundColor: "rgb(72, 72, 72)",
     opacity: "1",
   }
 
@@ -45,7 +46,7 @@ export default function ViewportPanel(props) {
     borderRadius: "2%",
     marginTop: "2px",
     marginBottom: "2px",
-    backgroundColor: "rgb(228, 228, 228)",
+    backgroundColor: "rgb(72, 72, 72)",
   }
 
   function findRen () {
@@ -78,6 +79,16 @@ export default function ViewportPanel(props) {
         })
         return ret;
       }
+    }
+  }
+
+  function fnChangeLayout() {
+    if (isFullScreen.current) {
+      tiledView();
+      isFullScreen.current = false;
+    } else {
+      fullScreen();
+      isFullScreen.current = true;
     }
   }
 
@@ -124,8 +135,6 @@ export default function ViewportPanel(props) {
     setLeft(pos.left);
 
     renContext.renderWindow.render();
-
-
   }
 
   function resetView() {
@@ -137,15 +146,38 @@ export default function ViewportPanel(props) {
 
   return (
     <div style={stylePanel}>
-      <button style={styleButton} onClick={fullScreen}>
+      <button style={styleButton} onClick={fnChangeLayout}>
         [+]
-      </button>
-      <button style={styleButton} onClick={tiledView}>
-        [-]
       </button>
       <button style={styleButton} onClick={resetView}>
         [R]
       </button>
+    </div>
+  );
+}
+
+export default function ViewPanelGroup(props) {
+  const handleLayoutChange = props.onLayoutChange;
+  const viewPanelVis = props.viewPanelVis;
+
+  return (
+    <div>
+      <ViewportPanel viewId={getViewIdFromPos("topLeft")}
+          onLayoutChange={handleLayoutChange} 
+          panelVis={viewPanelVis[getViewIdFromPos("topLeft")]}
+      />
+      <ViewportPanel viewId={getViewIdFromPos("topRight")}
+        onLayoutChange={handleLayoutChange} 
+        panelVis={viewPanelVis[getViewIdFromPos("topRight")]}
+      />
+      <ViewportPanel viewId={getViewIdFromPos("bottomLeft")}
+        onLayoutChange={handleLayoutChange} 
+        panelVis={viewPanelVis[getViewIdFromPos("bottomLeft")]}
+      />`
+      <ViewportPanel viewId={getViewIdFromPos("bottomRight")}
+        onLayoutChange={handleLayoutChange} 
+        panelVis={viewPanelVis[getViewIdFromPos("bottomRight")]}
+      />
     </div>
   );
 }
