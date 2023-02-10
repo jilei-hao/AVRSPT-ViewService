@@ -5,6 +5,9 @@ import {
   getViewIdFromPos,
 } from "../model/layout"
 
+import btn_full_screen from "../../assets/btn_full_screen.svg"
+import btn_split_screen from "../../assets/btn_split_screen.svg"
+
 // const RenderContext = createContext("default");
 
 export function ViewportPanel(props) {
@@ -20,6 +23,7 @@ export function ViewportPanel(props) {
   const [left, setLeft] = useState(pos.left);
   const getInfo = () => `Viewport Panel <${viewId}>: ${renType}-${renId}`;
   const renContext = useContext(RenderContext);
+  const [btnIconLayout, setBtnIconLayout] = useState(btn_full_screen);
   const isFullScreen = useRef(false);
   // console.log(getInfo(), panelVis);
 
@@ -35,18 +39,27 @@ export function ViewportPanel(props) {
     visibility: panelVis,
     width: "4vw",
     height: "9vw",
+    padding: "0px",
     borderRadius: "2vw",
     backgroundColor: "rgb(72, 72, 72)",
     opacity: "1",
   }
 
   const styleButton = {
-    width: "3vw",
-    height: "3vw",
+    width: "3.25vw",
+    height: "3.25vw",
     borderRadius: "2%",
     marginTop: "2px",
     marginBottom: "2px",
     backgroundColor: "rgb(72, 72, 72)",
+    border: "none",
+  }
+
+  const styleBtnIconLayout = {
+    width: "100%",
+    height: "100%",
+    margin: "0px",
+    padding: "0px"
   }
 
   function findRen () {
@@ -86,9 +99,11 @@ export function ViewportPanel(props) {
     if (isFullScreen.current) {
       tiledView();
       isFullScreen.current = false;
+      setBtnIconLayout(btn_full_screen);
     } else {
       fullScreen();
       isFullScreen.current = true;
+      setBtnIconLayout(btn_split_screen);
     }
   }
 
@@ -147,7 +162,7 @@ export function ViewportPanel(props) {
   return (
     <div style={stylePanel}>
       <button style={styleButton} onClick={fnChangeLayout}>
-        [+]
+        <img style={styleBtnIconLayout} src={btnIconLayout} />
       </button>
       <button style={styleButton} onClick={resetView}>
         [R]
