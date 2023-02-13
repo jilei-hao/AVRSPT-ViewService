@@ -5,8 +5,8 @@ import {
   getViewIdFromPos,
 } from "../model/layout"
 
-import btn_full_screen from "../../assets/btn_full_screen.svg"
-import btn_split_screen from "../../assets/btn_split_screen.svg"
+import ButtonReset from "../ui/basic/btn_reset"
+import ButtonLayout from "../ui/basic/btn_layout"
 
 // const RenderContext = createContext("default");
 
@@ -23,7 +23,7 @@ export function ViewportPanel(props) {
   const [left, setLeft] = useState(pos.left);
   const getInfo = () => `Viewport Panel <${viewId}>: ${renType}-${renId}`;
   const renContext = useContext(RenderContext);
-  const [btnIconLayout, setBtnIconLayout] = useState(btn_full_screen);
+  const [btnLayoutMode, setBtnLayoutMode] = useState("full_screen");
   const isFullScreen = useRef(false);
   // console.log(getInfo(), panelVis);
 
@@ -43,23 +43,6 @@ export function ViewportPanel(props) {
     borderRadius: "2vw",
     backgroundColor: "rgb(72, 72, 72)",
     opacity: "1",
-  }
-
-  const styleButton = {
-    width: "3.25vw",
-    height: "3.25vw",
-    borderRadius: "2%",
-    marginTop: "2px",
-    marginBottom: "2px",
-    backgroundColor: "rgb(72, 72, 72)",
-    border: "none",
-  }
-
-  const styleBtnIconLayout = {
-    width: "100%",
-    height: "100%",
-    margin: "0px",
-    padding: "0px"
   }
 
   function findRen () {
@@ -99,11 +82,11 @@ export function ViewportPanel(props) {
     if (isFullScreen.current) {
       tiledView();
       isFullScreen.current = false;
-      setBtnIconLayout(btn_full_screen);
+      setBtnLayoutMode("full_screen");
     } else {
       fullScreen();
       isFullScreen.current = true;
-      setBtnIconLayout(btn_split_screen);
+      setBtnLayoutMode("split_screen");
     }
   }
 
@@ -161,12 +144,8 @@ export function ViewportPanel(props) {
 
   return (
     <div style={stylePanel}>
-      <button style={styleButton} onClick={fnChangeLayout}>
-        <img style={styleBtnIconLayout} src={btnIconLayout} />
-      </button>
-      <button style={styleButton} onClick={resetView}>
-        [R]
-      </button>
+      <ButtonLayout strSize={"3.5vw"} onClick={fnChangeLayout} mode={btnLayoutMode} />
+      <ButtonReset strSize={"3.5vw"} onClick={resetView} />
     </div>
   );
 }

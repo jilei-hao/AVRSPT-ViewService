@@ -94,13 +94,6 @@
   opacity: 1;
 }
 
-.viewport_toolbar_button {
-  width: 3vw;
-  height: 3vw;
-  border-radius: 2%;
-  background-color: rgb(228, 228, 228);
-}
-
 .blending_panel {
   display: flex;
   flex-direction: column;
