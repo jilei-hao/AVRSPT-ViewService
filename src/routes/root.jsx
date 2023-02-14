@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, createContext, useContext} from 'react';
 
-// vtk general imports
-import macro from '@kitware/vtk.js/macro';
+// vtk imports
 // -- Load the rendering pieces we want to use (for both WebGL and WebGPU)
 import '@kitware/vtk.js/Rendering/Profiles/All';
 // -- Force DataAccessHelper to have access to various data source
@@ -21,7 +20,6 @@ import vtkColorTransferFunction from '@kitware/vtk.js/Rendering/Core/ColorTransf
 import vtkPiecewiseFunction from '@kitware/vtk.js/Common/DataModel/PiecewiseFunction';
 import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
 import vtkImageSlice from '@kitware/vtk.js/Rendering/Core/ImageSlice';
-import vtkInteractorStyleImage from '@kitware/vtk.js/Interaction/Style/InteractorStyleImage';
 // -- io
 import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
 import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
@@ -36,6 +34,8 @@ import btn_pause from '../assets/btn_pause__idle.svg'
 import styles from '../app.module.css'
 import config from '../../server-config.json';
 import { RenderContext } from '../shared/model/context';
+import InteractionStyleImageTouch from '../shared/ui/interaction/interaction_style_image_touch';
+
 // -- components
 import ViewPanelGroup from '../shared/ui/viewport_panel';
 import { 
@@ -43,60 +43,6 @@ import {
   modelViewMap, 
 } from "../shared/model/layout"
 import { cases, BASE_DATA_URL } from '../shared/model/cases';
-
-function InteractorStyleImageTouch(publicAPI, model) {
-  model.classHierarchy.push('InteractorStyleImageTouch');
-
-  publicAPI.superHandleLeftButtonPress = publicAPI.handleLeftButtonPress;
-  publicAPI.handleLeftButtonPress = (callData) => {
-    // console.log("<LeftButtonPress>");
-
-    const pos = callData.position;
-    model.previousPosition = pos;
-
-    const ren = callData.pokedRenderer;
-    const renType = ren.get('rendererType')['rendererType'];
-    callData.controlKey = true;
-    model.ISITInitRenType = renType;
-    
-    // console.log("Renderer Type: ", renType);
-
-    switch (renType) {
-      case 'slice': {
-        callData.controlKey = true;
-        publicAPI.superHandleLeftButtonPress(callData);
-        break;
-      }
-
-      case 'model': {
-        publicAPI.handleStartRotate(callData);
-      }
-    }
-  }
-
-  publicAPI.ISITParentHandleMouseMove = publicAPI.handleMouseMove;
-  publicAPI.handleMouseMove = (callData) => {
-    const pos = callData.position;
-    const renderer = callData.pokedRenderer;
-
-    const renType = renderer.get('rendererType')['rendererType'];
-    // console.log("<handleMouseMove> renType: ", renType,
-    //   "; init renType: ", model.ISITInitRenType);
-
-    if (renType != model.ISITInitRenType)
-      return;
-
-    publicAPI.ISITParentHandleMouseMove(callData);
-  }
-};
-
-function extend(publicAPI, model, initialValues = {}) {
-  vtkInteractorStyleImage.extend(publicAPI, model, initialValues);
-
-  InteractorStyleImageTouch(publicAPI, model);
-}
-
-const createImageTouchStyle = macro.newInstance(extend, 'InteractorStyleImageTouch');
 
 const { SlicingMode } = Constants;
 const { fetchBinary } = vtkHttpDataAccessHelper;
@@ -110,6 +56,7 @@ export default function Root() {
   const hasDownloadingFinished = useRef(false);
   const tpVolumeData = useRef([]);
   const tpModelData = useRef([]);
+  const tpSegmentationData = useRef([]);
   const tpSlider = useRef(null); // ref to the tp slider
   const [isReplayOn, setIsReplayOn] = useState(false);
   const [currentTP, setCurrentTP] = useState(0); // storage tp is 0-based
@@ -132,7 +79,7 @@ export default function Root() {
       });
 
       const renderWindow = fullScreenRenderWindow.getRenderWindow();
-      const iStyle = createImageTouchStyle();
+      const iStyle = InteractionStyleImageTouch.newInstance();
       iStyle.setInteractionMode('IMAGE_SLICING');
       renderWindow.getInteractor().setInteractorStyle(iStyle);
 
@@ -141,12 +88,13 @@ export default function Root() {
 
       for (let i = 0; i < 3; i++) {
         const renderer = vtkRenderer.newInstance();
-        const mapper = vtkImageMapper.newInstance();
-        const actor = vtkImageSlice.newInstance();
+        
         const sliceViewConfig = viewConfig[sliceViewMap[i]];
         const sliceRenConfig = sliceViewConfig.renConfig;
 
-        // configure mapping and actor
+        // configure image mapper and actor
+        const mapper = vtkImageMapper.newInstance();
+        const actor = vtkImageSlice.newInstance();
         mapper.setSliceAtFocalPoint(true);
         mapper.setSlicingMode(sliceRenConfig.mode);
         actor.setMapper(mapper);
@@ -156,8 +104,28 @@ export default function Root() {
         colorTransferFunction.addRGBPoint(1, 1, 1, 1);
         actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
 
+        // configure overlay mapper and actor
+        const seg_mapper = vtkImageMapper.newInstance();
+        const seg_actor = vtkImageSlice.newInstance();
+        seg_mapper.setSliceAtFocalPoint(true);
+        seg_mapper.setSlicingMode(sliceRenConfig.mode);
+        seg_actor.setMapper(seg_mapper);
+        seg_actor.setVisibility(true);
+        const seg_color_function = vtkColorTransferFunction.newInstance();
+        seg_color_function.addRGBPoint(0, 0, 0, 0);
+        seg_color_function.addRGBPoint(1, 1, 0, 0);
+        seg_color_function.addRGBPoint(2, 0, 1, 0);
+        seg_color_function.addRGBPoint(3, 0, 0, 1);
+        seg_actor.getProperty().setRGBTransferFunction(seg_color_function);
+        const ofun = vtkPiecewiseFunction.newInstance();
+        ofun.addPoint(0, 0);
+        ofun.addPoint(10, 1);
+        seg_actor.getProperty().setPiecewiseFunction(ofun);
+        
+
         // configure renderer
         renderer.addActor(actor);
+        renderer.addActor(seg_actor);
         renderer.set({ 
           rendererType: sliceRenConfig.renType, 
           rendererId: sliceRenConfig.renId,
@@ -224,7 +192,9 @@ export default function Root() {
       updateSlider(nT);
 
       window.vtkContext = context.current;
-      setContextState(context.current);
+
+      // without this context will not be refereshed to the children
+      setContextState(context.current); 
     }
 
     return () => {
@@ -246,11 +216,27 @@ export default function Root() {
   function downloadData(tp) {
     console.log("-- downloading started for tp: ", tp);
     parseVolumeFile(cases[crntCase].volumes[tp], tp);
+    parseSegmentationFile(cases[crntCase].segmentations[tp], tp);
     parseModelFile(cases[crntCase].models[tp], tp);
   };
 
+  function parseSegmentationFile(fn, i) {
+    console.log("parseSegmentationFile: fn", `${BASE_DATA_URL}/${fn}`);
+    fetchBinary(`${BASE_DATA_URL}/${fn}`).then((bVolume) => {
+      console.log("-- parsing segmentation from file: ", i);
+      //setDevMsg(`parsing volume: ${i}`);
+      const reader = vtkXMLImageDataReader.newInstance();
+      reader.parseAsArrayBuffer(bVolume);
+      tpSegmentationData.current[i] = reader.getOutputData(0);
+      reader.delete();
+
+      if (i == currentTP)
+        updateVisibleSegmentation(true);
+    });
+
+  }
+
   function parseVolumeFile(fn, i) {
-    console.log("parseVolumeFile: fn: ", BASE_DATA_URL, fn);
     fetchBinary(`${BASE_DATA_URL}/${fn}`).then((bVolume) => {
       console.log("-- parsing volume from file: ", i);
       //setDevMsg(`parsing volume: ${i}`);
@@ -261,6 +247,20 @@ export default function Root() {
 
       if (i == currentTP)
         updateVisibleVolume(true);
+    });
+  }
+
+  function parseModelFile(fn, i) {
+    fetchBinary(`${BASE_DATA_URL}/${fn}`).then((bModel) => {
+      console.log("-- parsing model from file: ", i);
+      //setDevMsg(`parsing model from file: ${i}`);
+      const reader = vtkXMLPolyDataReader.newInstance();
+      reader.parseAsArrayBuffer(bModel);
+      tpModelData.current[i] = reader.getOutputData(0);
+      reader.delete();
+
+      if (i == currentTP)
+        updateVisibleModel(true);
     });
   }
 
@@ -290,18 +290,32 @@ export default function Root() {
     }
   }
 
-  function parseModelFile(fn, i) {
-    fetchBinary(`${BASE_DATA_URL}/${fn}`).then((bModel) => {
-      console.log("-- parsing model from file: ", i);
-      //setDevMsg(`parsing model from file: ${i}`);
-      const reader = vtkXMLPolyDataReader.newInstance();
-      reader.parseAsArrayBuffer(bModel);
-      tpModelData.current[i] = reader.getOutputData(0);
-      reader.delete();
+  function updateVisibleSegmentation(resetCamera = false) {
+    if (context.current) {
+      // console.log("updateVisibleVolume data:", tpVolumeData.current[currentTP]);
+      const { sliceRenderers, renderWindow } = context.current;
+      console.log("[updateVisibleSegmentatin] segData: ", tpSegmentationData.current[currentTP]);
+      sliceRenderers.forEach((ren) => {
+        const actor = ren.getActors()[1];
+        console.log("-- segActor = ", actor)
+        const mapper = actor.getMapper();
+        mapper.setInputData(tpSegmentationData.current[currentTP]);
 
-      if (i == currentTP)
-        updateVisibleModel(true);
-    });
+        if (resetCamera) {
+          const camera = ren.getActiveCamera();
+          const position = camera.getFocalPoint();
+
+          // offset along the slicing axis
+          const normal = mapper.getSlicingModeNormal();
+          position[0] += normal[0];
+          position[1] += normal[1];
+          position[2] += normal[2];
+          camera.setPosition(...position);
+          ren.resetCamera();
+        }
+      })
+      renderWindow.render();
+    }
   }
 
   function updateVisibleModel(resetCamera = false) {
@@ -326,6 +340,8 @@ export default function Root() {
         updateVisibleVolume(resetCamera);
       if (tpModelData.current.length > 0)
         updateVisibleModel(resetCamera);
+      if (tpSegmentationData.current.length > 0)
+        updateVisibleSegmentation(resetCamera);
   }
 
   function updateSlider(len) {
@@ -365,6 +381,7 @@ export default function Root() {
 
   // let viewPanel control other panel's visibility
   function handleLayoutChange(viewId, isFullScreen) {
+    console.log("[handleLayoutChange] viewId: ", viewId);
     const thisVis = "visible";
     const otherVis = isFullScreen ? "hidden" : "visible";
     
@@ -406,7 +423,7 @@ export default function Root() {
       <div className={styles.dev_panel}>
         <p className={styles.dev_message}>{ devMsg }</p>
       </div>
-      <RenderContext.Provider value={context.current}>
+      <RenderContext.Provider value={contextState}>
         <ViewPanelGroup onLayoutChange={handleLayoutChange}
           viewPanelVis={viewPanelVis}
         />

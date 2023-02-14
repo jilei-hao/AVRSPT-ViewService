@@ -25,7 +25,8 @@ export function ViewportPanel(props) {
   const renContext = useContext(RenderContext);
   const [btnLayoutMode, setBtnLayoutMode] = useState("full_screen");
   const isFullScreen = useRef(false);
-  // console.log(getInfo(), panelVis);
+
+  //console.log(getInfo(), renContext);
 
   const stylePanel = {
     display: "flex",
@@ -93,6 +94,7 @@ export function ViewportPanel(props) {
   function fullScreen() {
     const ren = findRen();
     const otherRen = findOtherRen();
+    //console.log("[fullScreen] otherRen", otherRen);
     
     ren.setViewport(...canvasBox); // set to canvas size
     onLayoutChange(viewId, true); // switch other panels visibility
