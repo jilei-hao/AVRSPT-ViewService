@@ -1,5 +1,5 @@
 import btnFullScreen from "../../../assets/btn_full_screen__idle.svg"
-import btnSplitScreen from "../../../assets/btn_split_screen.svg"
+import btnSplitScreen from "../../../assets/btn_split_screen__idle.svg"
 
 export default function ButtonLayout ({strSize, onClick, mode}) {
   const styleBtn = {
