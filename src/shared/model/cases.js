@@ -4,25 +4,25 @@ export const BASE_DATA_URL = `http://${config.host}:${config.port}`;
 
 export const cases = {
   "dev_cta-3tp": {
-    numberOfTimepoints: 3,
+    nT: 3,
     volumes: [
       'dist/cta/volume/rs40/image_rs40_bavcta008_00.vti',
       'dist/cta/volume/rs40/image_rs40_bavcta008_01.vti',
       'dist/cta/volume/rs40/image_rs40_bavcta008_02.vti',
     ],
-    modles: [
+    models: [
       'dist/cta/model/dc50/mesh_dc50_bavcta008_01.vtp',
       'dist/cta/model/dc50/mesh_dc50_bavcta008_02.vtp',
       'dist/cta/model/dc50/mesh_dc50_bavcta008_03.vtp',
     ],
     segmentations: [
-      'dist/cta/segmentation/seg__rs40_bavcta008_00.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_01.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_02.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_00.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_01.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_02.vti',
     ]
   },
   "dev_cta-20tp": {
-    numberOfTimepoints: 20,
+    nT: 20,
     volumes: [
       'dist/cta/volume/rs40/image_rs40_bavcta008_00.vti',
       'dist/cta/volume/rs40/image_rs40_bavcta008_01.vti',
@@ -68,26 +68,26 @@ export const cases = {
       'dist/cta/model/dc50/mesh_dc50_bavcta008_20.vtp',
     ],
     segmentations: [
-      'dist/cta/segmentation/seg__rs40_bavcta008_00.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_01.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_02.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_03.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_04.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_05.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_06.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_07.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_08.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_09.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_10.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_11.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_12.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_13.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_14.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_15.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_16.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_17.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_18.vti',
-      'dist/cta/segmentation/seg__rs40_bavcta008_19.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_00.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_01.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_02.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_03.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_04.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_05.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_06.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_07.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_08.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_09.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_10.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_11.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_12.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_13.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_14.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_15.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_16.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_17.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_18.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_19.vti',
     ]
   }
 }

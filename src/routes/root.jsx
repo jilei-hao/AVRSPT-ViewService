@@ -42,7 +42,7 @@ import {
   canvasBox, viewBoxes, sliceViewMap, viewPanelPos, viewConfig,
   modelViewMap, 
 } from "../shared/model/layout"
-import { cases } from '../shared/model/cases';
+import { cases, BASE_DATA_URL } from '../shared/model/cases';
 
 function InteractorStyleImageTouch(publicAPI, model) {
   model.classHierarchy.push('InteractorStyleImageTouch');
@@ -211,6 +211,8 @@ export default function Root() {
         sliceRenderers, modelRenderer,
       };
 
+      const nT = cases[crntCase].nT;
+
       if (!hasDownloadingStarted.current || hasDownloadingFinished.current) {
         hasDownloadingStarted.current = true;
         hasDownloadingFinished.current = false;
@@ -243,12 +245,13 @@ export default function Root() {
 
   function downloadData(tp) {
     console.log("-- downloading started for tp: ", tp);
-    parseVolumeFile(volumeFiles[tp], tp);
-    parseModelFile(modelFiles[tp], tp);
+    parseVolumeFile(cases[crntCase].volumes[tp], tp);
+    parseModelFile(cases[crntCase].models[tp], tp);
   };
 
   function parseVolumeFile(fn, i) {
-    fetchBinary(`${BASE_URL}/${fn}`).then((bVolume) => {
+    console.log("parseVolumeFile: fn: ", BASE_DATA_URL, fn);
+    fetchBinary(`${BASE_DATA_URL}/${fn}`).then((bVolume) => {
       console.log("-- parsing volume from file: ", i);
       //setDevMsg(`parsing volume: ${i}`);
       const reader = vtkXMLImageDataReader.newInstance();
@@ -263,7 +266,7 @@ export default function Root() {
 
   function updateVisibleVolume(resetCamera = false) {
     if (context.current) {
-      //console.log("updateVisibleVolume data:", tpVolumeData.current[currentTP]);
+      // console.log("updateVisibleVolume data:", tpVolumeData.current[currentTP]);
       const { sliceRenderers, renderWindow } = context.current;
       sliceRenderers.forEach((ren) => {
         const actor = ren.getActors()[0];
@@ -288,7 +291,7 @@ export default function Root() {
   }
 
   function parseModelFile(fn, i) {
-    fetchBinary(`${BASE_URL}/${fn}`).then((bModel) => {
+    fetchBinary(`${BASE_DATA_URL}/${fn}`).then((bModel) => {
       console.log("-- parsing model from file: ", i);
       //setDevMsg(`parsing model from file: ${i}`);
       const reader = vtkXMLPolyDataReader.newInstance();
@@ -345,12 +348,12 @@ export default function Root() {
   }
 
   function onPreviousClicked() {
-    const l = nT;
+    const l = cases[crntCase].nT;
     setCurrentTP(prevTP => l - 1 - (l - prevTP) % l);
   }
 
   function onNextClicked() {
-    setCurrentTP(prevTP => (prevTP + 1) % nT);
+    setCurrentTP(prevTP => (prevTP + 1) % cases[crntCase].nT);
   }
 
   useEffect(() => {
