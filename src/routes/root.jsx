@@ -42,57 +42,7 @@ import {
   canvasBox, viewBoxes, sliceViewMap, viewPanelPos, viewConfig,
   modelViewMap, 
 } from "../shared/model/layout"
-
-
-const BASE_URL = `http://${config.host}:${config.port}`;
-
-const volumeFiles = [
-  'dist/volume/rs40/image_rs40_bavcta008_00.vti',
-  'dist/volume/rs40/image_rs40_bavcta008_01.vti',
-  'dist/volume/rs40/image_rs40_bavcta008_02.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_03.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_04.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_05.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_06.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_07.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_08.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_09.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_10.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_11.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_12.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_13.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_14.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_15.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_16.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_17.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_18.vti',
-  // 'dist/volume/rs40/image_rs40_bavcta008_19.vti',
-];
-
-const modelFiles = [
-  'dist/model/dc50/mesh_dc50_bavcta008_01.vtp',
-  'dist/model/dc50/mesh_dc50_bavcta008_02.vtp',
-  'dist/model/dc50/mesh_dc50_bavcta008_03.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_04.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_05.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_06.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_07.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_08.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_09.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_10.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_11.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_12.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_13.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_14.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_15.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_16.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_17.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_18.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_19.vtp',
-  // 'dist/model/dc50/mesh_dc50_bavcta008_20.vtp',
-];
-
-const nT = volumeFiles.length;
+import { cases } from '../shared/model/cases';
 
 function InteractorStyleImageTouch(publicAPI, model) {
   model.classHierarchy.push('InteractorStyleImageTouch');
@@ -167,6 +117,7 @@ export default function Root() {
   const [replayTimer, setReplayTimer] = useState({});
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
+  const [crntCase, setCrntCase] = useState("dev_cta-3tp");
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
