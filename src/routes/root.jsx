@@ -103,6 +103,8 @@ export default function Root() {
         colorTransferFunction.addRGBPoint(0, 0, 0, 0);
         colorTransferFunction.addRGBPoint(1, 1, 1, 1);
         actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
+        actor.getProperty().setColorLevel(130);
+        actor.getProperty().setColorWindow(662);
 
         // configure overlay mapper and actor
         const seg_mapper = vtkImageMapper.newInstance();
@@ -111,16 +113,18 @@ export default function Root() {
         seg_mapper.setSlicingMode(sliceRenConfig.mode);
         seg_actor.setMapper(seg_mapper);
         seg_actor.setVisibility(true);
-        const seg_color_function = vtkColorTransferFunction.newInstance();
-        seg_color_function.addRGBPoint(0, 0, 0, 0);
-        seg_color_function.addRGBPoint(1, 1, 0, 0);
-        seg_color_function.addRGBPoint(2, 0, 1, 0);
-        seg_color_function.addRGBPoint(3, 0, 0, 1);
-        seg_actor.getProperty().setRGBTransferFunction(seg_color_function);
+        const seg_lut = vtkColorTransferFunction.newInstance();
+        seg_lut.addRGBPoint(0, 1, 0.87, 0.74);
+        seg_lut.addRGBPoint(1, 1, 0.87, 0.74);
+        // const seg_lut = vtkLookupTable.newInstance();
+        seg_actor.getProperty().setRGBTransferFunction(0, seg_lut);
+        // console.log("-- seg_lut: ", seg_mapper, seg_lut);
         const ofun = vtkPiecewiseFunction.newInstance();
         ofun.addPoint(0, 0);
-        ofun.addPoint(10, 1);
-        seg_actor.getProperty().setPiecewiseFunction(ofun);
+        ofun.addPoint(1, 0.8);
+        // ofun.addPoint(4, 1);
+        seg_actor.getProperty().setScalarOpacity(ofun);
+        seg_actor.getProperty().setInterpolationTypeToNearest();
         
 
         // configure renderer
@@ -294,10 +298,10 @@ export default function Root() {
     if (context.current) {
       // console.log("updateVisibleVolume data:", tpVolumeData.current[currentTP]);
       const { sliceRenderers, renderWindow } = context.current;
-      console.log("[updateVisibleSegmentatin] segData: ", tpSegmentationData.current[currentTP]);
+      // console.log("[updateVisibleSegmentatin] segData: ", tpSegmentationData.current[currentTP]);
       sliceRenderers.forEach((ren) => {
         const actor = ren.getActors()[1];
-        console.log("-- segActor = ", actor)
+        // console.log("-- segActor = ", actor)
         const mapper = actor.getMapper();
         mapper.setInputData(tpSegmentationData.current[currentTP]);
 
