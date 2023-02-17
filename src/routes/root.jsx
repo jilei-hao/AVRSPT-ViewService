@@ -114,15 +114,21 @@ export default function Root() {
         seg_actor.setMapper(seg_mapper);
         seg_actor.setVisibility(true);
         const seg_lut = vtkColorTransferFunction.newInstance();
-        seg_lut.addRGBPoint(0, 1, 0.87, 0.74);
-        seg_lut.addRGBPoint(1, 1, 0.87, 0.74);
-        // const seg_lut = vtkLookupTable.newInstance();
+        seg_lut.setIndexedLookup(true);
+        seg_lut.setMappingRange(0, 4);
+        seg_lut.addRGBPoint(0, 0, 0, 0);
+        seg_lut.addRGBPoint(1, 1, 0, 0);
+        seg_lut.addRGBPoint(2, 0, 1, 0);
+        seg_lut.addRGBPoint(3, 0, 0, 1);
+        seg_lut.addRGBPoint(4, 1, 0.87, 0.74);
+
         seg_actor.getProperty().setRGBTransferFunction(0, seg_lut);
-        // console.log("-- seg_lut: ", seg_mapper, seg_lut);
+        console.log("-- seg_lut: ", seg_actor, seg_lut);
         const ofun = vtkPiecewiseFunction.newInstance();
         ofun.addPoint(0, 0);
         ofun.addPoint(1, 0.8);
-        // ofun.addPoint(4, 1);
+        seg_actor.getProperty().setColorLevel(2);
+        seg_actor.getProperty().setColorWindow(4);
         seg_actor.getProperty().setScalarOpacity(ofun);
         seg_actor.getProperty().setInterpolationTypeToNearest();
         
