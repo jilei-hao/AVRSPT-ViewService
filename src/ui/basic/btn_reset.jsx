@@ -1,4 +1,4 @@
-import btnReset from "../../../assets/btn_reset__idle.svg"
+import btnReset from "../assets/btn_reset__idle.svg"
 
 export default function ButtonReset ({strSize, onClick}) {
   const styleBtn = {

@@ -1,0 +1,23 @@
+.chkbtn_vis {
+  width: 3.5vw;
+  height: 3.5vw;
+  border-radius: 50%;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  border: none;
+}
+
+.chkbtn_vis__chked {
+  background-color: rgb(36, 36, 36);
+}
+
+.chkbtn_vis__unchked {
+  background-color: rgb(72, 72, 72);
+}
+
+.btn_icon {
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+}

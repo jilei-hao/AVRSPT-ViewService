@@ -1,12 +1,13 @@
 import { createContext, useContext, useState, useRef, useEffect } from "react"
-import { RenderContext } from "../model/context";
+import { RenderContext } from "../../model/context";
 import { 
   canvasBox, tiledView, viewBoxes, viewPanelPos, viewConfig,
   getViewIdFromPos,
-} from "../model/layout"
+} from "../../model/layout"
 
-import ButtonReset from "../ui/basic/btn_reset"
-import ButtonLayout from "../ui/basic/btn_layout"
+import ButtonReset from "../basic/btn_reset"
+import ButtonLayout from "../basic/btn_layout"
+import CheckButtonSegVis from "../basic/chkbtn_segvis";
 
 // const RenderContext = createContext("default");
 
@@ -39,7 +40,7 @@ export function ViewportPanel(props) {
     left: left,
     visibility: panelVis,
     width: "4vw",
-    height: "9vw",
+    height: "10vw",
     padding: "0px",
     borderRadius: "2vw",
     backgroundColor: "rgb(72, 72, 72)",

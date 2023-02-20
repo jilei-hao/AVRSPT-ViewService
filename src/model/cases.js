@@ -1,4 +1,4 @@
-import config from "../../../server-config.json"
+import config from "../../server-config.json"
 
 export const BASE_DATA_URL = `http://${config.host}:${config.port}`;
 
@@ -78,6 +78,45 @@ export const cases = {
       'dist/cta/segmentation/seg_rs40_bavcta008_07.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_08.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_09.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_10.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_11.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_12.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_13.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_14.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_15.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_16.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_17.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_18.vti',
+      'dist/cta/segmentation/seg_rs40_bavcta008_19.vti',
+    ]
+  },
+  "dev_cta-10tp": {
+    nT: 10,
+    volumes: [
+      'dist/cta/volume/rs40/image_rs40_bavcta008_10.vti',
+      'dist/cta/volume/rs40/image_rs40_bavcta008_11.vti',
+      'dist/cta/volume/rs40/image_rs40_bavcta008_12.vti',
+      'dist/cta/volume/rs40/image_rs40_bavcta008_13.vti',
+      'dist/cta/volume/rs40/image_rs40_bavcta008_14.vti',
+      'dist/cta/volume/rs40/image_rs40_bavcta008_15.vti',
+      'dist/cta/volume/rs40/image_rs40_bavcta008_16.vti',
+      'dist/cta/volume/rs40/image_rs40_bavcta008_17.vti',
+      'dist/cta/volume/rs40/image_rs40_bavcta008_18.vti',
+      'dist/cta/volume/rs40/image_rs40_bavcta008_19.vti',
+    ],
+    models: [
+      'dist/cta/model/dc50/mesh_dc50_bavcta008_11.vtp',
+      'dist/cta/model/dc50/mesh_dc50_bavcta008_12.vtp',
+      'dist/cta/model/dc50/mesh_dc50_bavcta008_13.vtp',
+      'dist/cta/model/dc50/mesh_dc50_bavcta008_14.vtp',
+      'dist/cta/model/dc50/mesh_dc50_bavcta008_15.vtp',
+      'dist/cta/model/dc50/mesh_dc50_bavcta008_16.vtp',
+      'dist/cta/model/dc50/mesh_dc50_bavcta008_17.vtp',
+      'dist/cta/model/dc50/mesh_dc50_bavcta008_18.vtp',
+      'dist/cta/model/dc50/mesh_dc50_bavcta008_19.vtp',
+      'dist/cta/model/dc50/mesh_dc50_bavcta008_20.vtp',
+    ],
+    segmentations: [
       'dist/cta/segmentation/seg_rs40_bavcta008_10.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_11.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_12.vti',

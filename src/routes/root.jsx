@@ -26,25 +26,21 @@ import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
 import vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData';
 import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
 
-// application imports
-import btn_play from '../assets/btn_play__idle.svg'
-import btn_prev from '../assets/btn_prev__idle.svg'
-import btn_next from '../assets/btn_next__idle.svg'
-import btn_pause from '../assets/btn_pause__idle.svg'
+// application import
 import styles from '../app.module.css'
 import config from '../../server-config.json';
-import { RenderContext } from '../shared/model/context';
-import InteractionStyleImageTouch from '../shared/ui/interaction/interaction_style_image_touch';
+import { RenderContext } from '../model/context';
+import InteractionStyleImageTouch from '../ui/interaction/interaction_style_image_touch';
 
 // -- components
-import ViewPanelGroup from '../shared/ui/viewport_panel';
+import ViewPanelGroup from '../ui/composite/viewport_panel';
+import { ReplayPanel } from '../ui/composite/replay_panel';
 import { 
   canvasBox, viewBoxes, sliceViewMap, viewPanelPos, viewConfig,
   modelViewMap, 
-} from "../shared/model/layout"
-import { cases, BASE_DATA_URL } from '../shared/model/cases';
+} from "../model/layout"
+import { cases, BASE_DATA_URL } from '../model/cases';
 
-const { SlicingMode } = Constants;
 const { fetchBinary } = vtkHttpDataAccessHelper;
 
 export default function Root() {
@@ -57,11 +53,6 @@ export default function Root() {
   const tpVolumeData = useRef([]);
   const tpModelData = useRef([]);
   const tpSegmentationData = useRef([]);
-  const tpSlider = useRef(null); // ref to the tp slider
-  const [isReplayOn, setIsReplayOn] = useState(false);
-  const [currentTP, setCurrentTP] = useState(0); // storage tp is 0-based
-  const [frameTimeInMS, setFrameTimeInMS] = useState(50);
-  const [replayTimer, setReplayTimer] = useState({});
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
   const [crntCase, setCrntCase] = useState("dev_cta-3tp");
@@ -123,7 +114,7 @@ export default function Root() {
         seg_lut.addRGBPoint(4, 1, 0.87, 0.74);
 
         seg_actor.getProperty().setRGBTransferFunction(0, seg_lut);
-        console.log("-- seg_lut: ", seg_actor, seg_lut);
+        // console.log("-- seg_lut: ", seg_actor, seg_lut);
         const ofun = vtkPiecewiseFunction.newInstance();
         ofun.addPoint(0, 0);
         ofun.addPoint(1, 0.8);
@@ -199,8 +190,6 @@ export default function Root() {
           downloadData(i);
       }
 
-      updateSlider(nT);
-
       window.vtkContext = context.current;
 
       // without this context will not be refereshed to the children
@@ -274,120 +263,6 @@ export default function Root() {
     });
   }
 
-  function updateVisibleVolume(resetCamera = false) {
-    if (context.current) {
-      // console.log("updateVisibleVolume data:", tpVolumeData.current[currentTP]);
-      const { sliceRenderers, renderWindow } = context.current;
-      sliceRenderers.forEach((ren) => {
-        const actor = ren.getActors()[0];
-        const mapper = actor.getMapper();
-        mapper.setInputData(tpVolumeData.current[currentTP]);
-
-        if (resetCamera) {
-          const camera = ren.getActiveCamera();
-          const position = camera.getFocalPoint();
-
-          // offset along the slicing axis
-          const normal = mapper.getSlicingModeNormal();
-          position[0] += normal[0];
-          position[1] += normal[1];
-          position[2] += normal[2];
-          camera.setPosition(...position);
-          ren.resetCamera();
-        }
-      })
-      renderWindow.render();
-    }
-  }
-
-  function updateVisibleSegmentation(resetCamera = false) {
-    if (context.current) {
-      // console.log("updateVisibleVolume data:", tpVolumeData.current[currentTP]);
-      const { sliceRenderers, renderWindow } = context.current;
-      // console.log("[updateVisibleSegmentatin] segData: ", tpSegmentationData.current[currentTP]);
-      sliceRenderers.forEach((ren) => {
-        const actor = ren.getActors()[1];
-        // console.log("-- segActor = ", actor)
-        const mapper = actor.getMapper();
-        mapper.setInputData(tpSegmentationData.current[currentTP]);
-
-        if (resetCamera) {
-          const camera = ren.getActiveCamera();
-          const position = camera.getFocalPoint();
-
-          // offset along the slicing axis
-          const normal = mapper.getSlicingModeNormal();
-          position[0] += normal[0];
-          position[1] += normal[1];
-          position[2] += normal[2];
-          camera.setPosition(...position);
-          ren.resetCamera();
-        }
-      })
-      renderWindow.render();
-    }
-  }
-
-  function updateVisibleModel(resetCamera = false) {
-    if (context.current) {
-      //console.log("updateVisibleModel data:", tpModelData.current[currentTP]);
-      const { modelRenderer, renderWindow } = context.current;
-      const actor = modelRenderer.getActors()[0];
-      const mapper = actor.getMapper();
-      mapper.setInputData(tpModelData.current[currentTP]);
-
-      if (resetCamera)
-        modelRenderer.resetCamera();
-
-      renderWindow.render();
-    }
-  }
-
-  function updateVisibleDataset(resetCamera = false) {
-      // console.log("Updating visible dataset");
-
-      if (tpVolumeData.current.length > 0)
-        updateVisibleVolume(resetCamera);
-      if (tpModelData.current.length > 0)
-        updateVisibleModel(resetCamera);
-      if (tpSegmentationData.current.length > 0)
-        updateVisibleSegmentation(resetCamera);
-  }
-
-  function updateSlider(len) {
-    if (context.current && tpSlider.current) {
-      const slider = tpSlider.current;
-      slider.min = 1;
-      slider.max = len;
-    }
-  }
-
-  useEffect(() => {
-    if (context.current) {
-      console.log("Current TP Changed to: ", currentTP);
-      updateVisibleDataset();
-    }
-  }, [currentTP]);
-
-  function onReplayClicked() {
-    setIsReplayOn(!isReplayOn);
-  }
-
-  function onPreviousClicked() {
-    const l = cases[crntCase].nT;
-    setCurrentTP(prevTP => l - 1 - (l - prevTP) % l);
-  }
-
-  function onNextClicked() {
-    setCurrentTP(prevTP => (prevTP + 1) % cases[crntCase].nT);
-  }
-
-  useEffect(() => {
-    clearInterval(replayTimer);
-    if (isReplayOn) {
-      setReplayTimer(setInterval(onNextClicked, frameTimeInMS));
-    }
-  }, [frameTimeInMS, isReplayOn]);
 
   // let viewPanel control other panel's visibility
   function handleLayoutChange(viewId, isFullScreen) {
@@ -405,31 +280,6 @@ export default function Root() {
   return (
     <div>
       <div ref={vtkContainerRef} />
-      <div className={styles.control_panel}>
-        <div className={styles.replay_panel}>
-          <button className={styles.toolbar_button__s}
-            onClick={onPreviousClicked}
-          >
-            <img className={styles.icon_image__s} src={ btn_prev }/>
-          </button>
-          <input className={styles.touch_slider} ref={tpSlider}
-            type="range" min="1" max="1"
-            value={currentTP + 1}
-            onChange={(ev) => setCurrentTP(Number(ev.target.value - 1))}
-          />
-          <button className={styles.toolbar_button__s}
-            onClick={onNextClicked}
-          >
-            <img className={styles.icon_image__s} src={ btn_next }/>
-          </button>
-          <button className={styles.toolbar_button__s}
-            onClick={onReplayClicked}
-          >
-            <img className={styles.icon_image__s} 
-            src={ isReplayOn ? btn_pause : btn_play } />
-          </button>
-        </div>
-      </div>
       <div className={styles.dev_panel}>
         <p className={styles.dev_message}>{ devMsg }</p>
       </div>
@@ -437,6 +287,9 @@ export default function Root() {
         <ViewPanelGroup onLayoutChange={handleLayoutChange}
           viewPanelVis={viewPanelVis}
         />
+        <div className={styles.control_panel}>
+          <ReplayPanel />
+        </div>
       </RenderContext.Provider>
     </div>
   );

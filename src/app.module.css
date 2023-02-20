@@ -1,111 +1,15 @@
-.touch_slider {
-  -webkit-appearance: none;  /* Override default CSS styles */
-  appearance: none;
-  width: 300px; /* Full-width */
-  height: 20px; /* Specified height */
-  background: white; /* Grey background */
-  outline: none; /* Remove outline */
-  opacity: 1; /* Set transparency (for mouse-over effects on hover) */
-  margin-top: auto;
-  margin-bottom: auto;
-  border-radius: 5px;
-  vertical-align: middle;
-}
-  
-.touch_slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  background: rgb(102, 102, 102);
-  cursor: pointer;
-}
-
-.replay_panel {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-content: center;
-  vertical-align: center;
-  width: auto;
-  background-color: rgb(218, 218, 218);
-}
-
 .control_panel {
   display: flex;
   position: absolute;
   justify-content: center;
   bottom: 0vh;
-  left: 0vw;
-  width: 99.3vw;
-  height: 10vh;
-  font-size: 10vh;
-  border-radius: 0px;
-  background: rgb(218, 218, 218);
-  padding: 5px;
-}
-
-.tp_slider {
-  display: flex;
-  margin-left: 5px;
-  margin-right: 5px;
-}
-
-.toolbar_button__s {
-  width: 9vh;
+  left: 15vw;
+  width: 70vw;
   height: 9vh;
-  margin-left: 10px;
-  margin-right: 10px;
-  border-radius: 5%;
-  border: none;
-  background:rgb(218, 218, 218);
-}
-
-.icon_image__s {
-  width: 100%;
-  height: 100%;
-}
-
-.tp_slider_button__play {
-  width: 7vw;
-  height: 7vh;
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left: 5px;
-  margin-right: 5px;
-  border-radius: 20%;
-  vertical-align: middle;
-}
-
-.viewport_toolbar {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  justify-content: center;
-  align-items: center;
-  vertical-align: middle;
-  top: 50vh;
-  left: 45vw;
-  width: 4vw;
-  height: 13vw;
-  border-radius: 10%;
-  background-color: rgb(228, 228, 228);
-  opacity: 1;
-}
-
-.blending_panel {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 3vh;
-  left: 3vw;
-  width: 20vw;
-  height: auto;
-  padding: 12px;
+  font-size: 10vh;
   border-radius: 10px;
-  background-color: purple;
-  opacity: 1;
+  background: white;
+  padding: 5px;
 }
 
 .panel_item_vertical {
