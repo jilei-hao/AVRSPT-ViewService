@@ -66,7 +66,7 @@ export default function Root() {
 
       const fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
         rootContainer: vtkContainerRef.current, // html element containing this window
-        background: [0.1, 0.1, 0.1],
+        background: [0, 0, 0],
       });
 
       const renderWindow = fullScreenRenderWindow.getRenderWindow();
@@ -284,21 +284,14 @@ export default function Root() {
     });
   }
 
-  function updateVisibleVolume(tp, resetCamera = false) {
-    const volume = tpData.current[tp].volume;
-
-    if (!volume) {
-      console.error(`[udpateVisibleVolume] volume for tp ${tp} does not exist!`);
-      return;
-    }
-
+  function resetSlicingCamera(renId = -1) {
     const { sliceRenderers } = context.current;
-    sliceRenderers.forEach((ren) => {
-      const actor = ren.getActors()[0];
-      const mapper = actor.getMapper();
-      mapper.setInputData(volume);
+    sliceRenderers.forEach((ren, i) => {
+      // only update specified renId, or -1 for all renderer cameras
+      if (renId == i || renId == -1) {
+        const actor = ren.getActors()[0]; // only image actor needed
+        const mapper = actor.getMapper();
 
-      if (resetCamera) {
         const camera = ren.getActiveCamera();
         const position = camera.getFocalPoint();
 
@@ -308,9 +301,36 @@ export default function Root() {
         position[1] += normal[1];
         position[2] += normal[2];
         camera.setPosition(...position);
+        
         ren.resetCamera();
+
+        if (i != 0)
+          camera.zoom(1.4);
+        else
+          camera.zoom(1.1);
+          
       }
     })
+  }
+
+  function updateVisibleVolume(tp, resetCamera = false) {
+    const volume = tpData.current[tp].volume;
+
+    if (!volume) {
+      console.error(`[udpateVisibleVolume] volume for tp ${tp} does not exist!`);
+      return;
+    }
+
+    const { sliceRenderers } = context.current;
+    sliceRenderers.forEach((ren, i) => {
+      const actor = ren.getActors()[0];
+      const mapper = actor.getMapper();
+      mapper.setInputData(volume);
+    })
+
+    if (resetCamera) {
+      resetSlicingCamera(-1);
+    }
   }
 
   function updateVisibleSegmentation(tp, resetCamera = false) {
@@ -328,18 +348,18 @@ export default function Root() {
       const mapper = actor.getMapper();
       mapper.setInputData(segmentation);
 
-      if (resetCamera) {
-        const camera = ren.getActiveCamera();
-        const position = camera.getFocalPoint();
+      // if (resetCamera) {
+      //   const camera = ren.getActiveCamera();
+      //   const position = camera.getFocalPoint();
 
-        // offset along the slicing axis
-        const normal = mapper.getSlicingModeNormal();
-        position[0] += normal[0];
-        position[1] += normal[1];
-        position[2] += normal[2];
-        camera.setPosition(...position);
-        ren.resetCamera();
-      }
+      //   // offset along the slicing axis
+      //   const normal = mapper.getSlicingModeNormal();
+      //   position[0] += normal[0];
+      //   position[1] += normal[1];
+      //   position[2] += normal[2];
+      //   camera.setPosition(...position);
+      //   ren.resetCamera();
+      // }
     })
   }
 

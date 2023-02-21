@@ -2,14 +2,14 @@
   display: flex;
   position: absolute;
   justify-content: center;
-  bottom: 0vh;
+  bottom: 1vh;
   left: 10vw;
   width: 80vw;
-  height: 9vh;
+  height: 8vh;
   font-size: 10vh;
   border-radius: 4.5vh;
-  background: white;
-  padding: 15px;
+  background: rgb(72, 72, 72);
+  padding: 5px;
 }
 
 .panel_item_vertical {
@@ -17,7 +17,7 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  background-color: #999;
+  background-color: rgb(72, 72, 72);
   height: 40px;
   padding: 2px;
   margin: 1px;
