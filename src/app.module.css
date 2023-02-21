@@ -3,13 +3,13 @@
   position: absolute;
   justify-content: center;
   bottom: 0vh;
-  left: 15vw;
-  width: 70vw;
+  left: 10vw;
+  width: 80vw;
   height: 9vh;
   font-size: 10vh;
-  border-radius: 10px;
+  border-radius: 4.5vh;
   background: white;
-  padding: 5px;
+  padding: 15px;
 }
 
 .panel_item_vertical {

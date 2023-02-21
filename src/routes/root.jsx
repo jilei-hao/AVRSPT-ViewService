@@ -50,12 +50,12 @@ export default function Root() {
   const [contextState, setContextState] = useState(null);
   const hasDownloadingStarted = useRef(false);
   const hasDownloadingFinished = useRef(false);
-  const tpVolumeData = useRef([]);
-  const tpModelData = useRef([]);
-  const tpSegmentationData = useRef([]);
+  const tpData = useRef([]);
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
   const [crntCase, setCrntCase] = useState("dev_cta-3tp");
+  const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
+  const readyFlagCount = useRef(0);
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -181,6 +181,7 @@ export default function Root() {
       };
 
       const nT = cases[crntCase].nT;
+      setNumberOfTimePoints(nT);
 
       if (!hasDownloadingStarted.current || hasDownloadingFinished.current) {
         hasDownloadingStarted.current = true;
@@ -212,12 +213,33 @@ export default function Root() {
     };
   }, [vtkContainerRef]);
 
+  function createNewTimePointData () {
+    return {
+      volume: null,
+      segmentation: null,
+      model: null
+    }
+  };
+
   function downloadData(tp) {
     console.log("-- downloading started for tp: ", tp);
+
+    if (!tpData.current[tp]) {
+      //console.log(`---- creating new tpData[${tp}]`);
+      tpData.current[tp] = createNewTimePointData();
+    }
+
     parseVolumeFile(cases[crntCase].volumes[tp], tp);
     parseSegmentationFile(cases[crntCase].segmentations[tp], tp);
     parseModelFile(cases[crntCase].models[tp], tp);
   };
+
+  function updateReadyFlag() {
+    readyFlagCount.current++;
+
+    if (readyFlagCount.current == 3)
+      updateVisibleDataset(0, true);
+  }
 
   function parseSegmentationFile(fn, i) {
     console.log("parseSegmentationFile: fn", `${BASE_DATA_URL}/${fn}`);
@@ -226,13 +248,12 @@ export default function Root() {
       //setDevMsg(`parsing volume: ${i}`);
       const reader = vtkXMLImageDataReader.newInstance();
       reader.parseAsArrayBuffer(bVolume);
-      tpSegmentationData.current[i] = reader.getOutputData(0);
+      tpData.current[i].segmentation = reader.getOutputData(0);
       reader.delete();
 
-      if (i == currentTP)
-        updateVisibleSegmentation(true);
+      if (i == 0)
+        updateReadyFlag();
     });
-
   }
 
   function parseVolumeFile(fn, i) {
@@ -241,11 +262,11 @@ export default function Root() {
       //setDevMsg(`parsing volume: ${i}`);
       const reader = vtkXMLImageDataReader.newInstance();
       reader.parseAsArrayBuffer(bVolume);
-      tpVolumeData.current[i] = reader.getOutputData(0);
+      tpData.current[i].volume = reader.getOutputData(0);
       reader.delete();
 
-      if (i == currentTP)
-        updateVisibleVolume(true);
+      if (i == 0)
+        updateReadyFlag();
     });
   }
 
@@ -255,12 +276,107 @@ export default function Root() {
       //setDevMsg(`parsing model from file: ${i}`);
       const reader = vtkXMLPolyDataReader.newInstance();
       reader.parseAsArrayBuffer(bModel);
-      tpModelData.current[i] = reader.getOutputData(0);
+      tpData.current[i].model = reader.getOutputData(0);
       reader.delete();
 
-      if (i == currentTP)
-        updateVisibleModel(true);
+      if (i == 0)
+        updateReadyFlag();
     });
+  }
+
+  function updateVisibleVolume(tp, resetCamera = false) {
+    const volume = tpData.current[tp].volume;
+
+    if (!volume) {
+      console.error(`[udpateVisibleVolume] volume for tp ${tp} does not exist!`);
+      return;
+    }
+
+    const { sliceRenderers } = context.current;
+    sliceRenderers.forEach((ren) => {
+      const actor = ren.getActors()[0];
+      const mapper = actor.getMapper();
+      mapper.setInputData(volume);
+
+      if (resetCamera) {
+        const camera = ren.getActiveCamera();
+        const position = camera.getFocalPoint();
+
+        // offset along the slicing axis
+        const normal = mapper.getSlicingModeNormal();
+        position[0] += normal[0];
+        position[1] += normal[1];
+        position[2] += normal[2];
+        camera.setPosition(...position);
+        ren.resetCamera();
+      }
+    })
+  }
+
+  function updateVisibleSegmentation(tp, resetCamera = false) {
+    const segmentation = tpData.current[tp].segmentation;
+
+    if (!segmentation) {
+      console.error(`[udpateVisibleSegmentation] segmentation for tp ${tp} does not exist!`);
+      return;
+    }
+
+    const { sliceRenderers } = context.current;
+    // console.log("[updateVisibleSegmentatin] segData: ", tpSegmentationData.current[currentTP]);
+    sliceRenderers.forEach((ren) => {
+      const actor = ren.getActors()[1];
+      const mapper = actor.getMapper();
+      mapper.setInputData(segmentation);
+
+      if (resetCamera) {
+        const camera = ren.getActiveCamera();
+        const position = camera.getFocalPoint();
+
+        // offset along the slicing axis
+        const normal = mapper.getSlicingModeNormal();
+        position[0] += normal[0];
+        position[1] += normal[1];
+        position[2] += normal[2];
+        camera.setPosition(...position);
+        ren.resetCamera();
+      }
+    })
+  }
+
+  function updateVisibleModel(tp, resetCamera = false) {
+    const model = tpData.current[tp].model;
+
+    if (!model) {
+      console.error(`[updateVisibleModel] model data for tp ${tp} does not exist!`);
+      return;
+    }
+
+    const { modelRenderer } = context.current;
+    const actor = modelRenderer.getActors()[0];
+    const mapper = actor.getMapper();
+    mapper.setInputData(model);
+
+    if (resetCamera)
+      modelRenderer.resetCamera();
+  }
+
+  function updateVisibleDataset(tp, resetCamera = false) {
+    // console.log("Updating visible dataset");
+    if (!context.current)
+      return;
+
+    const { renderWindow } = context.current;
+
+    if (!tpData.current[tp]) {
+      console.error(`[updateVisibleDataset] timepoint data ${tp} does not exist`);
+      return;
+    }
+      
+    updateVisibleVolume(tp, resetCamera);
+    updateVisibleModel(tp, resetCamera);
+    updateVisibleSegmentation(tp, resetCamera);
+
+    renderWindow.render();
   }
 
 
@@ -288,7 +404,10 @@ export default function Root() {
           viewPanelVis={viewPanelVis}
         />
         <div className={styles.control_panel}>
-          <ReplayPanel />
+          <ReplayPanel 
+            nT={numberOfTimePoints}
+            updateVisibleDataset={updateVisibleDataset}
+          />
         </div>
       </RenderContext.Provider>
     </div>
