@@ -33,13 +33,16 @@ import { RenderContext } from '../model/context';
 import InteractionStyleImageTouch from '../ui/interaction/interaction_style_image_touch';
 
 // -- components
-import ViewPanelGroup from '../ui/composite/viewport_panel';
-import { ReplayPanel } from '../ui/composite/replay_panel';
+import { cases, BASE_DATA_URL } from '../model/cases';
 import { 
   canvasBox, viewBoxes, sliceViewMap, viewPanelPos, viewConfig,
   modelViewMap, 
 } from "../model/layout"
-import { cases, BASE_DATA_URL } from '../model/cases';
+import ViewPanelGroup from '../ui/composite/viewport_panel';
+import { ReplayPanel } from '../ui/composite/replay_panel';
+import ButtonLabel from '../ui/basic/btn_label';
+import LabelEditor from '../ui/composite/label_editor';
+
 
 const { fetchBinary } = vtkHttpDataAccessHelper;
 
@@ -56,6 +59,7 @@ export default function Root() {
   const [crntCase, setCrntCase] = useState("dev_cta-3tp");
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
+  const [labelEditorActive, setLabelEditorActive] = useState(false);
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -347,19 +351,6 @@ export default function Root() {
       const actor = ren.getActors()[1];
       const mapper = actor.getMapper();
       mapper.setInputData(segmentation);
-
-      // if (resetCamera) {
-      //   const camera = ren.getActiveCamera();
-      //   const position = camera.getFocalPoint();
-
-      //   // offset along the slicing axis
-      //   const normal = mapper.getSlicingModeNormal();
-      //   position[0] += normal[0];
-      //   position[1] += normal[1];
-      //   position[2] += normal[2];
-      //   camera.setPosition(...position);
-      //   ren.resetCamera();
-      // }
     })
   }
 
@@ -413,6 +404,10 @@ export default function Root() {
     setViewPanelVis(newVis);
   }
 
+  function toggleLabelEditor() {
+    setLabelEditorActive(!labelEditorActive);
+  }
+
   return (
     <div>
       <div ref={vtkContainerRef} />
@@ -428,7 +423,13 @@ export default function Root() {
             nT={numberOfTimePoints}
             updateVisibleDataset={updateVisibleDataset}
           />
+          <ButtonLabel 
+            onClick={toggleLabelEditor}
+          />
         </div>
+        <LabelEditor
+          visible={labelEditorActive}
+        />
       </RenderContext.Provider>
     </div>
   );

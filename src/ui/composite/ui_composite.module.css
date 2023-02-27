@@ -4,6 +4,8 @@
   justify-content: center;
   width: auto;
   background-color: rgb(72, 72, 72);
+  /* border-left: solid rgb(50, 50, 50) 1px;
+  border-right: solid rgb(50, 50, 50) 1px; */
 }
 
 .replay_panel__disable {
@@ -57,4 +59,40 @@
   margin-right: 5px;
   border-radius: 20%;
   vertical-align: middle;
+}
+
+.visible {
+  visibility: visible;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.label_editor {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  width: 25vw;
+  height: 40vh;
+  border-radius: 20px;
+  background-color: purple;
+}
+
+.label_editor__active {
+  left: 60vw;
+  bottom: 12vh;
+}
+
+.label_editor__inactive {
+  left: 100vw;
+  bottom: 100vh;
+}
+
+.label_editor_row {
+  display: flex;
+  margin: 5px;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: yellow;
 }

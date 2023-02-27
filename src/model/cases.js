@@ -2,6 +2,20 @@ import config from "../../server-config.json"
 
 export const BASE_DATA_URL = `http://${config.host}:${config.port}`;
 
+const devLabelConfig = {
+  nL: 2,
+  labels: [
+    {
+      Number: 2,
+      RGBA: [255, 255, 255, 1],
+    },
+    {
+      Number: 4,
+      RGBA: [255, 255, 255, 1],
+    }
+  ]
+}
+
 export const cases = {
   "dev_cta-3tp": {
     nT: 3,
@@ -19,7 +33,8 @@ export const cases = {
       'dist/cta/segmentation/seg_rs40_bavcta008_00.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_01.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_02.vti',
-    ]
+    ],
+    labelConfig: devLabelConfig,
   },
   "dev_cta-20tp": {
     nT: 20,
@@ -88,7 +103,8 @@ export const cases = {
       'dist/cta/segmentation/seg_rs40_bavcta008_17.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_18.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_19.vti',
-    ]
+    ],
+    labelConfig: devLabelConfig,
   },
   "dev_cta-10tp": {
     nT: 10,
@@ -127,6 +143,7 @@ export const cases = {
       'dist/cta/segmentation/seg_rs40_bavcta008_17.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_18.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_19.vti',
-    ]
+    ],
+    labelConfig: devLabelConfig,
   }
 }
