@@ -42,7 +42,7 @@ import ViewPanelGroup from '../ui/composite/viewport_panel';
 import { ReplayPanel } from '../ui/composite/replay_panel';
 import ButtonLabel from '../ui/basic/btn_label';
 import LabelEditor from '../ui/composite/label_editor';
-
+import { CreateDisplayMappingPolicy } from '../model';
 
 const { fetchBinary } = vtkHttpDataAccessHelper;
 
@@ -78,6 +78,10 @@ export default function Root() {
       iStyle.setInteractionMode('IMAGE_SLICING');
       renderWindow.getInteractor().setInteractorStyle(iStyle);
 
+      // Create DisplayMappingPolicies
+
+      const DMP = CreateDisplayMappingPolicy(cases[crntCase].displayConfig);
+
       // Setup 3 renderes for the x, y, z viewports
       const sliceRenderers = [];
 
@@ -90,41 +94,28 @@ export default function Root() {
         // configure image mapper and actor
         const mapper = vtkImageMapper.newInstance();
         const actor = vtkImageSlice.newInstance();
+        const imageDMP = DMP.ImageDMP;
         mapper.setSliceAtFocalPoint(true);
         mapper.setSlicingMode(sliceRenConfig.mode);
         actor.setMapper(mapper);
         actor.setVisibility(true);
-        const colorTransferFunction = vtkColorTransferFunction.newInstance();
-        colorTransferFunction.addRGBPoint(0, 0, 0, 0);
-        colorTransferFunction.addRGBPoint(1, 1, 1, 1);
-        actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
-        actor.getProperty().setColorLevel(130);
-        actor.getProperty().setColorWindow(662);
+        actor.getProperty().setRGBTransferFunction(0, imageDMP.ColorTransferFunction);
+        actor.getProperty().setColorLevel(imageDMP.ColorLevel);
+        actor.getProperty().setColorWindow(imageDMP.ColorWindow);
 
         // configure overlay mapper and actor
         const seg_mapper = vtkImageMapper.newInstance();
         const seg_actor = vtkImageSlice.newInstance();
+        const labelDMP = DMP.LabelDMP;
         seg_mapper.setSliceAtFocalPoint(true);
         seg_mapper.setSlicingMode(sliceRenConfig.mode);
         seg_actor.setMapper(seg_mapper);
         seg_actor.setVisibility(true);
-        const seg_lut = vtkColorTransferFunction.newInstance();
-        seg_lut.setIndexedLookup(true);
-        seg_lut.setMappingRange(0, 4);
-        seg_lut.addRGBPoint(0, 0, 0, 0);
-        seg_lut.addRGBPoint(1, 1, 0, 0);
-        seg_lut.addRGBPoint(2, 0, 1, 0);
-        seg_lut.addRGBPoint(3, 0, 0, 1);
-        seg_lut.addRGBPoint(4, 1, 0.87, 0.74);
+        seg_actor.getProperty().setRGBTransferFunction(0, labelDMP.ColorTransferFunction);
 
-        seg_actor.getProperty().setRGBTransferFunction(0, seg_lut);
-        // console.log("-- seg_lut: ", seg_actor, seg_lut);
-        const ofun = vtkPiecewiseFunction.newInstance();
-        ofun.addPoint(0, 0);
-        ofun.addPoint(1, 0.8);
-        seg_actor.getProperty().setColorLevel(2);
-        seg_actor.getProperty().setColorWindow(4);
-        seg_actor.getProperty().setScalarOpacity(ofun);
+        seg_actor.getProperty().setColorLevel(labelDMP.ColorLevel);
+        seg_actor.getProperty().setColorWindow(labelDMP.ColorWindow);
+        seg_actor.getProperty().setScalarOpacity(labelDMP.OpacityFunction);
         seg_actor.getProperty().setInterpolationTypeToNearest();
         
 
@@ -181,7 +172,8 @@ export default function Root() {
       
       context.current = {
         fullScreenRenderWindow, renderWindow,
-        sliceRenderers, modelRenderer,
+        sliceRenderers, modelRenderer, 
+        currentCase: cases[crntCase]
       };
 
       const nT = cases[crntCase].nT;
@@ -195,6 +187,7 @@ export default function Root() {
           downloadData(i);
       }
 
+      // For dev tool troubleshooting
       window.vtkContext = context.current;
 
       // without this context will not be refereshed to the children

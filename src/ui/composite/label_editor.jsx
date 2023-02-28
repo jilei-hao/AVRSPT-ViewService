@@ -1,4 +1,7 @@
+import { useContext, useState} from "react"
+
 import styles from "./ui_composite.module.css"
+import { RenderContext } from "../../model/context";
 
 function LabelEditorRow (props) {
   return (
@@ -9,6 +12,8 @@ function LabelEditorRow (props) {
 }
 
 function LabelConfigPanel (props) {
+  
+
   return (
     <LabelEditorRow>
       <label>LN</label>
@@ -21,6 +26,14 @@ function LabelConfigPanel (props) {
 }
 
 export default function LabelEditor (props) {
+  const renContext = useContext(RenderContext);
+  const [labelConfig, setLabelConfig] = useState([]);
+
+  if (renContext) {
+    const { currentCase } = renContext;
+    console.log("LabelconfigPanel", currentCase);
+  }
+  
 
   return (
     <div className={

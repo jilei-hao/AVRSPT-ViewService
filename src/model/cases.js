@@ -2,19 +2,30 @@ import config from "../../server-config.json"
 
 export const BASE_DATA_URL = `http://${config.host}:${config.port}`;
 
-const devLabelConfig = {
-  nL: 2,
-  labels: [
-    {
-      Number: 2,
-      RGBA: [255, 255, 255, 1],
-    },
-    {
-      Number: 4,
-      RGBA: [255, 255, 255, 1],
-    }
-  ]
+const devDisplayConfig = {
+  image: {
+
+  },
+  label: {
+    min: 0,
+    max: 4,
+    labels: [
+      {
+        Number: 0,
+        RGBA: [0, 0, 0, 0],
+      },
+      {
+        Number: 2,
+        RGBA: [1, 1, 1, 1],
+      },
+      {
+        Number: 4,
+        RGBA: [1, 0.87, 0.74, 1],
+      }
+    ]
+  }
 }
+
 
 export const cases = {
   "dev_cta-3tp": {
@@ -34,7 +45,7 @@ export const cases = {
       'dist/cta/segmentation/seg_rs40_bavcta008_01.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_02.vti',
     ],
-    labelConfig: devLabelConfig,
+    displayConfig: devDisplayConfig,
   },
   "dev_cta-20tp": {
     nT: 20,
@@ -104,7 +115,7 @@ export const cases = {
       'dist/cta/segmentation/seg_rs40_bavcta008_18.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_19.vti',
     ],
-    labelConfig: devLabelConfig,
+    displayConfig: devDisplayConfig,
   },
   "dev_cta-10tp": {
     nT: 10,
@@ -144,6 +155,6 @@ export const cases = {
       'dist/cta/segmentation/seg_rs40_bavcta008_18.vti',
       'dist/cta/segmentation/seg_rs40_bavcta008_19.vti',
     ],
-    labelConfig: devLabelConfig,
+    displayConfig: devDisplayConfig,
   }
 }
