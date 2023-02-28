@@ -1,7 +1,8 @@
-import { useContext, useState} from "react"
+import { Fragment, useContext, useState} from "react"
 
 import styles from "./ui_composite.module.css"
 import { RenderContext } from "../../model/context";
+import { CreateDisplayMappingPolicy } from "../../model";
 
 function LabelEditorRow (props) {
   return (
@@ -12,28 +13,27 @@ function LabelEditorRow (props) {
 }
 
 function LabelConfigPanel (props) {
-  
-
   return (
     <LabelEditorRow>
-      <label>LN</label>
-      <div>Color</div>
-      <label>Description</label>
-      <input type="range" />
+      <label>[LN]</label>
+      <div>[CR]</div>
+      <label>[Desc]</label>
+      <input type="range" min="0" max="1" step="0.01" 
+        onChange={(e) => props.onOpacityChange(0, e.target.value)}
+      />
       <input type="checkbox" />
     </LabelEditorRow>
   )
 }
 
 export default function LabelEditor (props) {
-  const renContext = useContext(RenderContext);
-  const [labelConfig, setLabelConfig] = useState([]);
+  console.log("LabelEditor: labelConfig: ", props.labelConfig);
 
-  if (renContext) {
-    const { currentCase } = renContext;
-    console.log("LabelconfigPanel", currentCase);
-  }
-  
+  const labelRows = props.labelConfig.map(label => 
+    <LabelConfigPanel key={label.Number} 
+      onOpacityChange={ props.onOpacityChange }
+    />
+  ) 
 
   return (
     <div className={
@@ -49,11 +49,7 @@ export default function LabelEditor (props) {
           <option value="2">Cusp</option>
         </select>
       </LabelEditorRow>
-      <LabelConfigPanel />
-      <LabelConfigPanel />
-      <LabelConfigPanel />
-      <LabelConfigPanel />
-
+      { labelRows }
     </div>
   );
 }

@@ -60,6 +60,7 @@ export default function Root() {
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
   const [labelEditorActive, setLabelEditorActive] = useState(false);
+  const [labelConfig, setLabelConfig] = useState([]);
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -81,6 +82,7 @@ export default function Root() {
       // Create DisplayMappingPolicies
 
       const DMP = CreateDisplayMappingPolicy(cases[crntCase].displayConfig);
+      setLabelConfig(DMP.DisplayConfig.label.labels)
 
       // Setup 3 renderes for the x, y, z viewports
       const sliceRenderers = [];
@@ -172,8 +174,7 @@ export default function Root() {
       
       context.current = {
         fullScreenRenderWindow, renderWindow,
-        sliceRenderers, modelRenderer, 
-        currentCase: cases[crntCase]
+        sliceRenderers, modelRenderer, DMP
       };
 
       const nT = cases[crntCase].nT;
@@ -401,6 +402,24 @@ export default function Root() {
     setLabelEditorActive(!labelEditorActive);
   }
 
+  function changeLabelOpacity(label, opacity) {
+    const { modelRenderer } = context.current;
+    const actor = modelRenderer.getActors()[0];
+    const mapper = actor.getMapper();
+
+    console.log("changeLabelOpacity, opacity", opacity)
+
+    const lut = vtkLookupTable.newInstance();
+    lut.setNumberOfColors(2);
+    lut.setAboveRangeColor([1,0.87,0.74,1]);
+    lut.setBelowRangeColor([1,1,1,1]);
+    lut.setNanColor([1,0.87,0.74,1]);
+    lut.setUseAboveRangeColor(true);
+    lut.setUseBelowRangeColor(true);
+    lut.build();
+    mapper.setLookupTable(lut);
+  }
+
   return (
     <div>
       <div ref={vtkContainerRef} />
@@ -421,7 +440,9 @@ export default function Root() {
           />
         </div>
         <LabelEditor
-          visible={labelEditorActive}
+          visible={labelEditorActive} 
+          labelConfig={labelConfig}
+          onOpacityChange={ changeLabelOpacity }
         />
       </RenderContext.Provider>
     </div>
