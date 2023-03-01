@@ -49,4 +49,4 @@ function CreateDisplayMappingPolicy (displayConfig) {
 }
 
 
-export { CreateDisplayMappingPolicy };
+export { CreateDisplayMappingPolicy, CreateLabelDMP };

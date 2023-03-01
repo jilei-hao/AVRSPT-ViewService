@@ -13,14 +13,17 @@ const devDisplayConfig = {
       {
         Number: 0,
         RGBA: [0, 0, 0, 0],
+        Description: "Background"
       },
       {
         Number: 2,
         RGBA: [1, 1, 1, 1],
+        Description: "Cusp"
       },
       {
         Number: 4,
         RGBA: [1, 0.87, 0.74, 1],
+        Description: "Root"
       }
     ]
   }

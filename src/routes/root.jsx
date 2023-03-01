@@ -43,6 +43,7 @@ import { ReplayPanel } from '../ui/composite/replay_panel';
 import ButtonLabel from '../ui/basic/btn_label';
 import LabelEditor from '../ui/composite/label_editor';
 import { CreateDisplayMappingPolicy } from '../model';
+import { CreateLabelDMP } from '../model/DisplayMappingPolicy';
 
 const { fetchBinary } = vtkHttpDataAccessHelper;
 
@@ -403,21 +404,39 @@ export default function Root() {
   }
 
   function changeLabelOpacity(label, opacity) {
-    const { modelRenderer } = context.current;
-    const actor = modelRenderer.getActors()[0];
-    const mapper = actor.getMapper();
+    if (!context.current)
+      return;
 
-    console.log("changeLabelOpacity, opacity", opacity)
+    const lc = labelConfig;
+    
+    for (let i = 0; i < lc.length; i++) {
+      const elm = lc[i];
+      if (elm.Number === label) {
+        elm.RGBA[3] = opacity;
+        break;
+      }
+    }
 
-    const lut = vtkLookupTable.newInstance();
-    lut.setNumberOfColors(2);
-    lut.setAboveRangeColor([1,0.87,0.74,1]);
-    lut.setBelowRangeColor([1,1,1,1]);
-    lut.setNanColor([1,0.87,0.74,1]);
-    lut.setUseAboveRangeColor(true);
-    lut.setUseBelowRangeColor(true);
-    lut.build();
-    mapper.setLookupTable(lut);
+    console.log("changeLabelOpacity: ", lc);
+    
+    const oFun = vtkPiecewiseFunction.newInstance();
+    lc.forEach((e, i) => {
+      oFun.addPoint(e.Number, e.RGBA[3]);
+    });
+
+
+    const { sliceRenderers, renderWindow } = context.current;
+
+    sliceRenderers.forEach((e, i) => {
+      const actor = e.getActors()[1];
+      actor.getProperty().setScalarOpacity(oFun);
+    })
+
+    renderWindow.render();
+
+    
+    setLabelConfig(lc);
+
   }
 
   return (

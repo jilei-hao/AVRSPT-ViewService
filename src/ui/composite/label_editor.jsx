@@ -19,7 +19,7 @@ function LabelConfigPanel (props) {
       <div>[CR]</div>
       <label>[Desc]</label>
       <input type="range" min="0" max="1" step="0.01" 
-        onChange={(e) => props.onOpacityChange(0, e.target.value)}
+        onChange={(e) => props.onOpacityChange(props.label, e.target.value)}
       />
       <input type="checkbox" />
     </LabelEditorRow>
@@ -30,7 +30,7 @@ export default function LabelEditor (props) {
   console.log("LabelEditor: labelConfig: ", props.labelConfig);
 
   const labelRows = props.labelConfig.map(label => 
-    <LabelConfigPanel key={label.Number} 
+    <LabelConfigPanel key={label.Number} label={label.Number}
       onOpacityChange={ props.onOpacityChange }
     />
   ) 
