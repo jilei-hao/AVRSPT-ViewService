@@ -34,10 +34,10 @@ function LabelConfigPanel (props) {
     <LabelEditorRow>
       <div style={styleColorBlock} />
       <div className={styles.label_desc_box}>{props.desc}</div>
-      <input type="range" min="0" max="1" step="0.01" 
+      <input className={styles.touch_slider}
+        type="range" min="0" max="1" step="0.01" 
         value={opacity} onChange={_onOpacityChange}
       />
-      <input type="checkbox" />
     </LabelEditorRow>
   )
 }

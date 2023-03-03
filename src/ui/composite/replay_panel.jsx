@@ -43,7 +43,7 @@ export function ReplayPanel({nT, updateVisibleDataset}) {
       >
         <img className={styles.icon_image__s} src={ btn_prev }/>
       </button>
-      <input className={styles.touch_slider}
+      <input className={styles.tp_slider}
         type="range" min="1" max={nT}
         value={currentTP + 1}
         onChange={(ev) => setCurrentTP(Number(ev.target.value - 1))}
