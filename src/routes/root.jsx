@@ -13,7 +13,6 @@ import Constants from '@kitware/vtk.js/Rendering/Core/ImageMapper/Constants';
 import vtkActor  from '@kitware/vtk.js/Rendering/Core/Actor';
 import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
 import vtkRenderer from '@kitware/vtk.js/Rendering/Core/Renderer'
-import vtkLookupTable from '@kitware/vtk.js/Common/Core/LookupTable';
 import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
 import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
 import vtkColorTransferFunction from '@kitware/vtk.js/Rendering/Core/ColorTransferFunction';
@@ -56,7 +55,7 @@ export default function Root() {
   const tpData = useRef([]);
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
-  const [crntCase, setCrntCase] = useState("dev_cta-10tp");
+  const [crntCase, setCrntCase] = useState("dev_cta-3tp");
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
   const [labelEditorActive, setLabelEditorActive] = useState(false);
@@ -151,12 +150,17 @@ export default function Root() {
 
       modelRenderer.addActor(modelActor);
       modelActor.setMapper(modelMapper);
-      modelMapper.setScalarRange(2.9, 3.1);
+      modelMapper.setUseLookupTableScalarRange(true);
 
-      const lut = vtkLookupTable.newInstance();
-      lut.setNumberOfColors(2);
+      const lut = vtkColorTransferFunction.newInstance();
+      lut.setNumberOfValues(3)
+      lut.setRange(0, 4);
+      lut.updateRange();
+      lut.addRGBPoint(0, 0, 0, 0);
+      lut.addRGBPoint(2, 1, 1, 1);
+      lut.addRGBPoint(4, 1, 0.87, 0.74);
       lut.setAboveRangeColor([1,0.87,0.74,1]);
-      lut.setBelowRangeColor([1,1,1,1]);
+      lut.setBelowRangeColor([1,1,1,0]);
       lut.setNanColor([1,0.87,0.74,1]);
       lut.setUseAboveRangeColor(true);
       lut.setUseBelowRangeColor(true);
@@ -176,7 +180,7 @@ export default function Root() {
       
       context.current = {
         fullScreenRenderWindow, renderWindow,
-        sliceRenderers, modelRenderer, DMP
+        sliceRenderers, modelRenderer, DMP, lut,
       };
 
       const nT = cases[crntCase].nT;
