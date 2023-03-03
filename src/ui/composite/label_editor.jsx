@@ -13,18 +13,27 @@ function LabelEditorRow (props) {
 }
 
 function LabelConfigPanel (props) {
-  const [opacity, setOpacity] = useState(props.initRGBA[3]);
+  const RGBA = [...props.initRGBA];
+  const [opacity, setOpacity] = useState(RGBA[3]);
 
   function _onOpacityChange (e) {
     setOpacity(e.target.value);
     props.onOpacityChange(props.label, e.target.value);
   }
 
+  const styleColorBlock = {
+    width: "30px",
+    height: "30px",
+    marginLeft: "7px",
+    marginRight: "5px",
+    borderRadius: "3px",
+    backgroundColor: `rgb(${RGBA[0]*255}, ${RGBA[1]*255}, ${RGBA[2]*255})`,
+  }
+
   return (
     <LabelEditorRow>
-      <label>{props.label}</label>
-      <div>[CR]</div>
-      <label>{props.desc}</label>
+      <div style={styleColorBlock} />
+      <div className={styles.label_desc_box}>{props.desc}</div>
       <input type="range" min="0" max="1" step="0.01" 
         value={opacity} onChange={_onOpacityChange}
       />
@@ -34,8 +43,6 @@ function LabelConfigPanel (props) {
 }
 
 export default function LabelEditor (props) {
-  console.log("LabelEditor: ", props);
-
   const labelRows = props.initialLabelConfig.map(label => 
     <LabelConfigPanel key={label.Number} 
       label={label.Number} initRGBA={label.RGBA} desc={label.Description}
@@ -50,7 +57,7 @@ export default function LabelEditor (props) {
       }
     >
       <LabelEditorRow>
-        <select>
+        <select className={styles.label_preset_select}>
           <option value="0">Solid Color</option>
           <option value="1">Simple</option>
           <option value="2">Cusp</option>
