@@ -1,4 +1,4 @@
-import { Fragment, useContext, useState} from "react"
+import { useContext, useState, useRef } from "react"
 
 import styles from "./ui_composite.module.css"
 import { RenderContext } from "../../model/context";
@@ -13,13 +13,20 @@ function LabelEditorRow (props) {
 }
 
 function LabelConfigPanel (props) {
+  const [opacity, setOpacity] = useState(props.initRGBA[3]);
+
+  function _onOpacityChange (e) {
+    setOpacity(e.target.value);
+    props.onOpacityChange(props.label, e.target.value);
+  }
+
   return (
     <LabelEditorRow>
-      <label>[LN]</label>
+      <label>{props.label}</label>
       <div>[CR]</div>
-      <label>[Desc]</label>
+      <label>{props.desc}</label>
       <input type="range" min="0" max="1" step="0.01" 
-        onChange={(e) => props.onOpacityChange(props.label, e.target.value)}
+        value={opacity} onChange={_onOpacityChange}
       />
       <input type="checkbox" />
     </LabelEditorRow>
@@ -27,13 +34,13 @@ function LabelConfigPanel (props) {
 }
 
 export default function LabelEditor (props) {
-  console.log("LabelEditor: labelConfig: ", props.labelConfig);
+  console.log("LabelEditor: ", props);
 
-  const labelRows = props.labelConfig.map(label => 
-    <LabelConfigPanel key={label.Number} label={label.Number}
-      onOpacityChange={ props.onOpacityChange }
-    />
-  ) 
+  const labelRows = props.initialLabelConfig.map(label => 
+    <LabelConfigPanel key={label.Number} 
+      label={label.Number} initRGBA={label.RGBA} desc={label.Description}
+      onOpacityChange={ props.onOpacityChange }/>
+  );
 
   return (
     <div className={

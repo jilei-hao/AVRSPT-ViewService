@@ -3,10 +3,10 @@ import config from "../../server-config.json"
 export const BASE_DATA_URL = `http://${config.host}:${config.port}`;
 
 const devDisplayConfig = {
-  image: {
+  imageConfig: {
 
   },
-  label: {
+  labelConfig: {
     min: 0,
     max: 4,
     labels: [

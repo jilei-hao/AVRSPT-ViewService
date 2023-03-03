@@ -43,7 +43,6 @@ import { ReplayPanel } from '../ui/composite/replay_panel';
 import ButtonLabel from '../ui/basic/btn_label';
 import LabelEditor from '../ui/composite/label_editor';
 import { CreateDisplayMappingPolicy } from '../model';
-import { CreateLabelDMP } from '../model/DisplayMappingPolicy';
 
 const { fetchBinary } = vtkHttpDataAccessHelper;
 
@@ -61,7 +60,8 @@ export default function Root() {
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
   const [labelEditorActive, setLabelEditorActive] = useState(false);
-  const [labelConfig, setLabelConfig] = useState([]);
+  const [initialLabelConfig, setInitialLabelConfig] = useState([]); // for initializing the label editor
+  const labelConfig = useRef([]); // for storing the current label config
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -83,7 +83,8 @@ export default function Root() {
       // Create DisplayMappingPolicies
 
       const DMP = CreateDisplayMappingPolicy(cases[crntCase].displayConfig);
-      setLabelConfig(DMP.DisplayConfig.label.labels)
+      setInitialLabelConfig(DMP.DisplayConfig.labelConfig.labels);
+      labelConfig.current = DMP.DisplayConfig.labelConfig.labels;
 
       // Setup 3 renderes for the x, y, z viewports
       const sliceRenderers = [];
@@ -403,29 +404,8 @@ export default function Root() {
     setLabelEditorActive(!labelEditorActive);
   }
 
-  function changeLabelOpacity(label, opacity) {
-    if (!context.current)
-      return;
-
-    const lc = labelConfig;
-    
-    for (let i = 0; i < lc.length; i++) {
-      const elm = lc[i];
-      if (elm.Number === label) {
-        elm.RGBA[3] = opacity;
-        break;
-      }
-    }
-
-    console.log("changeLabelOpacity: ", lc);
-    
-    const oFun = vtkPiecewiseFunction.newInstance();
-    lc.forEach((e, i) => {
-      oFun.addPoint(e.Number, e.RGBA[3]);
-    });
-
-
-    const { sliceRenderers, renderWindow } = context.current;
+  function updateRendererLabelOpacity(oFun) {
+    const { modelRenderer, sliceRenderers, renderWindow } = context.current;
 
     sliceRenderers.forEach((e, i) => {
       const actor = e.getActors()[1];
@@ -433,11 +413,30 @@ export default function Root() {
     })
 
     renderWindow.render();
-
-    
-    setLabelConfig(lc);
-
   }
+
+  function getOpacityFunctionFromLabelConfig(lConf) {
+    const oFun = vtkPiecewiseFunction.newInstance();
+    lConf.forEach((e, i) => {
+      oFun.addPoint(e.Number, e.RGBA[3]);
+    });
+    return oFun;
+  }
+
+  function changeLabelOpacity(label, opacity) {
+    if (!context.current)
+      return;
+
+    labelConfig.current.forEach((e) => {
+      if (e.Number === label)
+        e.RGBA[3] = opacity;
+    });
+    
+    const oFun = getOpacityFunctionFromLabelConfig(labelConfig.current);
+    updateRendererLabelOpacity(oFun);
+  }
+
+
 
   return (
     <div>
@@ -460,8 +459,8 @@ export default function Root() {
         </div>
         <LabelEditor
           visible={labelEditorActive} 
-          labelConfig={labelConfig}
-          onOpacityChange={ changeLabelOpacity }
+          initialLabelConfig={initialLabelConfig}
+          onOpacityChange={changeLabelOpacity}
         />
       </RenderContext.Provider>
     </div>

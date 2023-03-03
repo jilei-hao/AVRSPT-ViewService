@@ -42,8 +42,8 @@ function CreateImageDMP (imageConfig) {
 function CreateDisplayMappingPolicy (displayConfig) {
 
   return {
-    LabelDMP: CreateLabelDMP(displayConfig.label),
-    ImageDMP: CreateImageDMP(displayConfig.image),
+    LabelDMP: CreateLabelDMP(displayConfig.labelConfig),
+    ImageDMP: CreateImageDMP(displayConfig.imageConfig),
     DisplayConfig: displayConfig,
   }
 }
