@@ -55,7 +55,7 @@ export default function Root() {
   const tpData = useRef([]);
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
-  const [crntCase, setCrntCase] = useState("dev_cta-20tp");
+  const [crntCase, setCrntCase] = useState("dev_cta-3tp");
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
   const [labelEditorActive, setLabelEditorActive] = useState(false);
@@ -84,6 +84,7 @@ export default function Root() {
       const DMP = CreateDisplayMappingPolicy(cases[crntCase].displayConfig);
       setInitialLabelConfig(DMP.DisplayConfig.labelConfig.labels);
       labelConfig.current = DMP.DisplayConfig.labelConfig.labels;
+      const labelDMP = DMP.LabelDMP;
 
       // Setup 3 renderes for the x, y, z viewports
       const sliceRenderers = [];
@@ -109,7 +110,7 @@ export default function Root() {
         // configure overlay mapper and actor
         const seg_mapper = vtkImageMapper.newInstance();
         const seg_actor = vtkImageSlice.newInstance();
-        const labelDMP = DMP.LabelDMP;
+        
         seg_mapper.setSliceAtFocalPoint(true);
         seg_mapper.setSlicingMode(sliceRenConfig.mode);
         seg_actor.setMapper(seg_mapper);
@@ -151,21 +152,7 @@ export default function Root() {
       modelRenderer.addActor(modelActor);
       modelActor.setMapper(modelMapper);
       modelMapper.setUseLookupTableScalarRange(true);
-
-      const lut = vtkColorTransferFunction.newInstance();
-      lut.setNumberOfValues(3)
-      lut.setRange(0, 4);
-      lut.updateRange();
-      lut.addRGBPoint(0, 0, 0, 0);
-      lut.addRGBPoint(2, 1, 1, 1);
-      lut.addRGBPoint(4, 1, 0.87, 0.74);
-      lut.setAboveRangeColor([1,0.87,0.74,1]);
-      lut.setBelowRangeColor([1,1,1,0]);
-      lut.setNanColor([1,0.87,0.74,1]);
-      lut.setUseAboveRangeColor(true);
-      lut.setUseBelowRangeColor(true);
-      lut.build();
-      modelMapper.setLookupTable(lut);
+      modelMapper.setLookupTable(labelDMP.ColorTransferFunction);
       modelRenderer.setViewport(...viewBoxes[modelViewConfig.position]);
       modelRenderer.resetCamera();
       modelRenderer.set({ 
@@ -180,7 +167,7 @@ export default function Root() {
       
       context.current = {
         fullScreenRenderWindow, renderWindow,
-        sliceRenderers, modelRenderer, DMP, lut,
+        sliceRenderers, modelRenderer, DMP,
       };
 
       const nT = cases[crntCase].nT;

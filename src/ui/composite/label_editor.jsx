@@ -63,7 +63,10 @@ export default function LabelEditor (props) {
           <option value="2">Cusp</option>
         </select>
       </LabelEditorRow>
-      { labelRows }
+      <div className={styles.label_editor_row_box}>
+        { labelRows }
+      </div>
+      
     </div>
   );
 }

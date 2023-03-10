@@ -1,18 +1,20 @@
 import vtkColorTransferFunction from "@kitware/vtk.js/Rendering/Core/ColorTransferFunction";
 import vtkPiecewiseFunction from "@kitware/vtk.js/Common/DataModel/PiecewiseFunction";
-
+import vtkLookupTable from "@kitware/vtk.js/Common/Core/LookupTable"
 
 function CreateLabelDMP (labelConfig) {
   const ctFun = vtkColorTransferFunction.newInstance();
   const oFun = vtkPiecewiseFunction.newInstance();
   
-  ctFun.setIndexedLookup(true);
+  //ctFun.setIndexedLookup(true);
   ctFun.setMappingRange(labelConfig.min, labelConfig.max);
   
   labelConfig.labels.forEach((e, i) => {
     ctFun.addRGBPoint(e.Number, e.RGBA[0], e.RGBA[1], e.RGBA[2]);
     oFun.addPoint(e.Number, e.RGBA[3]);
   });
+
+  ctFun.build();
 
   return {
     ColorTransferFunction: ctFun,

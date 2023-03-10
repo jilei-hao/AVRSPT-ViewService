@@ -83,6 +83,14 @@
   background-color: rgb(72, 72, 72);
 }
 
+.label_editor_row_box {
+  display: flex;
+  flex-direction: column;
+  height: 27vh;
+  background-color: rgb(72, 72, 72);
+  overflow-y:auto;
+}
+
 .label_editor__active {
   left: 60vw;
   bottom: 12vh;
