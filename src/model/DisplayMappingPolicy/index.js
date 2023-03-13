@@ -33,7 +33,7 @@ function CreateLabelColorFunction (labelRGBA) {
 
   for (const k in labelRGBA) {
     const rgba = labelRGBA[k];
-    ctFun.addRGBPoint(k, rgba[0], rgba[1], rgba[2]);
+    ctFun.addRGBPoint(Number(k), rgba[0], rgba[1], rgba[2]);
   }
 
   ctFun.build();
@@ -43,8 +43,9 @@ function CreateLabelColorFunction (labelRGBA) {
 function CreateLabelOpacityFunction (labelRGBA) {
   const oFun = vtkPiecewiseFunction.newInstance();
   for (const k in labelRGBA) {
-    oFun.addPoint(k, labelRGBA[k][3]);
+    oFun.addPointLong(Number(k), labelRGBA[k][3], 0.5, 1);
   }
+
   return oFun;
 }
 

@@ -59,9 +59,7 @@ export default function Root() {
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
   const [labelEditorActive, setLabelEditorActive] = useState(false);
-  const [initialLabelConfig, setInitialLabelConfig] = useState([]); // for initializing the label editor
-  const labelRBGA = useRef([]); // for storing the current label config
-
+  const [initLabelConfig, setInitLabelConfig] = useState(null); // for initializing the label editor
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -80,11 +78,12 @@ export default function Root() {
       iStyle.setInteractionMode('IMAGE_SLICING');
       renderWindow.getInteractor().setInteractorStyle(iStyle);
 
-      // Create DisplayMappingPolicies
+      // Create DisplayMappingPolicies)
       const DMPHelper = CreateDMPHelper();
       const crntCase = cases[crntCaseKey];
       const labelConf= crntCase.DisplayConfig.LabelConfig;
-      let presetKey = labelConf.DefaultColorPreset;
+      setInitLabelConfig(labelConf); // Initialize Label Editor
+      let presetKey = labelConf.DefaultColorPresetName;
       if (!(presetKey in labelConf.ColorPresets)) {
         console.error(`[RootPage]: Key ${presetKey} not found in \
         ColorPresets! Using first key instead.`);
@@ -96,7 +95,7 @@ export default function Root() {
           return;
         }
       }
-      const preset = labelConf.ColorPresets[labelConf.DefaultColorPreset];
+      const preset = labelConf.ColorPresets[labelConf.DefaultColorPresetName];
       const labelDesc = labelConf.LabelDescription;
       const labelRGBA = DMPHelper.CreateLabelRGBAMap(preset, labelDesc);
 
@@ -412,39 +411,14 @@ export default function Root() {
     setLabelEditorActive(!labelEditorActive);
   }
 
-  function updateRendererLabelOpacity(oFun) {
-    const { modelRenderer, sliceRenderers, renderWindow } = context.current;
-
-    sliceRenderers.forEach((e, i) => {
+  function changeLabelOpacity(oFun) {
+    const { sliceRenderers, renderWindow } = context.current;
+    sliceRenderers.forEach((e) => {
       const actor = e.getActors()[1];
-      actor.getProperty().setScalarOpacity(oFun);
+      actor.getProperty().setScalarOpacity(0, oFun);
     })
-
     renderWindow.render();
   }
-
-  function getOpacityFunctionFromLabelConfig(lConf) {
-    const oFun = vtkPiecewiseFunction.newInstance();
-    lConf.forEach((e, i) => {
-      oFun.addPoint(e.Number, e.RGBA[3]);
-    });
-    return oFun;
-  }
-
-  function changeLabelOpacity(label, opacity) {
-    if (!context.current)
-      return;
-
-    labelConfig.current.forEach((e) => {
-      if (e.Number === label)
-        e.RGBA[3] = opacity;
-    });
-    
-    const oFun = getOpacityFunctionFromLabelConfig(labelConfig.current);
-    updateRendererLabelOpacity(oFun);
-  }
-
-
 
   return (
     <div>
@@ -467,7 +441,7 @@ export default function Root() {
         </div>
         <LabelEditor
           visible={labelEditorActive} 
-          initialLabelConfig={initialLabelConfig}
+          initLabelConfig={initLabelConfig}
           onOpacityChange={changeLabelOpacity}
         />
       </RenderContext.Provider>

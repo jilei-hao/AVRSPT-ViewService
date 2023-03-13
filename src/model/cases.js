@@ -28,7 +28,7 @@ const devDisplayConfig = {
       15: "RCSinus",
       16: "Calcification"
     },
-    DefaultColorPreset: "Label",
+    DefaultColorPresetName: "Label",
     ColorPresets: {
       "Label": {
         0:  [0, 0, 0, 0],
