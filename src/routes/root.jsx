@@ -421,11 +421,15 @@ export default function Root() {
   }
 
   function changeLabelColor(clrFun) {
-    const { sliceRenderers, renderWindow } = context.current;
+    const { sliceRenderers, modelRenderer, renderWindow } = context.current;
     sliceRenderers.forEach((e) => {
       const actor = e.getActors()[1];
       actor.getProperty().setRGBTransferFunction(clrFun);
     })
+
+    const modelActor = modelRenderer.getActors()[0];
+    modelActor.getMapper().setLookupTable(clrFun);
+    
     renderWindow.render();
   }
 
