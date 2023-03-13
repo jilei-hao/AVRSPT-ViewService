@@ -46,10 +46,9 @@ export default function LabelEditor (props) {
   if (!props.initLabelConfig)
     return;
 
-  const { initLabelConfig, onOpacityChange } = props;
+  const { initLabelConfig, onOpacityChange, onColorChange } = props;
   const { LabelDescription, ColorPresets, DefaultColorPresetName } = initLabelConfig
   const defaultPreset = ColorPresets[DefaultColorPresetName]
-  const [preset, setPreset] = useState(defaultPreset);
 
   const DMPHelper = CreateDMPHelper();
   const initLabelRGBA = DMPHelper.CreateLabelRGBAMap(defaultPreset, LabelDescription);
@@ -67,10 +66,26 @@ export default function LabelEditor (props) {
     onOpacityChange(oFun);
   }
 
+  function onSelectedColorPresetChange (e) {
+    const selectedPresetName = e.target.value;
+    const selectedPreset = ColorPresets[selectedPresetName];
+    
+    const rgba = DMPHelper.CreateLabelRGBAMap(selectedPreset, LabelDescription);
+    setLabelRGBA(rgba); // Trigger UI change
+    const clrFun = DMPHelper.CreateLabelColorFunction(rgba);
+    const oFun = DMPHelper.CreateLabelOpacityFunction(rgba);
+
+    onColorChange(clrFun);
+    onOpacityChange(oFun);
+  }
+
   // Build Preset Options
   const presetOptions = []; 
   for (const k in ColorPresets) {
-    presetOptions.push(<option key={k} value={k}>{k}</option>);
+    presetOptions.push(
+    <option key={k} value={k}
+      >{k}
+    </option>);
   }
 
   // Build Label Rows
@@ -92,14 +107,16 @@ export default function LabelEditor (props) {
       }
     >
       <LabelEditorRow>
-        <select className={styles.label_preset_select}>
+        <select className={styles.label_preset_select}
+          defaultValue={DefaultColorPresetName}
+          onChange={onSelectedColorPresetChange}
+        >
           { presetOptions }
         </select>
       </LabelEditorRow>
       <div className={styles.label_editor_row_box}>
         { labelRows }
       </div>
-      
     </div>
   );
 }

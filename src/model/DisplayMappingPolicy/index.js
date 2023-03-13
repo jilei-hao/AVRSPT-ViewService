@@ -60,8 +60,6 @@ function CreateImageOpacityFunction () {
   return oFun;
 }
 
-
-
 function CreateDMPHelper() {
   return {
     GetLabelRange,

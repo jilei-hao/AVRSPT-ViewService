@@ -420,6 +420,15 @@ export default function Root() {
     renderWindow.render();
   }
 
+  function changeLabelColor(clrFun) {
+    const { sliceRenderers, renderWindow } = context.current;
+    sliceRenderers.forEach((e) => {
+      const actor = e.getActors()[1];
+      actor.getProperty().setRGBTransferFunction(clrFun);
+    })
+    renderWindow.render();
+  }
+
   return (
     <div>
       <div ref={vtkContainerRef} />
@@ -443,6 +452,7 @@ export default function Root() {
           visible={labelEditorActive} 
           initLabelConfig={initLabelConfig}
           onOpacityChange={changeLabelOpacity}
+          onColorChange={changeLabelColor}
         />
       </RenderContext.Provider>
     </div>
