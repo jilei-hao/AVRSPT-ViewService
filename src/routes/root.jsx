@@ -41,7 +41,7 @@ import ViewPanelGroup from '../ui/composite/viewport_panel';
 import { ReplayPanel } from '../ui/composite/replay_panel';
 import ButtonLabel from '../ui/basic/btn_label';
 import LabelEditor from '../ui/composite/label_editor';
-import { CreateDisplayMappingPolicy } from '../model';
+import { CreateDMPHelper } from '../model';
 
 const { fetchBinary } = vtkHttpDataAccessHelper;
 
@@ -55,12 +55,13 @@ export default function Root() {
   const tpData = useRef([]);
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
-  const [crntCase, setCrntCase] = useState("dev_cta-3tp");
+  const [crntCaseKey, setCrntCaseKey] = useState("dev_cta-3tp");
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
   const [labelEditorActive, setLabelEditorActive] = useState(false);
   const [initialLabelConfig, setInitialLabelConfig] = useState([]); // for initializing the label editor
-  const labelConfig = useRef([]); // for storing the current label config
+  const labelRBGA = useRef([]); // for storing the current label config
+
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -80,11 +81,24 @@ export default function Root() {
       renderWindow.getInteractor().setInteractorStyle(iStyle);
 
       // Create DisplayMappingPolicies
+      const DMPHelper = CreateDMPHelper();
+      const crntCase = cases[crntCaseKey];
+      const labelConf= crntCase.DisplayConfig.LabelConfig;
+      let presetKey = labelConf.DefaultColorPreset;
+      if (!(presetKey in labelConf.ColorPresets)) {
+        console.error(`[RootPage]: Key ${presetKey} not found in \
+        ColorPresets! Using first key instead.`);
 
-      const DMP = CreateDisplayMappingPolicy(cases[crntCase].displayConfig);
-      setInitialLabelConfig(DMP.DisplayConfig.labelConfig.labels);
-      labelConfig.current = DMP.DisplayConfig.labelConfig.labels;
-      const labelDMP = DMP.LabelDMP;
+        presetKey = Object.keys(labelConf.ColorPresets)[0];
+        if (!presetKey) {
+          console.error("[RootPage]: Cannot render the page with \
+           an empty Color Preset!");
+          return;
+        }
+      }
+      const preset = labelConf.ColorPresets[labelConf.DefaultColorPreset];
+      const labelDesc = labelConf.LabelDescription;
+      const labelRGBA = DMPHelper.CreateLabelRGBAMap(preset, labelDesc);
 
       // Setup 3 renderes for the x, y, z viewports
       const sliceRenderers = [];
@@ -98,14 +112,13 @@ export default function Root() {
         // configure image mapper and actor
         const mapper = vtkImageMapper.newInstance();
         const actor = vtkImageSlice.newInstance();
-        const imageDMP = DMP.ImageDMP;
         mapper.setSliceAtFocalPoint(true);
         mapper.setSlicingMode(sliceRenConfig.mode);
         actor.setMapper(mapper);
         actor.setVisibility(true);
-        actor.getProperty().setRGBTransferFunction(0, imageDMP.ColorTransferFunction);
-        actor.getProperty().setColorLevel(imageDMP.ColorLevel);
-        actor.getProperty().setColorWindow(imageDMP.ColorWindow);
+        actor.getProperty().setRGBTransferFunction(0, DMPHelper.CreateImageColorFunction());
+        actor.getProperty().setColorLevel(130);
+        actor.getProperty().setColorWindow(662);
 
         // configure overlay mapper and actor
         const seg_mapper = vtkImageMapper.newInstance();
@@ -115,11 +128,15 @@ export default function Root() {
         seg_mapper.setSlicingMode(sliceRenConfig.mode);
         seg_actor.setMapper(seg_mapper);
         seg_actor.setVisibility(true);
-        seg_actor.getProperty().setRGBTransferFunction(0, labelDMP.ColorTransferFunction);
+        seg_actor.getProperty().setRGBTransferFunction(0, DMPHelper.CreateLabelColorFunction(labelRGBA));
 
-        seg_actor.getProperty().setColorLevel(labelDMP.ColorLevel);
-        seg_actor.getProperty().setColorWindow(labelDMP.ColorWindow);
-        seg_actor.getProperty().setScalarOpacity(labelDMP.OpacityFunction);
+        let labelRange = [];
+        DMPHelper.GetLabelRange(labelRGBA, labelRange);
+        const segColorWindow = labelRange[1] - labelRange[0];
+        const segColorLevel = labelRange[0] + segColorWindow / 2;
+        seg_actor.getProperty().setColorLevel(segColorLevel);
+        seg_actor.getProperty().setColorWindow(segColorWindow);
+        seg_actor.getProperty().setScalarOpacity(DMPHelper.CreateLabelOpacityFunction(labelRGBA));
         seg_actor.getProperty().setInterpolationTypeToNearest();
         
 
@@ -152,7 +169,7 @@ export default function Root() {
       modelRenderer.addActor(modelActor);
       modelActor.setMapper(modelMapper);
       modelMapper.setUseLookupTableScalarRange(true);
-      modelMapper.setLookupTable(labelDMP.ColorTransferFunction);
+      modelMapper.setLookupTable(DMPHelper.CreateLabelColorFunction(labelRGBA));
       modelRenderer.setViewport(...viewBoxes[modelViewConfig.position]);
       modelRenderer.resetCamera();
       modelRenderer.set({ 
@@ -167,10 +184,10 @@ export default function Root() {
       
       context.current = {
         fullScreenRenderWindow, renderWindow,
-        sliceRenderers, modelRenderer, DMP,
+        sliceRenderers, modelRenderer,
       };
 
-      const nT = cases[crntCase].nT;
+      const nT = cases[crntCaseKey].nT;
       setNumberOfTimePoints(nT);
 
       if (!hasDownloadingStarted.current || hasDownloadingFinished.current) {
@@ -220,9 +237,9 @@ export default function Root() {
       tpData.current[tp] = createNewTimePointData();
     }
 
-    parseVolumeFile(cases[crntCase].volumes[tp], tp);
-    parseSegmentationFile(cases[crntCase].segmentations[tp], tp);
-    parseModelFile(cases[crntCase].models[tp], tp);
+    parseVolumeFile(cases[crntCaseKey].volumes[tp], tp);
+    parseSegmentationFile(cases[crntCaseKey].segmentations[tp], tp);
+    parseModelFile(cases[crntCaseKey].models[tp], tp);
   };
 
   function updateReadyFlag() {

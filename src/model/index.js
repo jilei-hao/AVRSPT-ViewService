@@ -1,6 +1,7 @@
-import { CreateDisplayMappingPolicy, CreateLabelDMP } from "./DisplayMappingPolicy";
+import { 
+  CreateDMPHelper
+} from "./DisplayMappingPolicy";
 
 export {
-  CreateDisplayMappingPolicy,
-  CreateLabelDMP
+  CreateDMPHelper
 }

@@ -3,10 +3,10 @@ import config from "../../server-config.json"
 export const BASE_DATA_URL = `http://${config.host}:${config.port}`;
 
 const devDisplayConfig = {
-  imageConfig: {
+  ImageConfig: {
 
   },
-  labelConfig: {
+  LabelConfig: {
     Min: 0,
     Max: 16,
     LabelDescription: {
@@ -28,6 +28,7 @@ const devDisplayConfig = {
       15: "RCSinus",
       16: "Calcification"
     },
+    DefaultColorPreset: "Label",
     ColorPresets: {
       "Label": {
         0:  [0, 0, 0, 0],
@@ -128,7 +129,7 @@ export const cases = {
       'dist/cta/seg_relabeled/seg_rs40_bavcta008_01.vti',
       'dist/cta/seg_relabeled/seg_rs40_bavcta008_02.vti',
     ],
-    displayConfig: devDisplayConfig,
+    DisplayConfig: devDisplayConfig,
   },
   "dev_cta-20tp": {
     nT: 20,
@@ -198,7 +199,7 @@ export const cases = {
       'dist/cta/seg_relabeled/seg_rs40_bavcta008_18.vti',
       'dist/cta/seg_relabeled/seg_rs40_bavcta008_19.vti',
     ],
-    displayConfig: devDisplayConfig,
+    DisplayConfig: devDisplayConfig,
   },
   "dev_cta-10tp": {
     nT: 10,
@@ -238,6 +239,6 @@ export const cases = {
       'dist/cta/seg_relabeled/seg_rs40_bavcta008_18.vti',
       'dist/cta/seg_relabeled/seg_rs40_bavcta008_19.vti',
     ],
-    displayConfig: devDisplayConfig,
+    DisplayConfig: devDisplayConfig,
   }
 }

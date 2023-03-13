@@ -2,7 +2,6 @@ import { useContext, useState, useRef } from "react"
 
 import styles from "./ui_composite.module.css"
 import { RenderContext } from "../../model/context";
-import { CreateDisplayMappingPolicy } from "../../model";
 
 function LabelEditorRow (props) {
   return (
@@ -43,6 +42,7 @@ function LabelConfigPanel (props) {
 }
 
 export default function LabelEditor (props) {
+  const [crntPreset, setCrntPreset] = useState(props.initPreset);
   const labelRows = props.initialLabelConfig.map(label => 
     <LabelConfigPanel key={label.Number} 
       label={label.Number} initRGBA={label.RGBA} desc={label.Description}
@@ -58,9 +58,6 @@ export default function LabelEditor (props) {
     >
       <LabelEditorRow>
         <select className={styles.label_preset_select}>
-          <option value="0">Solid Color</option>
-          <option value="1">Simple</option>
-          <option value="2">Cusp</option>
         </select>
       </LabelEditorRow>
       <div className={styles.label_editor_row_box}>
