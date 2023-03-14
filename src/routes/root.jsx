@@ -13,7 +13,6 @@ import Constants from '@kitware/vtk.js/Rendering/Core/ImageMapper/Constants';
 import vtkActor  from '@kitware/vtk.js/Rendering/Core/Actor';
 import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
 import vtkRenderer from '@kitware/vtk.js/Rendering/Core/Renderer'
-import vtkLookupTable from '@kitware/vtk.js/Common/Core/LookupTable';
 import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume';
 import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper';
 import vtkColorTransferFunction from '@kitware/vtk.js/Rendering/Core/ColorTransferFunction';
@@ -33,13 +32,16 @@ import { RenderContext } from '../model/context';
 import InteractionStyleImageTouch from '../ui/interaction/interaction_style_image_touch';
 
 // -- components
-import ViewPanelGroup from '../ui/composite/viewport_panel';
-import { ReplayPanel } from '../ui/composite/replay_panel';
+import { cases, BASE_DATA_URL } from '../model/cases';
 import { 
   canvasBox, viewBoxes, sliceViewMap, viewPanelPos, viewConfig,
   modelViewMap, 
 } from "../model/layout"
-import { cases, BASE_DATA_URL } from '../model/cases';
+import ViewPanelGroup from '../ui/composite/viewport_panel';
+import { ReplayPanel } from '../ui/composite/replay_panel';
+import ButtonLabel from '../ui/basic/btn_label';
+import LabelEditor from '../ui/composite/label_editor';
+import { CreateDMPHelper } from '../model';
 
 const { fetchBinary } = vtkHttpDataAccessHelper;
 
@@ -53,9 +55,11 @@ export default function Root() {
   const tpData = useRef([]);
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
-  const [crntCase, setCrntCase] = useState("dev_cta-3tp");
+  const [crntCaseKey, setCrntCaseKey] = useState("dev_cta-3tp");
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
+  const [labelEditorActive, setLabelEditorActive] = useState(false);
+  const [initLabelConfig, setInitLabelConfig] = useState(null); // for initializing the label editor
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -74,6 +78,27 @@ export default function Root() {
       iStyle.setInteractionMode('IMAGE_SLICING');
       renderWindow.getInteractor().setInteractorStyle(iStyle);
 
+      // Create DisplayMappingPolicies)
+      const DMPHelper = CreateDMPHelper();
+      const crntCase = cases[crntCaseKey];
+      const labelConf= crntCase.DisplayConfig.LabelConfig;
+      setInitLabelConfig(labelConf); // Initialize Label Editor
+      let presetKey = labelConf.DefaultColorPresetName;
+      if (!(presetKey in labelConf.ColorPresets)) {
+        console.error(`[RootPage]: Key ${presetKey} not found in \
+        ColorPresets! Using first key instead.`);
+
+        presetKey = Object.keys(labelConf.ColorPresets)[0];
+        if (!presetKey) {
+          console.error("[RootPage]: Cannot render the page with \
+           an empty Color Preset!");
+          return;
+        }
+      }
+      const preset = labelConf.ColorPresets[labelConf.DefaultColorPresetName];
+      const labelDesc = labelConf.LabelDescription;
+      const labelRGBA = DMPHelper.CreateLabelRGBAMap(preset, labelDesc);
+
       // Setup 3 renderes for the x, y, z viewports
       const sliceRenderers = [];
 
@@ -90,37 +115,27 @@ export default function Root() {
         mapper.setSlicingMode(sliceRenConfig.mode);
         actor.setMapper(mapper);
         actor.setVisibility(true);
-        const colorTransferFunction = vtkColorTransferFunction.newInstance();
-        colorTransferFunction.addRGBPoint(0, 0, 0, 0);
-        colorTransferFunction.addRGBPoint(1, 1, 1, 1);
-        actor.getProperty().setRGBTransferFunction(0, colorTransferFunction);
+        actor.getProperty().setRGBTransferFunction(0, DMPHelper.CreateImageColorFunction());
         actor.getProperty().setColorLevel(130);
         actor.getProperty().setColorWindow(662);
 
         // configure overlay mapper and actor
         const seg_mapper = vtkImageMapper.newInstance();
         const seg_actor = vtkImageSlice.newInstance();
+        
         seg_mapper.setSliceAtFocalPoint(true);
         seg_mapper.setSlicingMode(sliceRenConfig.mode);
         seg_actor.setMapper(seg_mapper);
         seg_actor.setVisibility(true);
-        const seg_lut = vtkColorTransferFunction.newInstance();
-        seg_lut.setIndexedLookup(true);
-        seg_lut.setMappingRange(0, 4);
-        seg_lut.addRGBPoint(0, 0, 0, 0);
-        seg_lut.addRGBPoint(1, 1, 0, 0);
-        seg_lut.addRGBPoint(2, 0, 1, 0);
-        seg_lut.addRGBPoint(3, 0, 0, 1);
-        seg_lut.addRGBPoint(4, 1, 0.87, 0.74);
+        seg_actor.getProperty().setRGBTransferFunction(0, DMPHelper.CreateLabelColorFunction(labelRGBA));
 
-        seg_actor.getProperty().setRGBTransferFunction(0, seg_lut);
-        // console.log("-- seg_lut: ", seg_actor, seg_lut);
-        const ofun = vtkPiecewiseFunction.newInstance();
-        ofun.addPoint(0, 0);
-        ofun.addPoint(1, 0.8);
-        seg_actor.getProperty().setColorLevel(2);
-        seg_actor.getProperty().setColorWindow(4);
-        seg_actor.getProperty().setScalarOpacity(ofun);
+        let labelRange = [];
+        DMPHelper.GetLabelRange(labelRGBA, labelRange);
+        const segColorWindow = labelRange[1] - labelRange[0];
+        const segColorLevel = labelRange[0] + segColorWindow / 2;
+        seg_actor.getProperty().setColorLevel(segColorLevel);
+        seg_actor.getProperty().setColorWindow(segColorWindow);
+        seg_actor.getProperty().setScalarOpacity(DMPHelper.CreateLabelOpacityFunction(labelRGBA));
         seg_actor.getProperty().setInterpolationTypeToNearest();
         
 
@@ -152,17 +167,8 @@ export default function Root() {
 
       modelRenderer.addActor(modelActor);
       modelActor.setMapper(modelMapper);
-      modelMapper.setScalarRange(2.9, 3.1);
-
-      const lut = vtkLookupTable.newInstance();
-      lut.setNumberOfColors(2);
-      lut.setAboveRangeColor([1,0.87,0.74,1]);
-      lut.setBelowRangeColor([1,1,1,1]);
-      lut.setNanColor([1,0.87,0.74,1]);
-      lut.setUseAboveRangeColor(true);
-      lut.setUseBelowRangeColor(true);
-      lut.build();
-      modelMapper.setLookupTable(lut);
+      modelMapper.setUseLookupTableScalarRange(true);
+      modelMapper.setLookupTable(DMPHelper.CreateLabelColorFunction(labelRGBA));
       modelRenderer.setViewport(...viewBoxes[modelViewConfig.position]);
       modelRenderer.resetCamera();
       modelRenderer.set({ 
@@ -180,7 +186,7 @@ export default function Root() {
         sliceRenderers, modelRenderer,
       };
 
-      const nT = cases[crntCase].nT;
+      const nT = cases[crntCaseKey].nT;
       setNumberOfTimePoints(nT);
 
       if (!hasDownloadingStarted.current || hasDownloadingFinished.current) {
@@ -191,6 +197,7 @@ export default function Root() {
           downloadData(i);
       }
 
+      // For dev tool troubleshooting
       window.vtkContext = context.current;
 
       // without this context will not be refereshed to the children
@@ -229,9 +236,9 @@ export default function Root() {
       tpData.current[tp] = createNewTimePointData();
     }
 
-    parseVolumeFile(cases[crntCase].volumes[tp], tp);
-    parseSegmentationFile(cases[crntCase].segmentations[tp], tp);
-    parseModelFile(cases[crntCase].models[tp], tp);
+    parseVolumeFile(cases[crntCaseKey].volumes[tp], tp);
+    parseSegmentationFile(cases[crntCaseKey].segmentations[tp], tp);
+    parseModelFile(cases[crntCaseKey].models[tp], tp);
   };
 
   function updateReadyFlag() {
@@ -347,19 +354,6 @@ export default function Root() {
       const actor = ren.getActors()[1];
       const mapper = actor.getMapper();
       mapper.setInputData(segmentation);
-
-      // if (resetCamera) {
-      //   const camera = ren.getActiveCamera();
-      //   const position = camera.getFocalPoint();
-
-      //   // offset along the slicing axis
-      //   const normal = mapper.getSlicingModeNormal();
-      //   position[0] += normal[0];
-      //   position[1] += normal[1];
-      //   position[2] += normal[2];
-      //   camera.setPosition(...position);
-      //   ren.resetCamera();
-      // }
     })
   }
 
@@ -413,6 +407,32 @@ export default function Root() {
     setViewPanelVis(newVis);
   }
 
+  function toggleLabelEditor() {
+    setLabelEditorActive(!labelEditorActive);
+  }
+
+  function changeLabelOpacity(oFun) {
+    const { sliceRenderers, renderWindow } = context.current;
+    sliceRenderers.forEach((e) => {
+      const actor = e.getActors()[1];
+      actor.getProperty().setScalarOpacity(0, oFun);
+    })
+    renderWindow.render();
+  }
+
+  function changeLabelColor(clrFun) {
+    const { sliceRenderers, modelRenderer, renderWindow } = context.current;
+    sliceRenderers.forEach((e) => {
+      const actor = e.getActors()[1];
+      actor.getProperty().setRGBTransferFunction(clrFun);
+    })
+
+    const modelActor = modelRenderer.getActors()[0];
+    modelActor.getMapper().setLookupTable(clrFun);
+    
+    renderWindow.render();
+  }
+
   return (
     <div>
       <div ref={vtkContainerRef} />
@@ -428,7 +448,16 @@ export default function Root() {
             nT={numberOfTimePoints}
             updateVisibleDataset={updateVisibleDataset}
           />
+          <ButtonLabel 
+            onClick={toggleLabelEditor}
+          />
         </div>
+        <LabelEditor
+          visible={labelEditorActive} 
+          initLabelConfig={initLabelConfig}
+          onOpacityChange={changeLabelOpacity}
+          onColorChange={changeLabelColor}
+        />
       </RenderContext.Provider>
     </div>
   );

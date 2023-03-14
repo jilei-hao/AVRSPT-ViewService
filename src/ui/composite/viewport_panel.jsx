@@ -160,8 +160,8 @@ export default function ViewPanelGroup(props) {
   return (
     <div>
       <ViewportPanel viewId={getViewIdFromPos("topLeft")}
-          onLayoutChange={handleLayoutChange} 
-          panelVis={viewPanelVis[getViewIdFromPos("topLeft")]}
+        onLayoutChange={handleLayoutChange} 
+        panelVis={viewPanelVis[getViewIdFromPos("topLeft")]}
       />
       <ViewportPanel viewId={getViewIdFromPos("topRight")}
         onLayoutChange={handleLayoutChange} 

@@ -21,3 +21,12 @@
   margin: 0px;
   padding: 0px;
 }
+
+.btn_control {
+  width: 7vh;
+  height: 7vh;
+  margin-left: 10px;
+  margin-right: 10px;
+  border: none;
+  background: rgb(72, 72, 72);
+}

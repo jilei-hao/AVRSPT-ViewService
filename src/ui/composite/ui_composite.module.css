@@ -2,8 +2,11 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
   width: auto;
   background-color: rgb(72, 72, 72);
+  /* border-left: solid rgb(50, 50, 50) 1px;
+  border-right: solid rgb(50, 50, 50) 1px; */
 }
 
 .replay_panel__disable {
@@ -13,7 +16,7 @@
 .tp_slider {
   -webkit-appearance: none;  /* Override default CSS styles */
   appearance: none;
-  width: 300px; /* Full-width */
+  width: 200px; /* Full-width */
   height: 20px; /* Specified height */
   background: white; /* Grey background */
   outline: none; /* Remove outline */
@@ -24,12 +27,12 @@
   vertical-align: middle;
 }
   
-.touch_slider::-webkit-slider-thumb {
+.tp_slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   background: rgb(102, 102, 102);
   cursor: pointer;
 }
@@ -57,4 +60,88 @@
   margin-right: 5px;
   border-radius: 20%;
   vertical-align: middle;
+}
+
+.visible {
+  visibility: visible;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.label_editor {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  width: 25vw;
+  height: 45vh;
+  padding-top: 35px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 40px;
+  background-color: rgb(72, 72, 72);
+}
+
+.label_editor_row_box {
+  display: flex;
+  flex-direction: column;
+  height: 33vh;
+  background-color: rgb(72, 72, 72);
+  overflow-y:auto;
+}
+
+.label_editor__active {
+  left: 60vw;
+  bottom: 12vh;
+}
+
+.label_editor__inactive {
+  left: 100vw;
+  bottom: 100vh;
+}
+
+.label_editor_row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 5px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 5px;
+  background-color: rgb(102, 102, 102);
+}
+
+.label_desc_box {
+  width: 40%;
+  height: auto;
+  /* text-align: center; */
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(235, 235, 235);
+  word-wrap: normal;
+}
+
+.label_preset_select {
+  width: 100%;
+  height: 5vh;
+  border: 1px solid #999;
+  font-size: 16px;
+  color: rgb(235, 235, 235);
+  background-color: rgb(128, 128, 128);
+  margin-left: 5px;
+  margin-right: 5px;
+  border-radius: 5px;
+}
+
+.touch_slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 10%;
+  width: 30px;
+  height: 30px;
+  background: rgb(128, 128, 128);
+  cursor: pointer;
 }
