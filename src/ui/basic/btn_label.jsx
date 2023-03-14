@@ -1,13 +1,22 @@
 
-import icon_palette from "../assets/btn_palette__idle.svg"
+import { useState } from "react";
+
+import icon_palette__idle from "../assets/btn_palette__idle.svg"
+import icon_palette__active from "../assets/btn_palette__active.svg"
 import ButtonControl from "./btn_control"
 
 export default function ButtonLabel (props) {
+  const [active, setActive] = useState(false);
+
+  function onClickLocal () {
+    setActive(!active);
+    props.onClick();
+  }
   
   return (
     <ButtonControl 
-      onClick={props.onClick}
-      iconSrc={icon_palette}
+      onClick={onClickLocal}
+      iconSrc={active ? icon_palette__active : icon_palette__idle}
     />
   );
 }
