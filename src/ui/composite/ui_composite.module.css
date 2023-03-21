@@ -17,13 +17,13 @@
   -webkit-appearance: none;  /* Override default CSS styles */
   appearance: none;
   width: 200px; /* Full-width */
-  height: 20px; /* Specified height */
+  height: 10px; /* Specified height */
   background: white; /* Grey background */
   outline: none; /* Remove outline */
   opacity: 1; /* Set transparency (for mouse-over effects on hover) */
   margin-top: auto;
   margin-bottom: auto;
-  border-radius: 5px;
+  border-radius: 10px;
   vertical-align: middle;
 }
   
