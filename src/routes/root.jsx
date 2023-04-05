@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, createContext, useContext} from 'react';
 
 // vtk imports
 // -- Load the rendering pieces we want to use (for both WebGL and WebGPU)
-import '@kitware/vtk.js/Rendering/Profiles/All';
+import '@kitware/vtk.js/Rendering/Profiles/Volume';
+import '@kitware/vtk.js/Rendering/Profiles/Geometry';
 // -- Force DataAccessHelper to have access to various data source
 import vtkHttpDataAccessHelper from '@kitware/vtk.js/IO/Core/DataAccessHelper/HttpDataAccessHelper';
 import '@kitware/vtk.js/IO/Core/DataAccessHelper/HtmlDataAccessHelper';
