@@ -56,7 +56,7 @@ export default function Root() {
   const tpData = useRef([]);
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
-  const [crntCaseKey, setCrntCaseKey] = useState("dev_echo100-14tp");
+  const [crntCaseKey, setCrntCaseKey] = useState("dev_cta-18tp"); // dev_echo100-14tp; dev_cta-18tp
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
   const [labelEditorActive, setLabelEditorActive] = useState(false);
@@ -83,6 +83,7 @@ export default function Root() {
       const DMPHelper = CreateDMPHelper();
       const crntCase = cases[crntCaseKey];
       const labelConf= crntCase.DisplayConfig.LabelConfig;
+      const imgConf = crntCase.DisplayConfig.ImageConfig;
       setInitLabelConfig(labelConf); // Initialize Label Editor
       let presetKey = labelConf.DefaultColorPresetName;
       if (!(presetKey in labelConf.ColorPresets)) {
@@ -117,8 +118,8 @@ export default function Root() {
         actor.setMapper(mapper);
         actor.setVisibility(true);
         actor.getProperty().setRGBTransferFunction(0, DMPHelper.CreateImageColorFunction());
-        actor.getProperty().setColorLevel(130);
-        actor.getProperty().setColorWindow(662);
+        actor.getProperty().setColorLevel(imgConf.ColorLevel);
+        actor.getProperty().setColorWindow(imgConf.ColorWindow);
 
         // configure overlay mapper and actor
         const seg_mapper = vtkImageMapper.newInstance();
