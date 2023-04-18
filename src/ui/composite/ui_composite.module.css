@@ -1,3 +1,11 @@
+.visible {
+  visibility: visible;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
 .replay_panel {
   display: flex;
   flex-direction: row;
@@ -62,14 +70,6 @@
   vertical-align: middle;
 }
 
-.visible {
-  visibility: visible;
-}
-
-.hidden {
-  visibility: hidden;
-}
-
 .label_editor {
   display: flex;
   flex-direction: column;
@@ -81,6 +81,8 @@
   padding-right: 5px;
   border-radius: 40px;
   background-color: rgb(72, 72, 72);
+  border-color:rgb(175, 175, 175);
+  border-style: solid;
 }
 
 .label_editor_row_box {
@@ -144,4 +146,64 @@
   height: 30px;
   background: rgb(128, 128, 128);
   cursor: pointer;
+}
+
+/*
+  Study Menu Styling
+*/
+
+.study_menu {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  width: 20vw;
+  height: 35vh;
+  padding-top: 35px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 40px;
+  background-color: rgb(72, 72, 72);
+  border-color:rgb(175, 175, 175);
+  border-style: solid;
+}
+
+.study_menu_row_box {
+  display: flex;
+  flex-direction: column;
+  height: 30vh;
+  background-color: rgb(72, 72, 72);
+  overflow-y:auto;
+}
+
+.study_menu__active {
+  left: 70vw;
+  bottom: 12vh;
+}
+
+.study_menu__inactive {
+  left: 100vw;
+  bottom: 100vh;
+}
+
+.study_menu_row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 5px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 5px;
+  background-color: rgb(102, 102, 102);
+}
+
+.study_desc_box {
+  width: 60%;
+  height: auto;
+  /* text-align: center; */
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(235, 235, 235);
+  word-wrap: normal;
 }

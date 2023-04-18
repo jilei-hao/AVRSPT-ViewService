@@ -33,7 +33,7 @@ import { RenderContext } from '../model/context';
 import InteractionStyleImageTouch from '../ui/interaction/interaction_style_image_touch';
 
 // -- components
-import { cases, BASE_DATA_URL } from '../model/cases';
+import { studyData, studyHeaders, BASE_DATA_URL } from '../model/studies';
 import { 
   canvasBox, viewBoxes, sliceViewMap, viewPanelPos, viewConfig,
   modelViewMap, 
@@ -43,6 +43,9 @@ import { ReplayPanel } from '../ui/composite/replay_panel';
 import ButtonLabel from '../ui/basic/btn_label';
 import LabelEditor from '../ui/composite/label_editor';
 import { CreateDMPHelper } from '../model';
+import ButtonStudy from '../ui/basic/btn_study';
+import StudyMenu from '../ui/composite/study_menu';
+import { F } from '@kitware/vtk.js/Common/Core/Math/index';
 
 const { fetchBinary } = vtkHttpDataAccessHelper;
 
@@ -56,11 +59,13 @@ export default function Root() {
   const tpData = useRef([]);
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
-  const [crntCaseKey, setCrntCaseKey] = useState("dev_cta-18tp"); // dev_echo100-14tp; dev_cta-18tp
+  const [crntStudyKey, setCrntStudyKey] = useState("dev_echo-14tp"); // dev_echo-14tp; dev_cta-18tp
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
   const [labelEditorActive, setLabelEditorActive] = useState(false);
   const [initLabelConfig, setInitLabelConfig] = useState(null); // for initializing the label editor
+  const [studyMenuActive, setStudyMenuActive] = useState(false);
+  const [initStudyConfig, setInitStudyConfig] = useState(null);
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -79,11 +84,15 @@ export default function Root() {
       iStyle.setInteractionMode('IMAGE_SLICING');
       renderWindow.getInteractor().setInteractorStyle(iStyle);
 
-      // Create DisplayMappingPolicies)
+
+      // Initialize Study Menu
+      setInitStudyConfig(studyHeaders);
+
+      // Initialize Label Editor
       const DMPHelper = CreateDMPHelper();
-      const crntCase = cases[crntCaseKey];
-      const labelConf= crntCase.DisplayConfig.LabelConfig;
-      const imgConf = crntCase.DisplayConfig.ImageConfig;
+      const crntStudy = studyData[crntStudyKey];
+      const labelConf= crntStudy.DisplayConfig.LabelConfig;
+      const imgConf = crntStudy.DisplayConfig.ImageConfig;
       setInitLabelConfig(labelConf); // Initialize Label Editor
       let presetKey = labelConf.DefaultColorPresetName;
       if (!(presetKey in labelConf.ColorPresets)) {
@@ -188,7 +197,7 @@ export default function Root() {
         sliceRenderers, modelRenderer,
       };
 
-      const nT = cases[crntCaseKey].nT;
+      const nT = studyData[crntStudyKey].nT;
       setNumberOfTimePoints(nT);
 
       if (!hasDownloadingStarted.current || hasDownloadingFinished.current) {
@@ -238,9 +247,9 @@ export default function Root() {
       tpData.current[tp] = createNewTimePointData();
     }
 
-    parseVolumeFile(cases[crntCaseKey].volumes[tp], tp);
-    parseSegmentationFile(cases[crntCaseKey].segmentations[tp], tp);
-    parseModelFile(cases[crntCaseKey].models[tp], tp);
+    parseVolumeFile(studyData[crntStudyKey].volumes[tp], tp);
+    parseSegmentationFile(studyData[crntStudyKey].segmentations[tp], tp);
+    parseModelFile(studyData[crntStudyKey].models[tp], tp);
   };
 
   function updateReadyFlag() {
@@ -435,6 +444,20 @@ export default function Root() {
     renderWindow.render();
   }
 
+  function toggleStudyMenu() {
+    console.log("[ToggleStudyMenu]");
+    setStudyMenuActive(!studyMenuActive);
+  }
+  
+  function changeStudy(key) {
+    console.log("[Change Study] key=", key);
+
+    tp
+    
+
+    setCrntStudyKey(key);
+  }
+
   return (
     <div>
       <div ref={vtkContainerRef} />
@@ -453,12 +476,20 @@ export default function Root() {
           <ButtonLabel 
             onClick={toggleLabelEditor}
           />
+          <ButtonStudy
+            onClick={toggleStudyMenu}
+          />
         </div>
         <LabelEditor
           visible={labelEditorActive} 
           initLabelConfig={initLabelConfig}
           onOpacityChange={changeLabelOpacity}
           onColorChange={changeLabelColor}
+        />
+        <StudyMenu
+          visible={studyMenuActive}
+          initStudyConfig={initStudyConfig}
+          onStudyChange={changeStudy}
         />
       </RenderContext.Provider>
     </div>
