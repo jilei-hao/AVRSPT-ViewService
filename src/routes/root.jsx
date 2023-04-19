@@ -54,12 +54,12 @@ export default function Root() {
   const vtkContainerRef = useRef(null);
   const context = useRef(null); // vtk related objects
   const [contextState, setContextState] = useState(null);
-  const hasDownloadingStarted = useRef(false);
+  const isDownloading = useRef(false);
   const hasDownloadingFinished = useRef(false);
   const tpData = useRef([]);
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
-  const [crntStudyKey, setCrntStudyKey] = useState("dev_echo-14tp"); // dev_echo-14tp; dev_cta-18tp
+  const [crntStudyKey, setCrntStudyKey] = useState("case_230424-1tp"); // dev_echo-14tp; dev_cta-18tp
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
   const [labelEditorActive, setLabelEditorActive] = useState(false);
@@ -67,12 +67,15 @@ export default function Root() {
   const [studyMenuActive, setStudyMenuActive] = useState(false);
   const [initStudyConfig, setInitStudyConfig] = useState(null);
 
+  const tpSeg = useRef([]);
+  const tpVol = useRef([]);
+  const tpMdl = useRef([]);
+  const loadingStatus = useRef([]);
+
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
     if (!context.current) {
       console.log("rebuilding context...", context.current);
-      // console.log("-- has download started: ", hasDownloadingStarted.current);
-      // console.log("-- has doanload finished: ", hasDownloadingFinished.current);
 
       const fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
         rootContainer: vtkContainerRef.current, // html element containing this window
@@ -83,7 +86,6 @@ export default function Root() {
       const iStyle = InteractionStyleImageTouch.newInstance();
       iStyle.setInteractionMode('IMAGE_SLICING');
       renderWindow.getInteractor().setInteractorStyle(iStyle);
-
 
       // Initialize Study Menu
       setInitStudyConfig(studyHeaders);
@@ -197,16 +199,7 @@ export default function Root() {
         sliceRenderers, modelRenderer,
       };
 
-      const nT = studyData[crntStudyKey].nT;
-      setNumberOfTimePoints(nT);
-
-      if (!hasDownloadingStarted.current || hasDownloadingFinished.current) {
-        hasDownloadingStarted.current = true;
-        hasDownloadingFinished.current = false;
-
-        for (let i = 0; i < nT; i++)
-          downloadData(i);
-      }
+      loadTPData(crntStudyKey);
 
       // For dev tool troubleshooting
       window.vtkContext = context.current;
@@ -231,6 +224,35 @@ export default function Root() {
     };
   }, [vtkContainerRef]);
 
+  function resetLoadingStatus(nT) {
+    console.log("[resetLoadingStatus]");
+    loadingStatus.current = [];
+    
+    for (let i = 0; i < nT; i++) {
+      loadingStatus.current.push({
+        vol: false,
+        seg: false,
+        mdl: false,
+      })
+    }
+  }
+
+  // load TPData based on current study key
+  function loadTPData(studyKey) {
+    console.log("[loadTPData]");
+    const nT = studyData[studyKey].nT;
+    setNumberOfTimePoints(nT);
+    deleteTPData();
+
+    if (!isDownloading.current) {
+      console.log("---- download started");
+      isDownloading.current = true;
+
+      for (let i = 0; i < nT; i++)
+        downloadData(i, studyKey);
+    }
+  }
+
   function createNewTimePointData () {
     return {
       volume: null,
@@ -239,24 +261,57 @@ export default function Root() {
     }
   };
 
-  function downloadData(tp) {
+  function deleteTPData() {
+    console.log("[deleteTPData]");
+    tpData.current.forEach((e) => {
+      if (e.volume)
+        e.volume.delete();
+      if (e.segmentation)
+        e.segmentation.delete();
+      if (e.model)
+        e.model.delete();
+    });
+
+    readyFlagCount.current = 0;
+  }
+
+  function downloadData(tp, studyKey) {
     console.log("-- downloading started for tp: ", tp);
 
     if (!tpData.current[tp]) {
-      //console.log(`---- creating new tpData[${tp}]`);
+      console.log(`---- creating new tpData[${tp}]`);
       tpData.current[tp] = createNewTimePointData();
     }
 
-    parseVolumeFile(studyData[crntStudyKey].volumes[tp], tp);
-    parseSegmentationFile(studyData[crntStudyKey].segmentations[tp], tp);
-    parseModelFile(studyData[crntStudyKey].models[tp], tp);
+    parseVolumeFile(studyData[studyKey].volumes[tp], tp);
+    parseSegmentationFile(studyData[studyKey].segmentations[tp], tp);
+    parseModelFile(studyData[studyKey].models[tp], tp);
   };
 
   function updateReadyFlag() {
     readyFlagCount.current++;
 
-    if (readyFlagCount.current == 3)
-      updateVisibleDataset(0, true);
+    // if (readyFlagCount.current == 3)
+    //   updateVisibleDataset(0, true);
+
+    if (readyFlagCount.current == studyData[crntStudyKey].nT * 3)
+      isDownloading.current = false;
+  }
+
+  function loadSeg(url, tp) {
+
+  }
+
+  function loadVol(url, tp) {
+
+  }
+
+  function loadMdl(url, tp) {
+
+  }
+
+  function resetTPVol(tp) {
+
   }
 
   function parseSegmentationFile(fn, i) {
@@ -270,7 +325,9 @@ export default function Root() {
       reader.delete();
 
       if (i == 0)
-        updateReadyFlag();
+        updateVisibleSegmentation(0, true);
+
+      updateReadyFlag();
     });
   }
 
@@ -284,7 +341,9 @@ export default function Root() {
       reader.delete();
 
       if (i == 0)
-        updateReadyFlag();
+        updateVisibleVolume(0, true);
+
+      updateReadyFlag();
     });
   }
 
@@ -298,7 +357,9 @@ export default function Root() {
       reader.delete();
 
       if (i == 0)
-        updateReadyFlag();
+        updateVisibleModel(0, true);
+
+      updateReadyFlag();
     });
   }
 
@@ -449,13 +510,12 @@ export default function Root() {
     setStudyMenuActive(!studyMenuActive);
   }
   
-  function changeStudy(key) {
+  function loadStudy(key) {
     console.log("[Change Study] key=", key);
 
-    tp
-    
-
     setCrntStudyKey(key);
+
+    loadTPData(key);
   }
 
   return (
@@ -489,7 +549,7 @@ export default function Root() {
         <StudyMenu
           visible={studyMenuActive}
           initStudyConfig={initStudyConfig}
-          onStudyChange={changeStudy}
+          onStudyChange={loadStudy}
         />
       </RenderContext.Provider>
     </div>
