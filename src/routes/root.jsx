@@ -56,7 +56,7 @@ export default function Root() {
   const tpData = useRef([]);
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
-  const [crntCaseKey, setCrntCaseKey] = useState("dev_echo100-14tp");
+  const [crntCaseKey, setCrntCaseKey] = useState("case_230424-1tp"); // dev_cta-18tp ; dev_echo-14tp ; case_230424-1tp
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
   const [labelEditorActive, setLabelEditorActive] = useState(false);
