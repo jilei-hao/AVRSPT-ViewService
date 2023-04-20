@@ -67,9 +67,9 @@ export default function Root() {
   const [studyMenuActive, setStudyMenuActive] = useState(false);
   const [initStudyConfig, setInitStudyConfig] = useState(null);
 
-  const tpSeg = useRef([]);
-  const tpVol = useRef([]);
-  const tpMdl = useRef([]);
+  const tpSegData = useRef([]);
+  const tpVolData = useRef([]);
+  const tpMdlData = useRef([]);
   const loadingStatus = useRef([]);
 
   /* Initialize renderWindow, renderer, mapper and actor */
@@ -298,8 +298,31 @@ export default function Root() {
       isDownloading.current = false;
   }
 
-  function loadSeg(url, tp) {
+  function resetLoadingStatus() {
+    console.log("[resetLoadingStatus]");
+    loadingStatus.current = [];
 
+    for (let i = 0; i < nT; i++) {
+      loadingStatus.current.push({
+        "vol": false,
+        "seg": false,
+        "mdl": false
+      })
+    }
+  }
+
+  function updateLoadingStatus(tp, type) {
+    const alltypes = ["vol", "seg", "mdl"]
+    if (tp >= nT || !alltypes.includes(type))
+      return;
+    
+    loadingStatus.current[tp]
+  }
+
+  function loadSeg(url, tp) {
+    console.log("loadSeg: url=", url, "; tp=", tp);
+
+    resetTPSegData
   }
 
   function loadVol(url, tp) {
@@ -310,7 +333,18 @@ export default function Root() {
 
   }
 
-  function resetTPVol(tp) {
+  // reset and delete existing tpVolData
+  function resetTPVolData(tp) {
+
+  }
+
+  // reset and delete existing tpSegData
+  function resetTPSegData(tp) {
+
+  }
+
+  // reset and delete existing tpMdlData
+  function resetTPMdlData(tp) {
 
   }
 
