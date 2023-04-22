@@ -28,12 +28,12 @@ import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
 
 // application import
 import styles from '../app.module.css'
-import config from '../../server-config.json';
 import { RenderContext } from '../model/context';
 import InteractionStyleImageTouch from '../ui/interaction/interaction_style_image_touch';
+import config from "../../server-config.json"
 
 // -- components
-import { studyData, studyHeaders, BASE_DATA_URL } from '../model/studies';
+import { studyData, studyHeaders} from '../model/studies';
 import { 
   canvasBox, viewBoxes, sliceViewMap, viewPanelPos, viewConfig,
   modelViewMap, 
@@ -45,9 +45,15 @@ import LabelEditor from '../ui/composite/label_editor';
 import { CreateDMPHelper } from '../model';
 import ButtonStudy from '../ui/basic/btn_study';
 import StudyMenu from '../ui/composite/study_menu';
-import { F } from '@kitware/vtk.js/Common/Core/Math/index';
+import { F, P } from '@kitware/vtk.js/Common/Core/Math/index';
 
 const { fetchBinary } = vtkHttpDataAccessHelper;
+const enumDataType = {
+  vol: 0,
+  seg: 1,
+  mdl: 2,
+  count: 3,
+}
 
 export default function Root() {
   // console.log("Render App");
@@ -59,7 +65,7 @@ export default function Root() {
   const tpData = useRef([]);
   const [devMsg, setDevMsg] = useState("");
   const [viewPanelVis, setViewPanelVis] = useState(["visible", "visible", "visible", "visible"]);
-  const [crntStudyKey, setCrntStudyKey] = useState("case_230424-1tp"); // dev_echo-14tp; dev_cta-18tp
+  
   const [numberOfTimePoints, setNumberOfTimePoints] = useState(1);
   const readyFlagCount = useRef(0);
   const [labelEditorActive, setLabelEditorActive] = useState(false);
@@ -71,6 +77,11 @@ export default function Root() {
   const tpVolData = useRef([]);
   const tpMdlData = useRef([]);
   const loadingStatus = useRef([]);
+  const renderInitialized = useRef(false);
+  const refNT = useRef(0);
+  // dev_echo-14tp; dev_cta-18tp; case_230424-1tp
+  const [crntStudyKey, setCrntStudyKey] = useState("dev_echo-14tp"); 
+  const refStudyKey = useRef(crntStudyKey)
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -128,9 +139,6 @@ export default function Root() {
         mapper.setSlicingMode(sliceRenConfig.mode);
         actor.setMapper(mapper);
         actor.setVisibility(true);
-        actor.getProperty().setRGBTransferFunction(0, DMPHelper.CreateImageColorFunction());
-        actor.getProperty().setColorLevel(imgConf.ColorLevel);
-        actor.getProperty().setColorWindow(imgConf.ColorWindow);
 
         // configure overlay mapper and actor
         const seg_mapper = vtkImageMapper.newInstance();
@@ -173,15 +181,15 @@ export default function Root() {
 
       // Setup the renderer for the 3d viewport
       const modelRenderer = vtkRenderer.newInstance();
-      const modelActor = vtkActor.newInstance();
-      const modelMapper = vtkMapper.newInstance();
+      // const modelActor = vtkActor.newInstance();
+      // const modelMapper = vtkMapper.newInstance();
       const modelViewConfig = viewConfig[modelViewMap[0]];
       const modelRenConfig = modelViewConfig.renConfig;
 
-      modelRenderer.addActor(modelActor);
-      modelActor.setMapper(modelMapper);
-      modelMapper.setUseLookupTableScalarRange(true);
-      modelMapper.setLookupTable(DMPHelper.CreateLabelColorFunction(labelRGBA));
+      // modelRenderer.addActor(modelActor);
+      // modelActor.setMapper(modelMapper);
+      // modelMapper.setUseLookupTableScalarRange(true);
+      // modelMapper.setLookupTable(DMPHelper.CreateLabelColorFunction(labelRGBA));
       modelRenderer.setViewport(...viewBoxes[modelViewConfig.position]);
       modelRenderer.resetCamera();
       modelRenderer.set({ 
@@ -199,7 +207,8 @@ export default function Root() {
         sliceRenderers, modelRenderer,
       };
 
-      loadTPData(crntStudyKey);
+      // load default study
+      loadStudy(crntStudyKey);
 
       // For dev tool troubleshooting
       window.vtkContext = context.current;
@@ -225,176 +234,185 @@ export default function Root() {
   }, [vtkContainerRef]);
 
   function resetLoadingStatus(nT) {
-    console.log("[resetLoadingStatus]");
-    loadingStatus.current = [];
-    
-    for (let i = 0; i < nT; i++) {
-      loadingStatus.current.push({
-        vol: false,
-        seg: false,
-        mdl: false,
-      })
-    }
-  }
-
-  // load TPData based on current study key
-  function loadTPData(studyKey) {
-    console.log("[loadTPData]");
-    const nT = studyData[studyKey].nT;
-    setNumberOfTimePoints(nT);
-    deleteTPData();
-
-    if (!isDownloading.current) {
-      console.log("---- download started");
-      isDownloading.current = true;
-
-      for (let i = 0; i < nT; i++)
-        downloadData(i, studyKey);
-    }
-  }
-
-  function createNewTimePointData () {
-    return {
-      volume: null,
-      segmentation: null,
-      model: null
-    }
-  };
-
-  function deleteTPData() {
-    console.log("[deleteTPData]");
-    tpData.current.forEach((e) => {
-      if (e.volume)
-        e.volume.delete();
-      if (e.segmentation)
-        e.segmentation.delete();
-      if (e.model)
-        e.model.delete();
-    });
-
-    readyFlagCount.current = 0;
-  }
-
-  function downloadData(tp, studyKey) {
-    console.log("-- downloading started for tp: ", tp);
-
-    if (!tpData.current[tp]) {
-      console.log(`---- creating new tpData[${tp}]`);
-      tpData.current[tp] = createNewTimePointData();
-    }
-
-    parseVolumeFile(studyData[studyKey].volumes[tp], tp);
-    parseSegmentationFile(studyData[studyKey].segmentations[tp], tp);
-    parseModelFile(studyData[studyKey].models[tp], tp);
-  };
-
-  function updateReadyFlag() {
-    readyFlagCount.current++;
-
-    // if (readyFlagCount.current == 3)
-    //   updateVisibleDataset(0, true);
-
-    if (readyFlagCount.current == studyData[crntStudyKey].nT * 3)
-      isDownloading.current = false;
-  }
-
-  function resetLoadingStatus() {
-    console.log("[resetLoadingStatus]");
+    console.log("[resetLoadingStatus] nT=", nT);
+    renderInitialized.current = false;
     loadingStatus.current = [];
 
     for (let i = 0; i < nT; i++) {
-      loadingStatus.current.push({
-        "vol": false,
-        "seg": false,
-        "mdl": false
-      })
+      loadingStatus.current.push([false, false, false])
     }
+  }
+
+  function attemptInitialRendering() {
+    if (checkTPLoadingStatus(0)) {
+      renderInitialized.current = true;
+      updateVisibleDataset(0, true, true);
+    }
+  }
+
+  function checkTPLoadingStatus(tp) {
+    const ls = loadingStatus.current[tp];
+    return ls[0] && ls[1] && ls[2];
   }
 
   function updateLoadingStatus(tp, type) {
-    const alltypes = ["vol", "seg", "mdl"]
-    if (tp >= nT || !alltypes.includes(type))
+    if (tp >= refNT.current || type < 0 || type >= enumDataType.count)
       return;
     
-    loadingStatus.current[tp]
+    loadingStatus.current[tp][type] = true;
+
+    if (!renderInitialized.current)
+      attemptInitialRendering();
+  }
+
+  function hasLoadingCompleted() {
+    console.log("[hasLoadingCompleted] status: ", loadingStatus.current);
+    const nT = refNT.current;
+    if (nT == 0)
+      return true;
+
+    for(let i = 0; i < nT; i++) {
+      if (!checkTPLoadingStatus(i))
+        return false;
+    }
+
+    return true;
+  }
+
+  function getDataServiceUrl() {
+    return `http://${config.host}:${config.port}`;
   }
 
   function loadSeg(url, tp) {
-    console.log("loadSeg: url=", url, "; tp=", tp);
+    fetchBinary(url).then((binary) => {
+      console.log("-- parsing segmentation from file: ", url);
 
-    resetTPSegData
+      // read and fill tpSegData
+      const reader = vtkXMLImageDataReader.newInstance();
+      reader.parseAsArrayBuffer(binary);
+      tpSegData.current[tp] = reader.getOutputData(0);
+      reader.delete();
+
+      updateLoadingStatus(tp, enumDataType.seg);
+    });
   }
 
   function loadVol(url, tp) {
+    fetchBinary(url).then((binary) => {
+      console.log("-- parsing volume from file: ", url)
+      const reader = vtkXMLImageDataReader.newInstance();
+      reader.parseAsArrayBuffer(binary);
+      tpVolData.current[tp] = reader.getOutputData(0);
+      reader.delete();
 
+      updateLoadingStatus(tp, enumDataType.vol);
+    });
   }
 
   function loadMdl(url, tp) {
-
-  }
-
-  // reset and delete existing tpVolData
-  function resetTPVolData(tp) {
-
-  }
-
-  // reset and delete existing tpSegData
-  function resetTPSegData(tp) {
-
-  }
-
-  // reset and delete existing tpMdlData
-  function resetTPMdlData(tp) {
-
-  }
-
-  function parseSegmentationFile(fn, i) {
-    console.log("parseSegmentationFile: fn", `${BASE_DATA_URL}/${fn}`);
-    fetchBinary(`${BASE_DATA_URL}/${fn}`).then((bVolume) => {
-      console.log("-- parsing segmentation from file: ", i);
-      //setDevMsg(`parsing volume: ${i}`);
-      const reader = vtkXMLImageDataReader.newInstance();
-      reader.parseAsArrayBuffer(bVolume);
-      tpData.current[i].segmentation = reader.getOutputData(0);
-      reader.delete();
-
-      if (i == 0)
-        updateVisibleSegmentation(0, true);
-
-      updateReadyFlag();
-    });
-  }
-
-  function parseVolumeFile(fn, i) {
-    fetchBinary(`${BASE_DATA_URL}/${fn}`).then((bVolume) => {
-      console.log("-- parsing volume from file: ", i);
-      //setDevMsg(`parsing volume: ${i}`);
-      const reader = vtkXMLImageDataReader.newInstance();
-      reader.parseAsArrayBuffer(bVolume);
-      tpData.current[i].volume = reader.getOutputData(0);
-      reader.delete();
-
-      if (i == 0)
-        updateVisibleVolume(0, true);
-
-      updateReadyFlag();
-    });
-  }
-
-  function parseModelFile(fn, i) {
-    fetchBinary(`${BASE_DATA_URL}/${fn}`).then((bModel) => {
-      console.log("-- parsing model from file: ", i);
-      //setDevMsg(`parsing model from file: ${i}`);
+    fetchBinary(url).then((binary) => {
+      console.log("-- parsing model from file: ", url);
       const reader = vtkXMLPolyDataReader.newInstance();
-      reader.parseAsArrayBuffer(bModel);
-      tpData.current[i].model = reader.getOutputData(0);
+      reader.parseAsArrayBuffer(binary);
+      tpMdlData.current[tp] = reader.getOutputData(0);
       reader.delete();
 
-      if (i == 0)
-        updateVisibleModel(0, true);
-
-      updateReadyFlag();
+      updateLoadingStatus(tp, enumDataType.mdl);
     });
+  }
+
+  function resetAllTPData() {
+    tpVolData.current.forEach((e) => e.delete());
+    tpSegData.current.forEach((e) => e.delete());
+    tpMdlData.current.forEach((e) => e.delete());
+
+    tpVolData.current = [];
+    tpSegData.current = [];
+    tpMdlData.current = [];
+  }
+
+  function deleteAllActors(renderer) {
+    const oldActors = renderer.getActors();
+    renderer.removeAllActors();
+    oldActors.forEach((e) => e.delete()); // clear memory
+  }
+
+  // Remove existing props in the renderers and replace them with new ones
+  function resetRenderingProps() {
+    console.log("[resetRenderingProps]");
+    if (!context.current)
+      return;
+
+    const study = studyData[refStudyKey.current];
+    const { sliceRenderers, modelRenderer } = context.current;
+
+    // reset model props
+    deleteAllActors(modelRenderer);
+    const modelActor = vtkActor.newInstance();
+    const modelMapper = vtkMapper.newInstance();
+    modelMapper.setUseLookupTableScalarRange(true);
+    modelActor.setMapper(modelMapper);
+    modelRenderer.addActor(modelActor);
+    applyModelDMP(modelActor, modelMapper, study);
+
+    // reset slicing props
+    sliceRenderers.forEach((ren, ind) => {
+      deleteAllActors(ren);
+      // volume slicing props
+      const sliceRenConfig = viewConfig[sliceViewMap[ind]].renConfig;
+      const volumeMapper = vtkImageMapper.newInstance();
+      const volumeActor = vtkImageSlice.newInstance();
+      volumeMapper.setSliceAtFocalPoint(true);
+      volumeMapper.setSlicingMode(sliceRenConfig.mode);
+      volumeActor.set({actorType: "vol"}, true);
+      volumeActor.setMapper(volumeMapper);
+      volumeActor.setVisibility(true);
+
+      // segmentation props
+      const segMapper = vtkImageMapper.newInstance();
+      const segActor = vtkImageSlice.newInstance();
+      
+      segMapper.setSliceAtFocalPoint(true);
+      segMapper.setSlicingMode(sliceRenConfig.mode);
+      segActor.set({actorType: "seg"}, true);
+      segActor.setMapper(segMapper);
+      segActor.setVisibility(true);
+      applySegmentationDMP(segActor, segMapper, study);
+    })
+
+  }
+
+  function loadStudy(name) {
+    console.log("[loadStudy] name=", name);
+
+    if (!hasLoadingCompleted()) {
+      console.log("-- previous loading has not completed. abort loading");
+      return;
+    }
+      
+    const newStudy = studyData[name];
+    const nT = newStudy.nT;
+
+    setNumberOfTimePoints(nT);
+    refNT.current = nT;
+    setCrntStudyKey(name);
+    refStudyKey.current = name;
+
+    resetLoadingStatus(nT);
+    resetAllTPData();
+    resetRenderingProps();
+    applyStudyDMP(newStudy);
+
+    for (let i = 0; i < nT; i++) {
+      const volUrl = `${getDataServiceUrl()}/${newStudy.vol[i]}`
+      loadVol(volUrl, i);
+      
+      const segUrl = `${getDataServiceUrl()}/${newStudy.seg[i]}`
+      loadSeg(segUrl, i);
+
+      const mdlUrl = `${getDataServiceUrl()}/${newStudy.mdl[i]}`
+      loadMdl(mdlUrl, i);
+    }
   }
 
   function resetSlicingCamera(renId = -1) {
@@ -404,6 +422,8 @@ export default function Root() {
       if (renId == i || renId == -1) {
         const actor = ren.getActors()[0]; // only image actor needed
         const mapper = actor.getMapper();
+        const data = mapper.getInputData();
+        console.log("[resetSlicingCamera] dataBounds = ", data.getBounds());
 
         const camera = ren.getActiveCamera();
         const position = camera.getFocalPoint();
@@ -426,8 +446,67 @@ export default function Root() {
     })
   }
 
-  function updateVisibleVolume(tp, resetCamera = false) {
-    const volume = tpData.current[tp].volume;
+  function getSegActorFromRenderer(renderer) {
+    const key = "actorType";
+    renderer.getActors().forEach((e) => {
+      const type = e.get(key)[key];
+      if (type == "seg")
+        return e;
+    });
+    return null;
+  }
+
+  function getVolActorFromRenderer(renderer) {
+    const key = "actorType";
+    renderer.getActors().forEach((e) => {
+      const type = e.get(key)[key];
+      if (type == "vol")
+        return e;
+    });
+    return null;
+  }
+
+  function applyStudyDMP(study) {
+    const imageConfig = study.DisplayConfig.ImageConfig;
+    const labelConfig = study.DisplayConfig.LabelConfig;
+    const { sliceRenderers, modelRenderer } = context.current;
+
+    sliceRenderers.forEach((ren) => {
+      const volActor = getVolActorFromRenderer(ren);
+      if (volActor)
+        applyGreyImageDMP(volActor, imageConfig);
+
+      const segActor = getSegActorFromRenderer(ren);
+      if (segActor)
+        applySegmentationDMP(segActor, labelConfig);
+    });
+
+    const mdlActor = modelRenderer.getActors()[0];
+    if (mdlActor)
+      applyModelDMP(mdlActor, labelConfig);
+    
+  }
+
+  function applyGreyImageDMP(actor, imgConfig) {
+    const DMPHelper = CreateDMPHelper();
+
+    actor.getProperty().setRGBTransferFunction(0, DMPHelper.CreateImageColorFunction());
+    actor.getProperty().setColorLevel(imgConfig.ColorLevel);
+    actor.getProperty().setColorWindow(imgConfig.ColorWindow);
+  }
+
+  function applySegmentationDMP(actor, labelConfig) {
+    const DMPHelper = CreateDMPHelper();
+
+  }
+
+  function applyModelDMP(actor, labelConfig) {
+
+  }
+
+  function updateVisibleVolume(tp, resetCamera = false, isInitial = false) {
+    const volume = tpVolData.current[tp];
+    console.log("[updateVisibleVolume] volume: ", volume);
 
     if (!volume) {
       console.error(`[udpateVisibleVolume] volume for tp ${tp} does not exist!`);
@@ -446,8 +525,9 @@ export default function Root() {
     }
   }
 
-  function updateVisibleSegmentation(tp, resetCamera = false) {
-    const segmentation = tpData.current[tp].segmentation;
+  function updateVisibleSegmentation(tp, resetCamera = false, isInitial = false) {
+    console.log("[updateVisibleSegmentation]");
+    const segmentation = tpSegData.current[tp];
 
     if (!segmentation) {
       console.error(`[udpateVisibleSegmentation] segmentation for tp ${tp} does not exist!`);
@@ -455,7 +535,6 @@ export default function Root() {
     }
 
     const { sliceRenderers } = context.current;
-    // console.log("[updateVisibleSegmentatin] segData: ", tpSegmentationData.current[currentTP]);
     sliceRenderers.forEach((ren) => {
       const actor = ren.getActors()[1];
       const mapper = actor.getMapper();
@@ -463,8 +542,9 @@ export default function Root() {
     })
   }
 
-  function updateVisibleModel(tp, resetCamera = false) {
-    const model = tpData.current[tp].model;
+  function updateVisibleModel(tp, resetCamera = false, isInitial = false) {
+    console.log("[updateVisibleModel]");
+    const model = tpMdlData.current[tp];
 
     if (!model) {
       console.error(`[updateVisibleModel] model data for tp ${tp} does not exist!`);
@@ -480,21 +560,15 @@ export default function Root() {
       modelRenderer.resetCamera();
   }
 
-  function updateVisibleDataset(tp, resetCamera = false) {
-    // console.log("Updating visible dataset");
+  function updateVisibleDataset(tp, resetCamera = false, isInitial = false) {
+    console.log("[updateVisibleDataset] tp=", tp, "; resetCamera=", resetCamera);
     if (!context.current)
       return;
 
     const { renderWindow } = context.current;
-
-    if (!tpData.current[tp]) {
-      console.error(`[updateVisibleDataset] timepoint data ${tp} does not exist`);
-      return;
-    }
-      
-    updateVisibleVolume(tp, resetCamera);
-    updateVisibleModel(tp, resetCamera);
-    updateVisibleSegmentation(tp, resetCamera);
+    updateVisibleVolume(tp, resetCamera, isInitial);
+    updateVisibleModel(tp, resetCamera, isInitial);
+    updateVisibleSegmentation(tp, resetCamera, isInitial);
 
     renderWindow.render();
   }
@@ -508,7 +582,6 @@ export default function Root() {
     
     let newVis = [otherVis, otherVis, otherVis, otherVis];
     newVis[viewId] = thisVis;
-    // console.log(`handleLayoutChange (${viewId}): newVis: `, newVis);
 
     setViewPanelVis(newVis);
   }
@@ -544,14 +617,6 @@ export default function Root() {
     setStudyMenuActive(!studyMenuActive);
   }
   
-  function loadStudy(key) {
-    console.log("[Change Study] key=", key);
-
-    setCrntStudyKey(key);
-
-    loadTPData(key);
-  }
-
   return (
     <div>
       <div ref={vtkContainerRef} />

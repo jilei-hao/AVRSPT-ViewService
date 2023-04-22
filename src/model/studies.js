@@ -1,7 +1,3 @@
-import config from "../../server-config.json"
-
-export const BASE_DATA_URL = `http://${config.host}:${config.port}`;
-
 const SolidRGBA = [240, 240, 240, 1];
 const TissueRGBA = [255, 233, 205, 1];
 const BackgroundRGBA = [0, 0, 0, 0];
@@ -294,7 +290,7 @@ export const studyHeaders = [
 export const studyData = {
   "dev_cta-18tp": {
     nT: 18,
-    volumes: [
+    vol:[
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_02.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_03.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_04.vti',
@@ -314,7 +310,7 @@ export const studyData = {
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_18.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_19.vti',
     ],
-    models: [
+    mdl:[
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_03.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_04.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_05.vtp',
@@ -334,7 +330,7 @@ export const studyData = {
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_19.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_20.vtp',
     ],
-    segmentations: [
+    seg: [
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_02.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_03.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_04.vti',
@@ -358,17 +354,17 @@ export const studyData = {
   },
   "dev_cta-3tp": {
     nT: 3,
-    volumes: [
+    vol:[
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_00.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_01.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_02.vti',
     ],
-    models: [
+    mdl:[
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_01.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_02.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_03.vtp',
     ],
-    segmentations: [
+    seg: [
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_00.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_01.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_02.vti',
@@ -377,7 +373,7 @@ export const studyData = {
   },
   "dev_cta-20tp": {
     nT: 20,
-    volumes: [
+    vol:[
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_00.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_01.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_02.vti',
@@ -399,7 +395,7 @@ export const studyData = {
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_18.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_19.vti',
     ],
-    models: [
+    mdl:[
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_01.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_02.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_03.vtp',
@@ -421,7 +417,7 @@ export const studyData = {
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_19.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_20.vtp',
     ],
-    segmentations: [
+    seg: [
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_00.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_01.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_02.vti',
@@ -447,20 +443,20 @@ export const studyData = {
   },
   "case_230424-1tp": {
     nT: 1,
-    volumes: [
+    vol:[
       'dist/case_230424/vol/vol_230424_00.vti',
     ],
-    models: [
+    mdl:[
       'dist/case_230424/mdl/mdl_230424_00.vtp',
     ],
-    segmentations: [
+    seg: [
       'dist/case_230424/seg/seg_230424_00.vti',
     ],
     DisplayConfig: dispConfigCTA,
   },
   "dev_echo-14tp": {
     nT: 14,
-    volumes: [
+    vol:[
       'dist/bavcta008-tav48/echo/vol/img3d_rs100_01.vti',
       'dist/bavcta008-tav48/echo/vol/img3d_rs100_02.vti',
       'dist/bavcta008-tav48/echo/vol/img3d_rs100_03.vti',
@@ -476,7 +472,7 @@ export const studyData = {
       'dist/bavcta008-tav48/echo/vol/img3d_rs100_13.vti',
       'dist/bavcta008-tav48/echo/vol/img3d_rs100_14.vti',
     ],
-    models: [
+    mdl:[
       'dist/bavcta008-tav48/echo/mdl/mesh_dc00_01.vtp',
       'dist/bavcta008-tav48/echo/mdl/mesh_dc00_02.vtp',
       'dist/bavcta008-tav48/echo/mdl/mesh_dc00_03.vtp',
@@ -492,7 +488,7 @@ export const studyData = {
       'dist/bavcta008-tav48/echo/mdl/mesh_dc00_13.vtp',
       'dist/bavcta008-tav48/echo/mdl/mesh_dc00_14.vtp',
     ],
-    segmentations: [
+    seg: [
       'dist/bavcta008-tav48/echo/seg/seg3d_rs100_01.vti',
       'dist/bavcta008-tav48/echo/seg/seg3d_rs100_02.vti',
       'dist/bavcta008-tav48/echo/seg/seg3d_rs100_03.vti',

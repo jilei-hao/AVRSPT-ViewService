@@ -15,7 +15,7 @@ function StudyMenuRow (props) {
 }
 
 export default function StudyMenu (props) {
-  console.log("[StudyMenu]: ", props);
+  //console.log("[StudyMenu]: ", props);
 
   if (!props.initStudyConfig)
     return;
