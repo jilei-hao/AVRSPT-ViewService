@@ -82,6 +82,7 @@ export default function Root() {
   // dev_echo-14tp; dev_cta-18tp; case_230424-1tp
   const [crntStudyKey, setCrntStudyKey] = useState("dev_echo-14tp"); 
   const refStudyKey = useRef(crntStudyKey)
+  const renderingId = useRef(0);
 
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
@@ -150,8 +151,7 @@ export default function Root() {
         seg_actor.setVisibility(true);
         seg_actor.getProperty().setRGBTransferFunction(0, DMPHelper.CreateLabelColorFunction(labelRGBA));
 
-        let labelRange = [];
-        DMPHelper.GetLabelRange(labelRGBA, labelRange);
+        const labelRange = DMPHelper.GetLabelRange(labelRGBA);
         const segColorWindow = labelRange[1] - labelRange[0];
         const segColorLevel = labelRange[0] + segColorWindow / 2;
         seg_actor.getProperty().setColorLevel(segColorLevel);
@@ -203,11 +203,14 @@ export default function Root() {
       // Setup pipelines to render content for each time points
       
       context.current = {
+        id: renderingId.current,
         fullScreenRenderWindow, renderWindow,
         sliceRenderers, modelRenderer,
       };
+      renderingId.current++; // increment current context id
 
       // load default study
+      resetRenderingProps(); // this is necessary because dev reload (won't affect prod)
       loadStudy(crntStudyKey);
 
       // For dev tool troubleshooting
@@ -353,7 +356,7 @@ export default function Root() {
     modelMapper.setUseLookupTableScalarRange(true);
     modelActor.setMapper(modelMapper);
     modelRenderer.addActor(modelActor);
-    applyModelDMP(modelActor, modelMapper, study);
+    applyModelDMP(modelActor, study.DisplayConfig.LabelConfig);
 
     // reset slicing props
     sliceRenderers.forEach((ren, ind) => {
@@ -366,7 +369,8 @@ export default function Root() {
       volumeMapper.setSlicingMode(sliceRenConfig.mode);
       volumeActor.set({actorType: "vol"}, true);
       volumeActor.setMapper(volumeMapper);
-      volumeActor.setVisibility(true);
+      ren.addActor(volumeActor);
+      applyGreyImageDMP(volumeActor, study.DisplayConfig.ImageConfig);
 
       // segmentation props
       const segMapper = vtkImageMapper.newInstance();
@@ -376,8 +380,9 @@ export default function Root() {
       segMapper.setSlicingMode(sliceRenConfig.mode);
       segActor.set({actorType: "seg"}, true);
       segActor.setMapper(segMapper);
-      segActor.setVisibility(true);
-      applySegmentationDMP(segActor, segMapper, study);
+      ren.addActor(segActor);
+      
+      applySegmentationDMP(segActor, study.DisplayConfig.LabelConfig);
     })
 
   }
@@ -401,7 +406,6 @@ export default function Root() {
     resetLoadingStatus(nT);
     resetAllTPData();
     resetRenderingProps();
-    applyStudyDMP(newStudy);
 
     for (let i = 0; i < nT; i++) {
       const volUrl = `${getDataServiceUrl()}/${newStudy.vol[i]}`
@@ -497,7 +501,16 @@ export default function Root() {
 
   function applySegmentationDMP(actor, labelConfig) {
     const DMPHelper = CreateDMPHelper();
-
+    const defaultPreset = labelConfig.ColorPresets[labelConfig.DefaultColorPresetName];
+    const labelRGBA = DMPHelper.CreateLabelRGBAMap(defaultPreset, labelConfig.labelDesc)
+    const labelRange = DMPHelper.GetLabelRange(labelRGBA);
+    const clrWindow = labelRange[1] - labelRange[0];
+    const clrLevel = labelRange[0] + clrWindow / 2;
+    actor.getProperty().setColorWindow(clrWindow);
+    actor.getProperty().setColorLevel(clrLevel);
+    actor.getProperty().setScalarOpacity(DMPHelper.CreateLabelOpacityFunction(labelRGBA));
+    actor.getProperty().setRGBTransferFunction(0, DMPHelper.CreateLabelColorFunction(labelRGBA));
+    actor.setVisibility(true);
   }
 
   function applyModelDMP(actor, labelConfig) {
@@ -516,6 +529,7 @@ export default function Root() {
     const { sliceRenderers } = context.current;
     sliceRenderers.forEach((ren, i) => {
       const actor = ren.getActors()[0];
+      console.log(`[updateVisibleVolume] actor(${i}): `, actor);
       const mapper = actor.getMapper();
       mapper.setInputData(volume);
     })
@@ -543,7 +557,7 @@ export default function Root() {
   }
 
   function updateVisibleModel(tp, resetCamera = false, isInitial = false) {
-    console.log("[updateVisibleModel]");
+    console.log("[updateVisibleModel] contextId: ", context.current.id);
     const model = tpMdlData.current[tp];
 
     if (!model) {
@@ -553,6 +567,7 @@ export default function Root() {
 
     const { modelRenderer } = context.current;
     const actor = modelRenderer.getActors()[0];
+    console.log("[updateVisibleModel] actor=", actor);
     const mapper = actor.getMapper();
     mapper.setInputData(model);
 
