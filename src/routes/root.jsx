@@ -529,7 +529,6 @@ export default function Root() {
     
     renderWindow.render();
   }
-
   function toggleStudyMenu() {
     setStudyMenuActive(!studyMenuActive);
   }
