@@ -18,16 +18,17 @@ function CreateLabelRGBAMap(clrPreset, labelDesc) {
   return ret;
 }
 
-function GetLabelRange(labelRGBA, range) {
+function GetLabelRange(labelRGBA) {
   const labels = Object.keys(labelRGBA);
-  range[0] = Math.min(...labels);
-  range[1] = Math.max(...labels);
+  return [
+    Math.min(...labels),
+    Math.max(...labels)
+  ];
 }
 
 function CreateLabelColorFunction (labelRGBA) {
   const ctFun = vtkColorTransferFunction.newInstance();
-  let range = [];
-  GetLabelRange(labelRGBA, range);
+  let range = GetLabelRange(labelRGBA);
 
   ctFun.setMappingRange(range[0], range[1]);
 
