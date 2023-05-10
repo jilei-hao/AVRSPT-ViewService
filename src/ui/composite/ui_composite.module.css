@@ -94,7 +94,7 @@
 }
 
 .label_editor__active {
-  left: 60vw;
+  left: 50vw;
   bottom: 12vh;
 }
 
@@ -157,7 +157,7 @@
   flex-direction: column;
   position: absolute;
   width: 20vw;
-  height: 35vh;
+  height: 45vh;
   padding-top: 35px;
   padding-left: 5px;
   padding-right: 5px;
