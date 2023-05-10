@@ -1,7 +1,3 @@
-import config from "../../server-config.json"
-
-export const BASE_DATA_URL = `http://${config.host}:${config.port}`;
-
 const SolidRGBA = [240, 240, 240, 1];
 const TissueRGBA = [255, 233, 205, 1];
 const BackgroundRGBA = [0, 0, 0, 0];
@@ -33,27 +29,8 @@ const dispConfigCTA = {
       15: "RCSinus",
       16: "Calcification"
     },
-    DefaultColorPresetName: "Solid Color",
+    DefaultColorPresetName: "Tissue Color",
     ColorPresets: {
-      "Label": {
-        0:  [0, 0, 0, 0],
-        1:  [255, 0, 0, 1],
-        2:  [82, 226, 140, 1],
-        3:  [0, 0, 255, 1],
-        4:  [255, 255, 0, 1],
-        5:  [253, 128, 8, 1],
-        6:  [204, 102, 255, 1],
-        7:  [16, 128, 1, 1],
-        8:  [255, 151, 102, 1],
-        9:  [33, 255, 6, 1],
-        10: [0, 255, 243, 1],
-        11: [15, 128, 255, 1],
-        12: [255, 255, 10, 1],
-        13: [128, 64, 2, 1],
-        14: [26, 198, 4, 1],
-        15: [7, 64, 128, 1],
-        16: [255, 255, 255, 1],
-      },
       "Tissue Color": {
         0:  BackgroundRGBA,
         1:  TissueRGBA,
@@ -72,6 +49,25 @@ const dispConfigCTA = {
         14: TissueRGBA,
         15: TissueRGBA,
         16: TissueRGBA,
+      },
+      "Label": {
+        0:  [0, 0, 0, 0],
+        1:  [255, 0, 0, 1],
+        2:  [82, 226, 140, 1],
+        3:  [0, 0, 255, 1],
+        4:  [255, 255, 0, 1],
+        5:  [253, 128, 8, 1],
+        6:  [204, 102, 255, 1],
+        7:  [16, 128, 1, 1],
+        8:  [255, 151, 102, 1],
+        9:  [33, 255, 6, 1],
+        10: [0, 255, 243, 1],
+        11: [15, 128, 255, 1],
+        12: [255, 255, 10, 1],
+        13: [128, 64, 2, 1],
+        14: [26, 198, 4, 1],
+        15: [7, 64, 128, 1],
+        16: [255, 255, 255, 1],
       },
       "Solid Color": {
         0:  [0, 0, 0, 0],
@@ -162,27 +158,8 @@ const dispConfigEcho = {
       15: "RCSinus",
       16: "Calcification"
     },
-    DefaultColorPresetName: "Label",
+    DefaultColorPresetName: "Tissue Color",
     ColorPresets: {
-      "Label": {
-        0:  [0, 0, 0, 0],
-        1:  [255, 0, 0, 1],
-        2:  [82, 226, 140, 1],
-        3:  [0, 0, 255, 1],
-        4:  [255, 255, 0, 1],
-        5:  [253, 128, 8, 1],
-        6:  [204, 102, 255, 1],
-        7:  [16, 128, 1, 1],
-        8:  [255, 151, 102, 1],
-        9:  [33, 255, 6, 1],
-        10: [0, 255, 243, 1],
-        11: [15, 128, 255, 1],
-        12: [255, 255, 10, 1],
-        13: [128, 64, 2, 1],
-        14: [26, 198, 4, 1],
-        15: [7, 64, 128, 1],
-        16: [255, 255, 255, 1],
-      },
       "Tissue Color": {
         0:  BackgroundRGBA,
         1:  TissueRGBA,
@@ -201,6 +178,25 @@ const dispConfigEcho = {
         14: TissueRGBA,
         15: TissueRGBA,
         16: TissueRGBA,
+      },
+      "Label": {
+        0:  [0, 0, 0, 0],
+        1:  [255, 0, 0, 1],
+        2:  [82, 226, 140, 1],
+        3:  [0, 0, 255, 1],
+        4:  [255, 255, 0, 1],
+        5:  [253, 128, 8, 1],
+        6:  [204, 102, 255, 1],
+        7:  [16, 128, 1, 1],
+        8:  [255, 151, 102, 1],
+        9:  [33, 255, 6, 1],
+        10: [0, 255, 243, 1],
+        11: [15, 128, 255, 1],
+        12: [255, 255, 10, 1],
+        13: [128, 64, 2, 1],
+        14: [26, 198, 4, 1],
+        15: [7, 64, 128, 1],
+        16: [255, 255, 255, 1],
       },
       "Solid Color": {
         0:  [0, 0, 0, 0],
@@ -265,12 +261,22 @@ const dispConfigEcho = {
 
 export const studyHeaders = [
   {
-    "key": "dev_cta-18tp",
+    "key": "dev_echo-3tp",
+    "modality": "Echo",
+    "sub_type": "",
+  },
+  {
+    "key": "dev_echo-14tp",
+    "modality": "Echo",
+    "sub_type": "",
+  },
+  {
+    "key": "dev_cta-3tp",
     "modality": "CT",
     "sub_type": "4DCTA",
   },
   {
-    "key": "dev_cta-3tp",
+    "key": "dev_cta-18tp",
     "modality": "CT",
     "sub_type": "4DCTA",
   },
@@ -280,9 +286,9 @@ export const studyHeaders = [
     "sub_type": "4DCTA",
   },
   {
-    "key": "dev_echo-14tp",
-    "modality": "Echo",
-    "sub_type": "",
+    "key": "cta-20tp-onemesh",
+    "modality": "CT",
+    "sub_type": "4DCTA",
   },
   {
     "key": "case_230424-1tp",
@@ -291,10 +297,10 @@ export const studyHeaders = [
   }
 ]
 
-export const cases = {
+export const studyData = {
   "dev_cta-18tp": {
     nT: 18,
-    volumes: [
+    vol:[
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_02.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_03.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_04.vti',
@@ -314,7 +320,7 @@ export const cases = {
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_18.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_19.vti',
     ],
-    models: [
+    mdl:[
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_03.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_04.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_05.vtp',
@@ -334,7 +340,7 @@ export const cases = {
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_19.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_20.vtp',
     ],
-    segmentations: [
+    seg: [
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_02.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_03.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_04.vti',
@@ -358,17 +364,17 @@ export const cases = {
   },
   "dev_cta-3tp": {
     nT: 3,
-    volumes: [
+    vol:[
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_00.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_01.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_02.vti',
     ],
-    models: [
+    mdl:[
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_01.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_02.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_03.vtp',
     ],
-    segmentations: [
+    seg: [
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_00.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_01.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_02.vti',
@@ -377,7 +383,7 @@ export const cases = {
   },
   "dev_cta-20tp": {
     nT: 20,
-    volumes: [
+    vol:[
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_00.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_01.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_02.vti',
@@ -399,7 +405,7 @@ export const cases = {
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_18.vti',
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_19.vti',
     ],
-    models: [
+    mdl:[
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_01.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_02.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_03.vtp',
@@ -421,7 +427,77 @@ export const cases = {
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_19.vtp',
       'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_20.vtp',
     ],
-    segmentations: [
+    seg: [
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_00.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_01.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_02.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_03.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_04.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_05.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_06.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_07.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_08.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_09.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_10.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_11.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_12.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_13.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_14.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_15.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_16.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_17.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_18.vti',
+      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_19.vti',
+    ],
+    DisplayConfig: dispConfigCTA,
+  },
+  "cta-20tp-onemesh": {
+    nT: 20,
+    vol:[
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_00.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_01.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_02.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_03.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_04.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_05.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_06.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_07.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_08.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_09.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_10.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_11.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_12.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_13.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_14.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_15.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_16.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_17.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_18.vti',
+      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_19.vti',
+    ],
+    mdl:[
+      'dist/bavcta008-tav48/cta/mdl/onemesh_01.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_02.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_03.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_04.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_05.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_06.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_07.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_08.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_09.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_10.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_11.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_12.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_13.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_14.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_15.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_16.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_17.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_18.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_19.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_20.vtp',
+    ],
+    seg: [
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_00.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_01.vti',
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_02.vti',
@@ -447,20 +523,20 @@ export const cases = {
   },
   "case_230424-1tp": {
     nT: 1,
-    volumes: [
+    vol:[
       'dist/case_230424/vol/vol_230424_00.vti',
     ],
-    models: [
+    mdl:[
       'dist/case_230424/mdl/mdl_230424_00.vtp',
     ],
-    segmentations: [
+    seg: [
       'dist/case_230424/seg/seg_230424_00.vti',
     ],
     DisplayConfig: dispConfigCTA,
   },
   "dev_echo-14tp": {
     nT: 14,
-    volumes: [
+    vol:[
       'dist/bavcta008-tav48/echo/vol/img3d_rs100_01.vti',
       'dist/bavcta008-tav48/echo/vol/img3d_rs100_02.vti',
       'dist/bavcta008-tav48/echo/vol/img3d_rs100_03.vti',
@@ -476,23 +552,23 @@ export const cases = {
       'dist/bavcta008-tav48/echo/vol/img3d_rs100_13.vti',
       'dist/bavcta008-tav48/echo/vol/img3d_rs100_14.vti',
     ],
-    models: [
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_01.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_02.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_03.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_04.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_05.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_06.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_07.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_08.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_09.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_10.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_11.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_12.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_13.vtp',
-      'dist/bavcta008-tav48/echo/mdl/mesh_dc00_14.vtp',
+    mdl:[
+      'dist/bavcta008-tav48/echo/mdl/onemesh_01.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_02.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_03.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_04.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_05.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_06.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_07.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_08.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_09.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_10.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_11.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_12.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_13.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_14.vtp',
     ],
-    segmentations: [
+    seg: [
       'dist/bavcta008-tav48/echo/seg/seg3d_rs100_01.vti',
       'dist/bavcta008-tav48/echo/seg/seg3d_rs100_02.vti',
       'dist/bavcta008-tav48/echo/seg/seg3d_rs100_03.vti',
@@ -507,6 +583,25 @@ export const cases = {
       'dist/bavcta008-tav48/echo/seg/seg3d_rs100_12.vti',
       'dist/bavcta008-tav48/echo/seg/seg3d_rs100_13.vti',
       'dist/bavcta008-tav48/echo/seg/seg3d_rs100_14.vti',
+    ],
+    DisplayConfig: dispConfigEcho,
+  },
+  "dev_echo-3tp": {
+    nT: 3,
+    vol:[
+      'dist/bavcta008-tav48/echo/vol/img3d_rs100_01.vti',
+      'dist/bavcta008-tav48/echo/vol/img3d_rs100_02.vti',
+      'dist/bavcta008-tav48/echo/vol/img3d_rs100_03.vti',
+    ],
+    mdl:[
+      'dist/bavcta008-tav48/echo/mdl/onemesh_01.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_02.vtp',
+      'dist/bavcta008-tav48/echo/mdl/onemesh_03.vtp',
+    ],
+    seg: [
+      'dist/bavcta008-tav48/echo/seg/seg3d_rs100_01.vti',
+      'dist/bavcta008-tav48/echo/seg/seg3d_rs100_02.vti',
+      'dist/bavcta008-tav48/echo/seg/seg3d_rs100_03.vti',
     ],
     DisplayConfig: dispConfigEcho,
   },
