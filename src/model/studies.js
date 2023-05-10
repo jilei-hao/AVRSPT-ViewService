@@ -261,12 +261,17 @@ const dispConfigEcho = {
 
 export const studyHeaders = [
   {
-    "key": "dev_echo-3tp",
+    "key": "dev_echo-14tp",
     "modality": "Echo",
     "sub_type": "",
   },
   {
-    "key": "dev_echo-14tp",
+    "key": "cta-20tp-onemesh",
+    "modality": "CT",
+    "sub_type": "4DCTA",
+  },
+  {
+    "key": "dev_echo-3tp",
     "modality": "Echo",
     "sub_type": "",
   },
@@ -282,11 +287,6 @@ export const studyHeaders = [
   },
   {
     "key": "dev_cta-20tp",
-    "modality": "CT",
-    "sub_type": "4DCTA",
-  },
-  {
-    "key": "cta-20tp-onemesh",
     "modality": "CT",
     "sub_type": "4DCTA",
   },
