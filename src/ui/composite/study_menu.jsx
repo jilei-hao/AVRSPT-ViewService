@@ -25,7 +25,7 @@ export default function StudyMenu (props) {
   const studyRow = [];
   initStudyConfig.forEach((e) => {
     studyRow.push(
-      <StudyMenuRow key={e.key} studyKey={e.key} onClick={props.onStudyChange}>
+      <StudyMenuRow key={e.key} studyKey={e.key} onClick={onStudyChange}>
         <div className={styles.study_desc_box}>{e.key}</div>
       </StudyMenuRow>
     )

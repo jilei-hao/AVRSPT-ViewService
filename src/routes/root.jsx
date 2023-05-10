@@ -333,6 +333,7 @@ export default function Root() {
   }
 
   function loadStudy(name) {
+    setStudyMenuActive(false); // turn off study menu
     console.log("[loadStudy] name=", name);
 
     if (!hasLoadingCompleted()) {
@@ -553,6 +554,7 @@ export default function Root() {
           />
           <ButtonStudy
             onClick={toggleStudyMenu}
+            btnText={crntStudyKey}
           />
         </div>
         <LabelEditor

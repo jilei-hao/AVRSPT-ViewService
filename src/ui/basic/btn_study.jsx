@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import icon_palette__idle from "../assets/btn_palette__idle.svg"
 import icon_palette__active from "../assets/btn_palette__active.svg"
-import ButtonControl from "./btn_control"
+import ButtonText from "./btn_text"
 
 export default function ButtonStudy (props) {
   const [active, setActive] = useState(false);
@@ -14,9 +14,9 @@ export default function ButtonStudy (props) {
   }
   
   return (
-    <ButtonControl 
+    <ButtonText
       onClick={onClickLocal}
-      iconSrc={active ? icon_palette__active : icon_palette__idle}
+      text={props.btnText}
     />
   );
 }
