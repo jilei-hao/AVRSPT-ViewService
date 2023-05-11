@@ -38,6 +38,7 @@ import LabelEditor from '../ui/composite/label_editor';
 import { CreateDMPHelper } from '../model';
 import ButtonStudy from '../ui/basic/btn_study';
 import StudyMenu from '../ui/composite/study_menu';
+import ProgressScreen from '../ui/composite/progress_screen';
 
 const { fetchBinary } = vtkHttpDataAccessHelper;
 const enumDataType = {
@@ -65,10 +66,12 @@ export default function Root() {
   const tpVolData = useRef([]);
   const tpMdlData = useRef([]);
   const loadingStatus = useRef([]);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [progressActive, setProgressActive] = useState(true);
   const renderInitialized = useRef(false);
   const refNT = useRef(0);
-  // dev_echo-14tp; dev_cta-18tp; case_230424-1tp
-  const [crntStudyKey, setCrntStudyKey] = useState("dev_echo-14tp"); 
+  // dev_echo-14tp; dev_cta-18tp; cta-20tp-onemesh
+  const [crntStudyKey, setCrntStudyKey] = useState("dev_cta-3tp"); 
   const refStudyKey = useRef(crntStudyKey)
   const renderingId = useRef(0);
 
@@ -204,18 +207,43 @@ export default function Root() {
     return ls[0] && ls[1] && ls[2];
   }
 
+  function getDataTypeProgressWeight(type) {
+    switch (type) {
+      case enumDataType.vol:
+        return 0.7;
+      case enumDataType.mdl:
+        return 0.2;
+      case enumDataType.seg:
+        return 0.1;
+      default:
+    }
+    return 0;
+  }
+
   function updateLoadingStatus(tp, type) {
     if (tp >= refNT.current || type < 0 || type >= enumDataType.count)
       return;
-    
+
+    // Compute progress increment
+    const tpProg = 100 / refNT.current;
+    const typeRatio = getDataTypeProgressWeight(type);
+    setLoadingProgress(loadingProgress => loadingProgress + tpProg * typeRatio);
+
+    // Update loading status
     loadingStatus.current[tp][type] = true;
 
-    if (!renderInitialized.current)
+    // if (!renderInitialized.current)
+    //   attemptInitialRendering();
+    if (hasLoadingCompleted())
+    {
+      setProgressActive(false);
       attemptInitialRendering();
+    }
+      
   }
 
   function hasLoadingCompleted() {
-    console.log("[hasLoadingCompleted] status: ", loadingStatus.current);
+    //console.log("[hasLoadingCompleted] status: ", loadingStatus.current);
     const nT = refNT.current;
     if (nT == 0)
       return true;
@@ -230,44 +258,6 @@ export default function Root() {
 
   function getDataServiceUrl() {
     return `http://${config.host}:${config.port}`;
-  }
-
-  function loadSeg(url, tp) {
-    fetchBinary(url).then((binary) => {
-      console.log("-- parsing segmentation from file: ", url);
-
-      // read and fill tpSegData
-      const reader = vtkXMLImageDataReader.newInstance();
-      reader.parseAsArrayBuffer(binary);
-      tpSegData.current[tp] = reader.getOutputData(0);
-      reader.delete();
-
-      updateLoadingStatus(tp, enumDataType.seg);
-    });
-  }
-
-  function loadVol(url, tp) {
-    fetchBinary(url).then((binary) => {
-      console.log("-- parsing volume from file: ", url)
-      const reader = vtkXMLImageDataReader.newInstance();
-      reader.parseAsArrayBuffer(binary);
-      tpVolData.current[tp] = reader.getOutputData(0);
-      reader.delete();
-
-      updateLoadingStatus(tp, enumDataType.vol);
-    });
-  }
-
-  function loadMdl(url, tp) {
-    fetchBinary(url).then((binary) => {
-      console.log("-- parsing model from file: ", url);
-      const reader = vtkXMLPolyDataReader.newInstance();
-      reader.parseAsArrayBuffer(binary);
-      tpMdlData.current[tp] = reader.getOutputData(0);
-      reader.delete();
-
-      updateLoadingStatus(tp, enumDataType.mdl);
-    });
   }
 
   function resetAllTPData() {
@@ -332,9 +322,12 @@ export default function Root() {
 
   }
 
-  function loadStudy(name) {
+  async function loadStudy(name) {
     setStudyMenuActive(false); // turn off study menu
     console.log("[loadStudy] name=", name);
+
+    setLoadingProgress(0);
+    setProgressActive(true);
 
     if (!hasLoadingCompleted()) {
       console.log("-- previous loading has not completed. abort loading");
@@ -352,16 +345,35 @@ export default function Root() {
     resetLoadingStatus(nT);
     resetRenderingProps();
     resetAllTPData();
-    
-    for (let i = 0; i < nT; i++) {
-      const volUrl = `${getDataServiceUrl()}/${newStudy.vol[i]}`
-      loadVol(volUrl, i);
-      
-      const segUrl = `${getDataServiceUrl()}/${newStudy.seg[i]}`
-      loadSeg(segUrl, i);
 
-      const mdlUrl = `${getDataServiceUrl()}/${newStudy.mdl[i]}`
-      loadMdl(mdlUrl, i);
+    const volReader = vtkXMLImageDataReader.newInstance();
+    const mdlReader = vtkXMLPolyDataReader.newInstance();
+    
+    for (let tp = 0; tp < nT; tp++) {
+      console.log(`[loadStudy]: loading tp: ${tp}`);
+      const volUrl = `${getDataServiceUrl()}/${newStudy.vol[tp]}`
+      await fetchBinary(volUrl).then((binary) => {
+        //console.log("-- parsing volume from file: ", volUrl)
+        volReader.parseAsArrayBuffer(binary);
+        tpVolData.current[tp] = volReader.getOutputData(0);
+        updateLoadingStatus(tp, enumDataType.vol);
+      });
+      
+      const segUrl = `${getDataServiceUrl()}/${newStudy.seg[tp]}`
+      await fetchBinary(segUrl).then((binary) => {
+        // console.log("-- parsing segmentation from file: ", segUrl);
+        volReader.parseAsArrayBuffer(binary);
+        tpSegData.current[tp] = volReader.getOutputData(0);
+        updateLoadingStatus(tp, enumDataType.seg);
+      });
+      
+      const mdlUrl = `${getDataServiceUrl()}/${newStudy.mdl[tp]}`
+      await fetchBinary(mdlUrl).then((binary) => {
+        //console.log("-- parsing model from file: ", mdlUrl);
+        mdlReader.parseAsArrayBuffer(binary);
+        tpMdlData.current[tp] = mdlReader.getOutputData(0);
+        updateLoadingStatus(tp, enumDataType.mdl);
+      });
     }
   }
 
@@ -566,6 +578,10 @@ export default function Root() {
           visible={studyMenuActive}
           initStudyConfig={initStudyConfig}
           onStudyChange={loadStudy}
+        />
+        <ProgressScreen 
+          visible={progressActive}
+          percentage={loadingProgress.toFixed(2)}
         />
       </RenderContext.Provider>
     </div>
