@@ -38,6 +38,7 @@ import LabelEditor from '../ui/composite/label_editor';
 import { CreateDMPHelper } from '../model';
 import ButtonStudy from '../ui/basic/btn_study';
 import StudyMenu from '../ui/composite/study_menu';
+import ProgressScreen from '../ui/composite/progress_screen';
 
 const { fetchBinary } = vtkHttpDataAccessHelper;
 const enumDataType = {
@@ -65,6 +66,7 @@ export default function Root() {
   const tpVolData = useRef([]);
   const tpMdlData = useRef([]);
   const loadingStatus = useRef([]);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const renderInitialized = useRef(false);
   const refNT = useRef(0);
   // dev_echo-14tp; dev_cta-18tp; case_230424-1tp
@@ -204,10 +206,30 @@ export default function Root() {
     return ls[0] && ls[1] && ls[2];
   }
 
+  function getDataTypeProgressWeight(type) {
+    switch (type) {
+      case enumDataType.vol:
+        return 0.7;
+      case enumDataType.mdl:
+        return 0.2;
+      case enumDataType.seg:
+        return 0.1;
+      default:
+    }
+    return 0;
+  }
+
   function updateLoadingStatus(tp, type) {
     if (tp >= refNT.current || type < 0 || type >= enumDataType.count)
       return;
-    
+
+    // Compute progress increment
+    const tpProg = 100 / refNT.current;
+    const typeRatio = getDataTypeProgressWeight(type);
+    setLoadingProgress(loadingProgress => loadingProgress + tpProg * typeRatio);
+    console.log(`[updateLoadingStatus] crntProg: ${loadingProgress}, typeRatio: ${typeRatio}`);
+
+    // Update loading status
     loadingStatus.current[tp][type] = true;
 
     if (!renderInitialized.current)
@@ -335,6 +357,8 @@ export default function Root() {
   function loadStudy(name) {
     setStudyMenuActive(false); // turn off study menu
     console.log("[loadStudy] name=", name);
+
+    setLoadingProgress(0);
 
     if (!hasLoadingCompleted()) {
       console.log("-- previous loading has not completed. abort loading");
@@ -567,6 +591,7 @@ export default function Root() {
           initStudyConfig={initStudyConfig}
           onStudyChange={loadStudy}
         />
+        {loadingProgress < 100 && <ProgressScreen percentage={loadingProgress.toFixed(2)}/>}
       </RenderContext.Provider>
     </div>
   );
