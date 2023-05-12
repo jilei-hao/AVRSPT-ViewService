@@ -261,44 +261,34 @@ const dispConfigEcho = {
 
 export const studyHeaders = [
   {
-    "key": "dev_echo-14tp",
+    "key": "echo-14tp",
     "modality": "Echo",
     "sub_type": "",
   },
   {
-    "key": "cta-20tp-onemesh",
+    "key": "cta-20tp",
     "modality": "CT",
     "sub_type": "4DCTA",
   },
   {
-    "key": "dev_echo-3tp",
+    "key": "echo-3tp",
     "modality": "Echo",
     "sub_type": "",
   },
   {
-    "key": "dev_cta-3tp",
+    "key": "cta-3tp",
     "modality": "CT",
     "sub_type": "4DCTA",
   },
   {
-    "key": "dev_cta-18tp",
+    "key": "cta-18tp",
     "modality": "CT",
     "sub_type": "4DCTA",
   },
-  {
-    "key": "dev_cta-20tp",
-    "modality": "CT",
-    "sub_type": "4DCTA",
-  },
-  {
-    "key": "case_230424-1tp",
-    "modality": "CT",
-    "sub_type": "4DCTA",
-  }
 ]
 
 export const studyData = {
-  "dev_cta-18tp": {
+  "cta-18tp": {
     nT: 18,
     vol:[
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_02.vti',
@@ -321,24 +311,24 @@ export const studyData = {
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_19.vti',
     ],
     mdl:[
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_03.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_04.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_05.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_06.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_07.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_08.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_09.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_10.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_11.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_12.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_13.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_14.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_15.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_16.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_17.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_18.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_19.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_20.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_03.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_04.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_05.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_06.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_07.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_08.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_09.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_10.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_11.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_12.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_13.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_14.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_15.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_16.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_17.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_18.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_19.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_20.vtp',
     ],
     seg: [
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_02.vti',
@@ -362,7 +352,7 @@ export const studyData = {
     ],
     DisplayConfig: dispConfigCTA,
   },
-  "dev_cta-3tp": {
+  "cta-3tp": {
     nT: 3,
     vol:[
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_00.vti',
@@ -370,9 +360,9 @@ export const studyData = {
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_02.vti',
     ],
     mdl:[
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_01.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_02.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_03.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_01.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_02.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_03.vtp',
     ],
     seg: [
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_00.vti',
@@ -381,77 +371,7 @@ export const studyData = {
     ],
     DisplayConfig: dispConfigCTA,
   },
-  "dev_cta-20tp": {
-    nT: 20,
-    vol:[
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_00.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_01.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_02.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_03.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_04.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_05.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_06.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_07.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_08.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_09.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_10.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_11.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_12.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_13.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_14.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_15.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_16.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_17.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_18.vti',
-      'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_19.vti',
-    ],
-    mdl:[
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_01.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_02.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_03.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_04.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_05.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_06.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_07.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_08.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_09.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_10.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_11.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_12.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_13.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_14.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_15.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_16.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_17.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_18.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_19.vtp',
-      'dist/bavcta008-tav48/cta/mdl/seg_bavcta008_relabeled_mesh_20.vtp',
-    ],
-    seg: [
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_00.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_01.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_02.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_03.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_04.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_05.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_06.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_07.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_08.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_09.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_10.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_11.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_12.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_13.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_14.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_15.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_16.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_17.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_18.vti',
-      'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_19.vti',
-    ],
-    DisplayConfig: dispConfigCTA,
-  },
-  "cta-20tp-onemesh": {
+  "cta-20tp": {
     nT: 20,
     vol:[
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_00.vti',
@@ -521,20 +441,7 @@ export const studyData = {
     ],
     DisplayConfig: dispConfigCTA,
   },
-  "case_230424-1tp": {
-    nT: 1,
-    vol:[
-      'dist/case_230424/vol/vol_230424_00.vti',
-    ],
-    mdl:[
-      'dist/case_230424/mdl/mdl_230424_00.vtp',
-    ],
-    seg: [
-      'dist/case_230424/seg/seg_230424_00.vti',
-    ],
-    DisplayConfig: dispConfigCTA,
-  },
-  "dev_echo-14tp": {
+  "echo-14tp": {
     nT: 14,
     vol:[
       'dist/bavcta008-tav48/echo/vol/img3d_rs70_01.vti',
@@ -586,7 +493,7 @@ export const studyData = {
     ],
     DisplayConfig: dispConfigEcho,
   },
-  "dev_echo-3tp": {
+  "echo-3tp": {
     nT: 3,
     vol:[
       'dist/bavcta008-tav48/echo/vol/img3d_rs100_01.vti',
@@ -604,5 +511,5 @@ export const studyData = {
       'dist/bavcta008-tav48/echo/seg/seg3d_rs100_03.vti',
     ],
     DisplayConfig: dispConfigEcho,
-  },
+  }
 }

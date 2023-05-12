@@ -70,8 +70,8 @@ export default function Root() {
   const [progressActive, setProgressActive] = useState(true);
   const renderInitialized = useRef(false);
   const refNT = useRef(0);
-  // dev_echo-14tp; dev_cta-18tp; cta-20tp-onemesh
-  const [crntStudyKey, setCrntStudyKey] = useState("dev_cta-3tp"); 
+  // echo-14tp; cta-18tp; cta-20tp; cta-3tp;
+  const [crntStudyKey, setCrntStudyKey] = useState("cta-3tp"); 
   const refStudyKey = useRef(crntStudyKey)
   const renderingId = useRef(0);
 
