@@ -75,6 +75,11 @@ export default function Root() {
   const refStudyKey = useRef(crntStudyKey)
   const renderingId = useRef(0);
 
+  // simple function defs
+  const toggleStudyMenu = () => setStudyMenuActive(!studyMenuActive);
+  const getDataServiceUrl = () => `http://${config.host}:${config.port}`;
+  const DMPHelper = CreateDMPHelper();
+
   /* Initialize renderWindow, renderer, mapper and actor */
   useEffect(() => {
     if (!context.current) {
@@ -195,12 +200,6 @@ export default function Root() {
     }
   }
 
-  function attemptInitialRendering() {
-    if (checkTPLoadingStatus(0)) {
-      renderInitialized.current = true;
-      updateVisibleDataset(0, true);
-    }
-  }
 
   function checkTPLoadingStatus(tp) {
     const ls = loadingStatus.current[tp];
@@ -232,12 +231,10 @@ export default function Root() {
     // Update loading status
     loadingStatus.current[tp][type] = true;
 
-    // if (!renderInitialized.current)
-    //   attemptInitialRendering();
     if (hasLoadingCompleted())
     {
       setProgressActive(false);
-      attemptInitialRendering();
+      updateVisibleDataset(0, true);
     }
       
   }
@@ -256,9 +253,7 @@ export default function Root() {
     return true;
   }
 
-  function getDataServiceUrl() {
-    return `http://${config.host}:${config.port}`;
-  }
+  
 
   function resetAllTPData() {
     tpVolData.current.forEach((e) => e.delete());
@@ -520,8 +515,9 @@ export default function Root() {
     setLabelEditorActive(!labelEditorActive);
   }
 
-  function changeLabelOpacity(oFun) {
+  function changeLabelOpacity(labelRGBA) {
     const { sliceRenderers, renderWindow } = context.current;
+    const oFun = DMPHelper.CreateLabelOpacityFunction(labelRGBA);
     sliceRenderers.forEach((e) => {
       const actor = e.getActors()[1];
       actor.getProperty().setScalarOpacity(0, oFun);
@@ -529,21 +525,34 @@ export default function Root() {
     renderWindow.render();
   }
 
-  function changeLabelColor(clrFun) {
+  function changeLabelColor(labelRGBA) {
     const { sliceRenderers, modelRenderer, renderWindow } = context.current;
+    const clrFun = DMPHelper.CreateLabelColorFunction(labelRGBA);
+
     sliceRenderers.forEach((e) => {
       const actor = e.getActors()[1];
       actor.getProperty().setRGBTransferFunction(clrFun);
     })
 
     const modelActor = modelRenderer.getActors()[0];
-    modelActor.getMapper().setLookupTable(clrFun);
+    const modelMapper = modelActor.getMapper();
+    modelMapper.setLookupTable(clrFun);
+
+    const labelLUT = DMPHelper.CreateLabelLUT(labelRGBA);
+    // modelMapper.setLookupTable(labelLUT);
+
+    const polyData = modelMapper.getInputData();
+    const labelArray = polyData.getPointData().getArrayByName("Label");
+
+    // const rgbaArray = DMPHelper.CreateRGBADataArray(labelArray, labelRGBA);
+    // polyData.getPointData().addArray(rgbaArray);
+    // polyData.getPointData().setActiveScalars("RGBA");
+    //modelMapper.setColorModeToDirectScalars();
     
     renderWindow.render();
   }
-  function toggleStudyMenu() {
-    setStudyMenuActive(!studyMenuActive);
-  }
+
+  
   
   return (
     <div>
@@ -581,7 +590,7 @@ export default function Root() {
         />
         <ProgressScreen 
           visible={progressActive}
-          percentage={loadingProgress.toFixed(2)}
+          percentage={loadingProgress.toFixed(0)}
         />
       </RenderContext.Provider>
     </div>

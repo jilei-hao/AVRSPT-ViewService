@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useEffect } from "react"
 
 import styles from "./ui_composite.module.css"
 import { CreateDMPHelper } from '../../model';
@@ -27,7 +27,7 @@ function LabelConfigPanel (props) {
     marginLeft: "7px",
     marginRight: "5px",
     borderRadius: "3px",
-    backgroundColor: `rgb(${RGBA[0]*255}, ${RGBA[1]*255}, ${RGBA[2]*255})`,
+    backgroundColor: `rgb(${localRGBA[0]*255}, ${localRGBA[1]*255}, ${localRGBA[2]*255})`,
   }
 
   return (
@@ -36,7 +36,7 @@ function LabelConfigPanel (props) {
       <div className={styles.label_desc_box}>{props.desc}</div>
       <input className={styles.touch_slider}
         type="range" min="0" max="1" step="0.01" 
-        value={opacity} onChange={onOpacityChangeLocal}
+        value={localRGBA[3]} onChange={onOpacityChangeLocal}
       />
     </LabelEditorRow>
   )
@@ -58,12 +58,7 @@ export default function LabelEditor (props) {
     let rgba = labelRGBA;
     rgba[label][3] = value;
     setLabelRGBA(rgba);
-
-    // console.log("[LabelEditor::onOpacityChangeLocal] label=", label, 
-    //   "value=", value, "labelRGBA", rgba);
-
-    const oFun = DMPHelper.CreateLabelOpacityFunction(labelRGBA);
-    onOpacityChange(oFun);
+    onOpacityChange(rgba);
   }
 
   function onSelectedColorPresetChange (e) {
@@ -72,19 +67,16 @@ export default function LabelEditor (props) {
     
     const rgba = DMPHelper.CreateLabelRGBAMap(selectedPreset, LabelDescription);
     setLabelRGBA(rgba); // Trigger UI change
-    const clrFun = DMPHelper.CreateLabelColorFunction(rgba);
-    const oFun = DMPHelper.CreateLabelOpacityFunction(rgba);
-
-    onColorChange(clrFun);
-    onOpacityChange(oFun);
+    onColorChange(rgba);
+    onOpacityChange(rgba);
   }
 
   // Build Preset Options
   const presetOptions = []; 
   for (const k in ColorPresets) {
     presetOptions.push(
-    <option key={k} value={k}
-      >{k}
+    <option key={k} value={k}>
+      {k}
     </option>);
   }
 
@@ -92,9 +84,9 @@ export default function LabelEditor (props) {
   const labelRows = [];
   for (const k in LabelDescription) {
     const desc = LabelDescription[k];
-    const rgba = labelRGBA[k];
+    const rgba = labelRGBA.get(k);
     labelRows.push(
-      <LabelConfigPanel key={k} label={k} initRGBA={rgba} desc={desc}
+      <LabelConfigPanel key={k} label={k} rgba={rgba} desc={desc}
       onOpacityChange={ onOpacityChangeLocal }/>
     )
   }
