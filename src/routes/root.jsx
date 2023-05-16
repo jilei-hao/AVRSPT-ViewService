@@ -516,12 +516,19 @@ export default function Root() {
   }
 
   function changeLabelOpacity(labelRGBA) {
-    const { sliceRenderers, renderWindow } = context.current;
+    const { sliceRenderers, modelRenderer, renderWindow } = context.current;
     const oFun = DMPHelper.CreateLabelOpacityFunction(labelRGBA);
+
     sliceRenderers.forEach((e) => {
       const actor = e.getActors()[1];
       actor.getProperty().setScalarOpacity(0, oFun);
     })
+
+    const modelActor = modelRenderer.getActors()[0];
+    const modelMapper = modelActor.getMapper();
+    const labelLUT = DMPHelper.CreateLabelLUT(labelRGBA);
+    modelMapper.setLookupTable(labelLUT);
+
     renderWindow.render();
   }
 
@@ -536,19 +543,9 @@ export default function Root() {
 
     const modelActor = modelRenderer.getActors()[0];
     const modelMapper = modelActor.getMapper();
-    modelMapper.setLookupTable(clrFun);
-
     const labelLUT = DMPHelper.CreateLabelLUT(labelRGBA);
-    // modelMapper.setLookupTable(labelLUT);
+    modelMapper.setLookupTable(labelLUT);
 
-    const polyData = modelMapper.getInputData();
-    const labelArray = polyData.getPointData().getArrayByName("Label");
-
-    // const rgbaArray = DMPHelper.CreateRGBADataArray(labelArray, labelRGBA);
-    // polyData.getPointData().addArray(rgbaArray);
-    // polyData.getPointData().setActiveScalars("RGBA");
-    //modelMapper.setColorModeToDirectScalars();
-    
     renderWindow.render();
   }
 

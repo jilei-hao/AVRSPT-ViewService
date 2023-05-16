@@ -92,22 +92,27 @@ function CreateRGBADataArray(labelArray, labelRGBA) {
 }
 
 function CreateLabelLUT(labelRGBA) {
-  console.log(`[CreateLabelLUT] labelRGBA`, labelRGBA);
+  //console.log(`[CreateLabelLUT] labelRGBA`, labelRGBA);
   const numberOfColors = labelRGBA.size;
   const tableBuffer = new Uint8Array(4 * numberOfColors);
   const range = GetLabelRange(labelRGBA);
   const lut = vtkLookupTable.newInstance();
   lut.setIndexedLookup(true);
   lut.setRange(range[0], range[1]);
+  lut.setNumberOfColors(numberOfColors);
+
+  // make sure label number is mapped to the table
+  for (let i = 0; i < numberOfColors; i++) {
+    lut.setAnnotation(i, i);
+  }
 
   let offset = 0;
-  for (const label in labelRGBA) {
-    const rgba = labelRGBA[label];
-    console.log(`Processing Label ${label}: `, rgba);
+  for (const [key, value] of labelRGBA) {
     for (let i = 0; i < 4; i++)
-      tableBuffer[offset++] = rgba[i] * 255;
+      tableBuffer[offset++] = value[i] * 255;
   }
-  console.log(`CreateLabelLUT: ${numberOfColors} `, tableBuffer);
+
+  //console.log(`[CreateLabelLUT] NoC: ${numberOfColors} `, tableBuffer);
 
   const table = vtkDataArray.newInstance({
     numberOfComponents: 4,
@@ -116,8 +121,6 @@ function CreateLabelLUT(labelRGBA) {
     name: "LabelLUT",
     values: tableBuffer,
   });
-
-  
 
   lut.setTable(table);
 

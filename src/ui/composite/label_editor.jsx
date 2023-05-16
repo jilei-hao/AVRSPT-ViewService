@@ -31,7 +31,7 @@ function LabelConfigPanel ({rgba, label, desc, onOpacityChange}) {
       <div style={styleColorBlock} />
       <div className={styles.label_desc_box}>{desc}</div>
       <input className={styles.touch_slider}
-        type="range" min="0" max="1" step="0.01" 
+        type="range" min="0" max="1" step="0.1" 
         value={rgba[3]} onChange={onOpacityChangeLocal}
       />
     </LabelEditorRow>
