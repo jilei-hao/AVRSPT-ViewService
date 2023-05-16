@@ -83,7 +83,7 @@ export default function LabelEditor (props) {
     rgba[3] = value;
     rgbaMap.set(label, rgba);
     setLabelRGBA(rgbaMap); // update active rgba map
-    onOpacityChange(rgba); // change rendering
+    onOpacityChange(rgbaMap); // change rendering
     setPanelList(createPanelList(rgbaMap)); // update panel list ui
   }
 
