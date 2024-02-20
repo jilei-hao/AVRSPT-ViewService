@@ -71,7 +71,7 @@ export default function Root() {
   const renderInitialized = useRef(false);
   const refNT = useRef(0);
   // echo-14tp; cta-18tp; cta-20tp; cta-3tp;
-  const [crntStudyKey, setCrntStudyKey] = useState("cta-3tp"); 
+  const [crntStudyKey, setCrntStudyKey] = useState("cta-20tp"); 
   const refStudyKey = useRef(crntStudyKey)
   const renderingId = useRef(0);
 
