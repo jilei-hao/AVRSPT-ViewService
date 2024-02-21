@@ -3,10 +3,11 @@ import {
 } from "./DisplayMappingPolicy";
 
 import {
-  CreateModelRenderer
-} from "./Renderers";
+  ModelRendererWrapper
+} from "./RendererWrappers";
+
 
 export {
   CreateDMPHelper,
-  CreateModelRenderer
+  ModelRendererWrapper
 }

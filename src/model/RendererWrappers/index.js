@@ -1,1 +1,6 @@
-import { AbstractRenderer } from "./abstract_renderer";
+import { ModelRendererWrapper } from "./model_renderer_wrapper";
+
+
+export {
+  ModelRendererWrapper
+}

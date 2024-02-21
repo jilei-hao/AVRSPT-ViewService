@@ -40,6 +40,8 @@ import ButtonStudy from '../ui/basic/btn_study';
 import StudyMenu from '../ui/composite/study_menu';
 import ProgressScreen from '../ui/composite/progress_screen';
 
+import { ModelRendererWrapper } from '../model';
+
 const { fetchBinary } = vtkHttpDataAccessHelper;
 const enumDataType = {
   vol: 0,
@@ -141,18 +143,34 @@ export default function Root() {
       }
 
       // Setup the renderer for the 3d viewport
-      const modelRenderer = vtkRenderer.newInstance();
-      const modelViewConfig = viewConfig[modelViewMap[0]];
-      const modelRenConfig = modelViewConfig.renConfig;
-      modelRenderer.setViewport(...viewBoxes[modelViewConfig.position]);
-      modelRenderer.resetCamera();
-      modelRenderer.set({ 
-        rendererType: modelRenConfig.renType, 
-        rendererId: modelRenConfig.renId,
-        viewId: modelViewConfig.viewId
+      // const modelRenderer = vtkRenderer.newInstance();
+      // const modelViewConfig = viewConfig[modelViewMap[0]];
+      // const modelRenConfig = modelViewConfig.renConfig;
+      // modelRenderer.setViewport(...viewBoxes[modelViewConfig.position]);
+      // modelRenderer.resetCamera();
+      // modelRenderer.set({ 
+      //   rendererType: modelRenConfig.renType, 
+      //   rendererId: modelRenConfig.renId,
+      //   viewId: modelViewConfig.viewId
+      // }, true);
+
+      const rendererMap = new Map();
+      const modelRendererWrapper = new ModelRendererWrapper();
+      rendererMap.set(0, modelRendererWrapper);
+      const globalViewConfig = viewConfig[modelViewMap[0]]
+      const modelRenConfig = modelRendererWrapper.getConfig();
+      modelRenConfig.setViewPortBoundingBox(...viewBoxes[globalViewConfig.position]);
+      modelRendererWrapper.setConfig(modelRenConfig);
+      modelRendererWrapper.resetCamera();
+      modelRendererWrapper.getRenderer().set({
+        rendererType: globalViewConfig.renConfig.renType,
+        rendererId: globalViewConfig.renConfig.renId,
+        viewId: globalViewConfig.viewId
       }, true);
+      const modelRenderer = modelRendererWrapper.getRenderer();
 
       renderWindow.addRenderer(modelRenderer);
+
 
       // Setup pipelines to render content for each time points
       

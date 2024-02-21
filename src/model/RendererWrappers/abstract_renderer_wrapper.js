@@ -1,21 +1,19 @@
 export class AbstractRendererWrapper {
   constructor() {
-    this.renderer = null;
-    this.config = null;
-    this.layers = [];
+    this.layers = new Map();
   }
 
   // Layer management
-  addLayer(layer) {
-    throw new Error('[AbstractRenderer::addLayer()] Method not implemented');
+  addLayer(layer_id, layer) {
+    this.layers.set(layer_id, layer);
   }
 
-  removeLayer(layer) {
-    throw new Error('[AbstractRenderer::removeLayer()] Method not implemented');
+  removeLayer(id) {
+    this.layers.delete(id);
   }
 
-  findLayer(layer) {
-    throw new Error('[AbstractRenderer::findLayer()] Method not implemented');
+  findLayer(id) {
+    return this.layers.get(id);
   }
 
   // Config management
@@ -23,8 +21,16 @@ export class AbstractRendererWrapper {
     throw new Error('[AbstractRenderer::setConfig()] Method not implemented');
   }
 
+  _configureRenderer() {
+    throw new Error('[AbstractRenderer::#configureRenderer()] Method not implemented');
+  }
+
   // Renderer
   getRenderer() {
     throw new Error('[AbstractRenderer::getRenderer()] Method not implemented');
+  }
+
+  resetCamera() {
+    throw new Error('[AbstractRenderer::resetCamera()] Method not implemented');
   }
 }
