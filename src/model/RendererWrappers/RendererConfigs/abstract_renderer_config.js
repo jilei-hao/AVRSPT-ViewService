@@ -1,24 +1,25 @@
-import { BoundingBox } from '../../Basics'
+import { BoundingBox, RGBAColor } from '../../Basics'
 
 export class AbstractRendererConfig {
   constructor() {
-    this.viewPortBoundingBox = new BoundingBox();
+    this.viewportBoundingBox = new BoundingBox();
+    this.backgroundColor = new RGBAColor(0, 0, 0, 0);
     this.rendererType = "";
   }
 
-  setViewPortBoundingBox(xMin, xMax, yMin, yMax) {
-    this.viewPortBoundingBox.xMin = xMin;
-    this.viewPortBoundingBox.xMax = xMax;
-    this.viewPortBoundingBox.yMin = yMin;
-    this.viewPortBoundingBox.yMax = yMax;
+  setViewportBoundingBox(xMin, xMax, yMin, yMax) {
+    this.viewportBoundingBox.xMin = xMin;
+    this.viewportBoundingBox.xMax = xMax;
+    this.viewportBoundingBox.yMin = yMin;
+    this.viewportBoundingBox.yMax = yMax;
   }
 
-  getViewPortBoundingBox() {
-    return this.viewPortBoundingBox;
+  getViewportBoundingBox() {
+    return this.viewportBoundingBox;
   }
 
-  getViewPortBoundingBoxInArray() {
-    return this.viewPortBoundingBox.toArray();
+  getViewportBoundingBoxInArray() {
+    return this.viewportBoundingBox.toArray();
   }
 
   getRendererType() {
@@ -26,6 +27,6 @@ export class AbstractRendererConfig {
   }
 
   getBackgroundInRGBA() {
-    return 
+    return this.backgroundColor.toArray();
   }
 }

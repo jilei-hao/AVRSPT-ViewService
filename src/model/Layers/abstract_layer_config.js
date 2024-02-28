@@ -1,11 +1,5 @@
-class AbstractLayerConfig {
+export class AbstractLayerConfig {
   constructor() {
 
   }
-}
-
-
-export {
-  AbstractLayerConfig,
-  
-}
+};

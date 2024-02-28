@@ -47,7 +47,8 @@ const enumDataType = {
   vol: 0,
   seg: 1,
   mdl: 2,
-  count: 3,
+  co: 3,
+  count: 4,
 }
 
 export default function Root() {
@@ -67,13 +68,14 @@ export default function Root() {
   const tpSegData = useRef([]);
   const tpVolData = useRef([]);
   const tpMdlData = useRef([]);
+  const tpCoData = useRef([]);
   const loadingStatus = useRef([]);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [progressActive, setProgressActive] = useState(true);
   const renderInitialized = useRef(false);
   const refNT = useRef(0);
   // echo-14tp; cta-18tp; cta-20tp; cta-3tp;
-  const [crntStudyKey, setCrntStudyKey] = useState("cta-20tp"); 
+  const [crntStudyKey, setCrntStudyKey] = useState("cta-3tp"); 
   const refStudyKey = useRef(crntStudyKey)
   const renderingId = useRef(0);
 
@@ -119,6 +121,12 @@ export default function Root() {
 
       // Setup 3 renderes for the x, y, z viewports
       const sliceRenderers = [];
+      const rendererMap = new Map();
+
+      /* view id layout:
+         | 1 (slice) | 2 (slice) |
+         | 0 (model) | 3 (slice) |
+      */
 
       for (let i = 0; i < 3; i++) {
         const renderer = vtkRenderer.newInstance();
@@ -154,12 +162,12 @@ export default function Root() {
       //   viewId: modelViewConfig.viewId
       // }, true);
 
-      const rendererMap = new Map();
+      
       const modelRendererWrapper = new ModelRendererWrapper();
       rendererMap.set(0, modelRendererWrapper);
       const globalViewConfig = viewConfig[modelViewMap[0]]
       const modelRenConfig = modelRendererWrapper.getConfig();
-      modelRenConfig.setViewPortBoundingBox(...viewBoxes[globalViewConfig.position]);
+      modelRenConfig.setViewportBoundingBox(...viewBoxes[globalViewConfig.position]);
       modelRendererWrapper.setConfig(modelRenConfig);
       modelRendererWrapper.resetCamera();
       modelRendererWrapper.getRenderer().set({
@@ -173,7 +181,6 @@ export default function Root() {
 
 
       // Setup pipelines to render content for each time points
-      
       context.current = {
         id: renderingId.current,
         fullScreenRenderWindow, renderWindow,
@@ -229,9 +236,11 @@ export default function Root() {
       case enumDataType.vol:
         return 0.7;
       case enumDataType.mdl:
-        return 0.2;
+        return 0.06;
+      case enumDataType.co:
+        return 0.04;
       case enumDataType.seg:
-        return 0.1;
+        return 0.2;
       default:
     }
     return 0;
@@ -277,10 +286,12 @@ export default function Root() {
     tpVolData.current.forEach((e) => e.delete());
     tpSegData.current.forEach((e) => e.delete());
     tpMdlData.current.forEach((e) => e.delete());
+    tpCoData.current.forEach((e) => e.delete());
 
     tpVolData.current = [];
     tpSegData.current = [];
     tpMdlData.current = [];
+    tpCoData.current = [];
   }
 
   function deleteAllActors(renderer) {
@@ -305,6 +316,12 @@ export default function Root() {
     modelActor.setMapper(modelMapper);
     modelRenderer.addActor(modelActor);
     applyModelDMP(modelActor, study.DisplayConfig.LabelConfig);
+
+    const coActor = vtkActor.newInstance();
+    const coMapper = vtkMapper.newInstance();
+    coActor.setMapper(coMapper);
+    modelRenderer.addActor(coActor);
+    applyCoDMP(coActor);
 
     // reset slicing props
     sliceRenderers.forEach((ren, ind) => {
@@ -387,6 +404,13 @@ export default function Root() {
         tpMdlData.current[tp] = mdlReader.getOutputData(0);
         updateLoadingStatus(tp, enumDataType.mdl);
       });
+
+      const coUrl = `${getDataServiceUrl()}/${newStudy.co[tp]}`
+      await fetchBinary(coUrl).then((binary) => {
+        mdlReader.parseAsArrayBuffer(binary);
+        tpCoData.current[tp] = mdlReader.getOutputData(0);
+        updateLoadingStatus(tp, enumDataType.co);
+      });
     }
   }
 
@@ -451,6 +475,14 @@ export default function Root() {
     mapper.setLookupTable(DMPHelper.CreateLabelColorFunction(labelRGBA))
   }
 
+  function applyCoDMP(actor) {
+    // use solid color for co surface
+    actor.getProperty().setEdgeVisibility(false);
+    actor.getProperty().setRepresentationToSurface();
+    actor.getProperty().setOpacity(1);
+    actor.getProperty().setColor(194, 249, 112);
+  }
+
   function updateVisibleVolume(tp, resetCamera = false) {
     const volume = tpVolData.current[tp];
 
@@ -489,9 +521,15 @@ export default function Root() {
 
   function updateVisibleModel(tp, resetCamera = false) {
     const model = tpMdlData.current[tp];
+    const co = tpCoData.current[tp];
 
     if (!model) {
       console.error(`[updateVisibleModel] model data for tp ${tp} does not exist!`);
+      return;
+    }
+
+    if (!co) {
+      console.error(`[updateVisibleModel] co data for tp ${tp} does not exist!`);
       return;
     }
 
@@ -499,6 +537,10 @@ export default function Root() {
     const actor = modelRenderer.getActors()[0];
     const mapper = actor.getMapper();
     mapper.setInputData(model);
+
+    const coActor = modelRenderer.getActors()[1];
+    const coMapper = coActor.getMapper();
+    coMapper.setInputData(co);
 
     if (resetCamera)
       modelRenderer.resetCamera();
