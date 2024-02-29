@@ -16,6 +16,7 @@ import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
 import vtkRenderer from '@kitware/vtk.js/Rendering/Core/Renderer'
 import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
 import vtkImageSlice from '@kitware/vtk.js/Rendering/Core/ImageSlice';
+import vtkProperty from '@kitware/vtk.js/Rendering/Core/Property';
 // -- io
 import vtkHttpDataSetReader from '@kitware/vtk.js/IO/Core/HttpDataSetReader';
 import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader';
@@ -315,7 +316,8 @@ export default function Root() {
     const modelMapper = vtkMapper.newInstance();
     modelActor.setMapper(modelMapper);
     modelRenderer.addActor(modelActor);
-    applyModelDMP(modelActor, study.DisplayConfig.LabelConfig);
+    // applyModelDMP(modelActor, study.DisplayConfig.LabelConfig);
+    applyUnifiedModelDMP(modelActor);
 
     const coActor = vtkActor.newInstance();
     const coMapper = vtkMapper.newInstance();
@@ -475,12 +477,28 @@ export default function Root() {
     mapper.setLookupTable(DMPHelper.CreateLabelColorFunction(labelRGBA))
   }
 
+  function applyUnifiedModelDMP(actor) {
+    const mapper = actor.getMapper();
+    mapper.setScalarVisibility(false);
+
+    const property = vtkProperty.newInstance();
+
+    // Set the color on the property
+    property.setColor(1, 0.91, 0.8);
+    property.setOpacity(0.3);
+    actor.setProperty(property);
+  }
+
   function applyCoDMP(actor) {
-    // use solid color for co surface
-    actor.getProperty().setEdgeVisibility(false);
-    actor.getProperty().setRepresentationToSurface();
-    actor.getProperty().setOpacity(1);
-    actor.getProperty().setColor(194, 249, 112);
+    const mapper = actor.getMapper();
+    mapper.setScalarVisibility(false);
+
+    const property = vtkProperty.newInstance();
+
+    // Set the color on the property
+    property.setColor(0, 1, 1);
+    property.setOpacity(0.8);
+    actor.setProperty(property);
   }
 
   function updateVisibleVolume(tp, resetCamera = false) {

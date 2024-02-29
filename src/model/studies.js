@@ -378,9 +378,9 @@ export const studyData = {
       'dist/bavcta008-tav48/cta/vol/rs40/image_rs40_bavcta008_02.vti',
     ],
     mdl:[
-      'dist/bavcta008-tav48/cta/ml-mdl/assembled_mesh_tp01.vtp',
-      'dist/bavcta008-tav48/cta/ml-mdl/assembled_mesh_tp02.vtp',
-      'dist/bavcta008-tav48/cta/ml-mdl/assembled_mesh_tp03.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_01.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_02.vtp',
+      'dist/bavcta008-tav48/cta/mdl/onemesh_03.vtp',
     ],
     co:[
       'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp01_tri.vtp',
