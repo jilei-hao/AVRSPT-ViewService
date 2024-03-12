@@ -226,3 +226,12 @@
   font-family: Arial, Helvetica, sans-serif;
   color: rgb(235, 235, 235)
 }
+
+.cs_layer_tool_panel {
+  position: fixed;
+  top: 85vh;
+  left: 10vw;
+  width: 20vw;
+  height: 4vh;
+  color: yellow;
+}

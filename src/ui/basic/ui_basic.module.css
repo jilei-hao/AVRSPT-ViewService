@@ -43,3 +43,24 @@
   font-weight: bold;
   font-family:Arial, Helvetica, sans-serif;
 }
+
+.btn_layer_tool {
+  width: 5vh;
+  height: 100%;
+  margin-left: 10px;
+  margin-right: 10px;
+  border: none;
+  background: rgba(150, 150, 150, 0.7);
+  border-radius: 25%;
+  color: white;
+}
+
+.btn_layer_tool__active {
+  background: rgba(255, 255, 255, 0.7);
+  color: white;
+}
+
+.btn_layer_tool__inactive {
+  background: rgba(150, 150, 150, 0.7);
+  color: black;
+}

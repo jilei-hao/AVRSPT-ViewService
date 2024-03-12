@@ -382,10 +382,20 @@ export const studyData = {
       'dist/bavcta008-tav48/cta/mdl/onemesh_02.vtp',
       'dist/bavcta008-tav48/cta/mdl/onemesh_03.vtp',
     ],
-    co:[
-      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp01_tri.vtp',
-      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp02_tri.vtp',
-      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp03_tri.vtp',
+    co_LR:[
+      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp01_LR.vtp',
+      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp02_LR.vtp',
+      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp03_LR.vtp',
+    ],
+    co_LN:[
+      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp01_LN.vtp',
+      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp02_LN.vtp',
+      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp03_LN.vtp',
+    ],
+    co_RN:[
+      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp01_RN.vtp',
+      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp02_RN.vtp',
+      'dist/bavcta008-tav48/cta/co/co_assembled_mesh_tp03_RN.vtp',
     ],
     seg: [
       'dist/bavcta008-tav48/cta/seg/seg_rs40_bavcta008_00.vti',

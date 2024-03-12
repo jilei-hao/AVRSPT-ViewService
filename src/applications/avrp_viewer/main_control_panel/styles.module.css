@@ -1,0 +1,11 @@
+.panelContainer {
+  position: absolute;
+  top: 92vh;
+  left: 0vw;
+  height: 8vh;
+  width: 100vw;
+  
+  padding: 0 10px;
+  background-color: yellow;
+  border-radius: 5px;
+}

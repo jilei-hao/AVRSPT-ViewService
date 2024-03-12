@@ -42,6 +42,7 @@ import StudyMenu from '../ui/composite/study_menu';
 import ProgressScreen from '../ui/composite/progress_screen';
 
 import { ModelRendererWrapper } from '../model';
+import CSLayerToolPanel from '../ui/composite/cs_layer_tool_panel';
 
 const { fetchBinary } = vtkHttpDataAccessHelper;
 const enumDataType = {
@@ -69,7 +70,9 @@ export default function Root() {
   const tpSegData = useRef([]);
   const tpVolData = useRef([]);
   const tpMdlData = useRef([]);
-  const tpCoData = useRef([]);
+  const tpCoLRData = useRef([]);
+  const tpCoLNData = useRef([]);
+  const tpCoRNData = useRef([]);
   const loadingStatus = useRef([]);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [progressActive, setProgressActive] = useState(true);
@@ -287,12 +290,16 @@ export default function Root() {
     tpVolData.current.forEach((e) => e.delete());
     tpSegData.current.forEach((e) => e.delete());
     tpMdlData.current.forEach((e) => e.delete());
-    tpCoData.current.forEach((e) => e.delete());
+    tpCoLRData.current.forEach((e) => e.delete());
+    tpCoLNData.current.forEach((e) => e.delete());
+    tpCoRNData.current.forEach((e) => e.delete());
 
     tpVolData.current = [];
     tpSegData.current = [];
     tpMdlData.current = [];
-    tpCoData.current = [];
+    tpCoLRData.current = [];
+    tpCoLNData.current = [];
+    tpCoRNData.current = [];
   }
 
   function deleteAllActors(renderer) {
@@ -319,11 +326,27 @@ export default function Root() {
     // applyModelDMP(modelActor, study.DisplayConfig.LabelConfig);
     applyUnifiedModelDMP(modelActor);
 
-    const coActor = vtkActor.newInstance();
-    const coMapper = vtkMapper.newInstance();
-    coActor.setMapper(coMapper);
-    modelRenderer.addActor(coActor);
-    applyCoDMP(coActor);
+    // coaptation surface LR
+    const coLRActor = vtkActor.newInstance();
+    const coLRMapper = vtkMapper.newInstance();
+    coLRActor.setMapper(coLRMapper);
+    modelRenderer.addActor(coLRActor);
+    applyCoDMP(coLRActor);
+
+    // coaptation surface LN
+    const coLNActor = vtkActor.newInstance();
+    const coLNMapper = vtkMapper.newInstance();
+    coLNActor.setMapper(coLNMapper);
+    modelRenderer.addActor(coLNActor);
+    applyCoDMP(coLNActor);
+
+    // coaptation surface RN
+    const coRNActor = vtkActor.newInstance();
+    const coRNMapper = vtkMapper.newInstance();
+    coRNActor.setMapper(coRNMapper);
+    modelRenderer.addActor(coRNActor);
+    applyCoDMP(coRNActor);
+
 
     // reset slicing props
     sliceRenderers.forEach((ren, ind) => {
@@ -407,10 +430,27 @@ export default function Root() {
         updateLoadingStatus(tp, enumDataType.mdl);
       });
 
-      const coUrl = `${getDataServiceUrl()}/${newStudy.co[tp]}`
-      await fetchBinary(coUrl).then((binary) => {
+      // load coaptation surface LR
+      const coLRUrl = `${getDataServiceUrl()}/${newStudy.co_LR[tp]}`
+      await fetchBinary(coLRUrl).then((binary) => {
         mdlReader.parseAsArrayBuffer(binary);
-        tpCoData.current[tp] = mdlReader.getOutputData(0);
+        tpCoLRData.current[tp] = mdlReader.getOutputData(0);
+        updateLoadingStatus(tp, enumDataType.co);
+      });
+
+      // load coaptation surface LN
+      const coLNUrl = `${getDataServiceUrl()}/${newStudy.co_LN[tp]}`
+      await fetchBinary(coLNUrl).then((binary) => {
+        mdlReader.parseAsArrayBuffer(binary);
+        tpCoLNData.current[tp] = mdlReader.getOutputData(0);
+        updateLoadingStatus(tp, enumDataType.co);
+      });
+
+      // load coaptation surface RN
+      const coRNUrl = `${getDataServiceUrl()}/${newStudy.co_RN[tp]}`
+      await fetchBinary(coRNUrl).then((binary) => {
+        mdlReader.parseAsArrayBuffer(binary);
+        tpCoRNData.current[tp] = mdlReader.getOutputData(0);
         updateLoadingStatus(tp, enumDataType.co);
       });
     }
@@ -539,14 +579,16 @@ export default function Root() {
 
   function updateVisibleModel(tp, resetCamera = false) {
     const model = tpMdlData.current[tp];
-    const co = tpCoData.current[tp];
+    const coLR = tpCoLRData.current[tp];
+    const coLN = tpCoLNData.current[tp];
+    const coRN = tpCoRNData.current[tp];
 
     if (!model) {
       console.error(`[updateVisibleModel] model data for tp ${tp} does not exist!`);
       return;
     }
 
-    if (!co) {
+    if (!coLR | !coLN | !coRN) {
       console.error(`[updateVisibleModel] co data for tp ${tp} does not exist!`);
       return;
     }
@@ -556,9 +598,20 @@ export default function Root() {
     const mapper = actor.getMapper();
     mapper.setInputData(model);
 
-    const coActor = modelRenderer.getActors()[1];
-    const coMapper = coActor.getMapper();
-    coMapper.setInputData(co);
+    // update coaptation surface LR
+    const coLRActor = modelRenderer.getActors()[1];
+    const coLRMapper = coLRActor.getMapper();
+    coLRMapper.setInputData(coLR);
+
+    // update coaptation surface LN
+    const coLNActor = modelRenderer.getActors()[2];
+    const coLNMapper = coLNActor.getMapper();
+    coLNMapper.setInputData(coLN);
+
+    // update coaptation surface RN
+    const coRNActor = modelRenderer.getActors()[3];
+    const coRNMapper = coRNActor.getMapper();
+    coRNMapper.setInputData(coRN);
 
     if (resetCamera)
       modelRenderer.resetCamera();
@@ -627,6 +680,31 @@ export default function Root() {
     renderWindow.render();
   }
 
+  // control the display of coaptation surface
+  function toggleCoaptationSurface(morph) {
+    const { modelRenderer, renderWindow } = context.current;
+    const actor = modelRenderer.getActors()[0];
+
+    // update coaptation surface LR
+    const coLRActor = modelRenderer.getActors()[1];
+
+    // update coaptation surface LN
+    const coLNActor = modelRenderer.getActors()[2];
+
+    // update coaptation surface RN
+    const coRNActor = modelRenderer.getActors()[3];
+
+    if (morph == "LR") {
+      coLRActor.setVisibility(!coLRActor.getVisibility());
+    } else if (morph == "LN") {
+      coLNActor.setVisibility(!coLNActor.getVisibility());
+    } else if (morph == "RN") {
+      coRNActor.setVisibility(!coRNActor.getVisibility());
+    }
+
+    renderWindow.render();
+  }
+
   
   
   return (
@@ -666,6 +744,9 @@ export default function Root() {
         <ProgressScreen 
           visible={progressActive}
           percentage={loadingProgress.toFixed(0)}
+        />
+        <CSLayerToolPanel 
+          toggleSurface={toggleCoaptationSurface}
         />
       </RenderContext.Provider>
     </div>

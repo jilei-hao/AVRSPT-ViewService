@@ -1,13 +1,19 @@
 import React from 'react';
 import AVRPDataProvider from "./avrp_data_context";
-import MainPage from "./main_page";
+import AVRPApplicationProvider from './avrp_application_context';
+import MainControlPanel from './main_control_panel';
+import AVRPRenderingProvider from './avrp_rendering_context';
 
 export default function AVRPViewer({ studyId }) {
   return (
     <React.StrictMode>
-      <AVRPDataProvider studyId={studyId}>
-        <MainPage />
-      </AVRPDataProvider>
+      <AVRPRenderingProvider>
+        <AVRPDataProvider studyId={studyId}>
+          <AVRPApplicationProvider>
+            <MainControlPanel />
+          </AVRPApplicationProvider>
+        </AVRPDataProvider>
+      </AVRPRenderingProvider>
     </React.StrictMode>
   )
 }
