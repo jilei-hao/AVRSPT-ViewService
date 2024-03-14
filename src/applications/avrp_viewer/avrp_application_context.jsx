@@ -11,14 +11,20 @@ const AVRPApplicationContext = createContext();
 export default function AVRPApplicationProvider({ children }) {
   console.log("[AVRPApplicationProvider]");
   const [uiContollers, setUIControllers] = useState(new Map());
-  const [AddRenderWindow, GetRenderWindow] = useAVRPRendering();
+  const [AddView, GetView, RemoveAllViews, RemoveView] = useAVRPRendering();
 
   useEffect(() => {
-    if (GetRenderWindow("renderContainer0") !== undefined)
-      return;
-
-    const id = AddRenderWindow();
-  }, [AddRenderWindow, GetRenderWindow]);
+    RemoveAllViews();
+    const initStyle = { 
+      position: 'absolute', 
+      width: '50%', 
+      height: '50%', 
+      top: '0', 
+      left: '0'
+    };
+    const id = AddView(initStyle);
+    console.log("[AVRPApplicationProvider] id: ", id);
+  }, []);
 
   return (
     <AVRPApplicationContext.Provider value={{

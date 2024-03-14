@@ -1,41 +1,55 @@
 import React, { useState, useRef, useEffect, createContext, useContext } from 'react';
-import AVRPRenderWindow from './avrp_render_window';
+import AVRPView from './avrp_view';
 
 const AVRPRenderingContext = createContext();
 
 export default function AVRPRenderingProvider({ children }) {
   const renderingContainerRef = useRef();
   const [renderContainers, setRenderContainers] = useState([]);
-  const [renderWindows, setRenderWindows] = useState([]);
+  const views = useRef([]);
   const lastWindowId = useRef(0);
 
-  const AddRenderWindow = () => {
-    console.log("[AddRenderWindow] ");
-    const newId = `renderContainer${lastWindowId.current++}`;
-    const newRenderContainer = <div key={newId} ref={ref => {
+  const RemoveView = (id) => {
+    views.current.find(v => v.GetId() === id).Dispose();
+    views.current = views.current.filter(v => v.GetId() !== id);
+    setRenderContainers(prevRenderContainers => prevRenderContainers.filter(rc => rc.key !== id));
+  };
+
+  const RemoveAllViews = () => {
+    views.current.forEach(v => v.Dispose());
+    setRenderContainers([]);
+    lastWindowId.current = 0;
+  };
+
+  const AddView = (initStyle) => {
+    console.log("[AddView] ");
+    const newId = lastWindowId.current++;
+    const newContainerId = `viewContainer_${newId}`;
+    const newRenderContainer = <div key={newContainerId} ref={ref => {
       if (ref) {
-        const style = {position: 'relative', width: '50%', height: '50%', top: '0', left: '0'};
-        const newRenderWindow = new AVRPRenderWindow(newId, ref, style);
-        setRenderWindows(prevRenderWindows => [...prevRenderWindows, newRenderWindow]);
+        console.log("[AddView::ref callback] ref: ", ref);
+        const newView = new AVRPView(newId, ref, initStyle);
+        views.current.push(newView);
       }
     }} />;
     setRenderContainers(prevRenderContainers => [...prevRenderContainers, newRenderContainer]);
     return newId;
   };
-
-  const GetRenderWindow = (id) => {
-    return renderWindows.find(rw => rw.GetId() === id);
+  const GetView = (id) => {
+    return views.current.find(v => v.GetId() == id);
   }
 
   return (
     <AVRPRenderingContext.Provider value={[
-      AddRenderWindow,
-      GetRenderWindow,
+      AddView,
+      GetView,
+      RemoveAllViews,
+      RemoveView,
     ]}>
-    <div style={{position: 'absolute', width: '100vw', height: '92vh', top: '0', left: '0', backgroundColor: 'purple'}}>
-      { renderContainers }
-    </div>
-    { children }
+      <div style={{position: 'absolute', width: '100vw', height: '92vh', top: '0', left: '0', backgroundColor: 'purple'}}>
+        { renderContainers }
+      </div>
+      { children }
     </AVRPRenderingContext.Provider>
   );
 }

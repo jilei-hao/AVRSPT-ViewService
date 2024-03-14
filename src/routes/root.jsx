@@ -240,9 +240,9 @@ export default function Root() {
       case enumDataType.vol:
         return 0.7;
       case enumDataType.mdl:
-        return 0.06;
-      case enumDataType.co:
         return 0.04;
+      case enumDataType.co:
+        return 0.02;
       case enumDataType.seg:
         return 0.2;
       default:
@@ -683,7 +683,6 @@ export default function Root() {
   // control the display of coaptation surface
   function toggleCoaptationSurface(morph) {
     const { modelRenderer, renderWindow } = context.current;
-    const actor = modelRenderer.getActors()[0];
 
     // update coaptation surface LR
     const coLRActor = modelRenderer.getActors()[1];
@@ -701,6 +700,19 @@ export default function Root() {
     } else if (morph == "RN") {
       coRNActor.setVisibility(!coRNActor.getVisibility());
     }
+
+    renderWindow.render();
+  }
+
+  function changeModelTransparency(e) {
+    console.log("[changeModelTransparency] value: ", e.target.value);
+
+    const alpha = e.target.value;
+
+    const { modelRenderer, renderWindow } = context.current;
+    const actor = modelRenderer.getActors()[0];
+
+    actor.getProperty().setOpacity(alpha);
 
     renderWindow.render();
   }
@@ -747,6 +759,7 @@ export default function Root() {
         />
         <CSLayerToolPanel 
           toggleSurface={toggleCoaptationSurface}
+          onTransSliderChange={changeModelTransparency}
         />
       </RenderContext.Provider>
     </div>

@@ -1,12 +1,13 @@
 import vtkFullScreenRenderWindow from "@kitware/vtk.js/Rendering/Misc/FullScreenRenderWindow";
 
-export default class AVRPRenderWindow {
-  constructor(id, containerRef, containerStyle) {
-    console.log("[AVRPRenderWindow] id: ", id);
+export default class AVRPView {
+  constructor(id, containerRef, initStyle) {
+    console.log("[AVRPView] id: ", id);
     this.m_Id = id;
+    this.m_ContainerRef = containerRef;
     this.m_RenderWindow = vtkFullScreenRenderWindow.newInstance({
       rootContainer: containerRef,
-      containerStyle: containerStyle,
+      containerStyle: initStyle
     });
   }
 
@@ -20,12 +21,19 @@ export default class AVRPRenderWindow {
 
   // parameters in css string format
   SetPosition(top, left) {
-    this.m_RenderWindow.setContainerStyle({ top: top, left: left });
+    // set the style of the container
+    this.m_ContainerRef.style.position = 'absolute';
+    this.m_ContainerRef.style.top = top;
+    this.m_ContainerRef.style.left = left;
   }
 
   // parameters in css string format
   SetSize(width, height) {
     this.m_RenderWindow.setContainerStyle({ width: width, height: height });
+  }
+
+  Dispose() {
+    this.m_RenderWindow.delete();
   }
 
 }

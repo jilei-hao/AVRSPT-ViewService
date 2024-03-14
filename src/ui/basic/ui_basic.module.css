@@ -53,6 +53,8 @@
   background: rgba(150, 150, 150, 0.7);
   border-radius: 25%;
   color: white;
+  font-size: 15px;
+  font-weight: bold;
 }
 
 .btn_layer_tool__active {
@@ -63,4 +65,28 @@
 .btn_layer_tool__inactive {
   background: rgba(150, 150, 150, 0.7);
   color: black;
+}
+
+.round_slider {
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 200px; /* Full-width */
+  height: 10px; /* Specified height */
+  background: white; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 1; /* Set transparency (for mouse-over effects on hover) */
+  margin-top: auto;
+  margin-bottom: auto;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+  
+.round_slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  background: rgb(102, 102, 102);
+  cursor: pointer;
 }
