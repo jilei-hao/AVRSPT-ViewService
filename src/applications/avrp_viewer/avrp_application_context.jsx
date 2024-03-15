@@ -15,15 +15,10 @@ export default function AVRPApplicationProvider({ children }) {
 
   useEffect(() => {
     RemoveAllViews();
-    const initStyle = { 
-      position: 'absolute', 
-      width: '50%', 
-      height: '50%', 
-      top: '0', 
-      left: '0'
-    };
-    const id = AddView(initStyle);
-    console.log("[AVRPApplicationProvider] id: ", id);
+    AddView(0, 0, 75, 100);
+    AddView(0, 75, 25, 33);
+    AddView(33, 75, 25, 33);
+    AddView(66, 75, 25, 34);
   }, []);
 
   return (

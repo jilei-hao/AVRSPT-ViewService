@@ -5,7 +5,7 @@ const AVRPDataContext = createContext();
 
 export default function AVRPDataProvider({ children, studyId }) {
   console.log("[AVRPDataProvider] studyId: ", studyId);
-  const [avrpDataManager, ] = useState(new AVRPDataManager(studyId));
+  const [avrpDataManager, ] = useState();
 
   const getLoadingProgress = () => {
     return avrpDataManager.getLoadingProgress();

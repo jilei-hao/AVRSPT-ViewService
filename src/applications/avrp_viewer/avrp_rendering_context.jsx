@@ -1,38 +1,33 @@
 import React, { useState, useRef, useEffect, createContext, useContext } from 'react';
-import AVRPView from './avrp_view';
+import { AVRPView, AVRPViewModel } from './avrp_view';
 
 const AVRPRenderingContext = createContext();
 
 export default function AVRPRenderingProvider({ children }) {
   const renderingContainerRef = useRef();
   const [renderContainers, setRenderContainers] = useState([]);
-  const views = useRef([]);
-  const lastWindowId = useRef(0);
+  const [viewModels, setViewModels] = useState([]);
+  const lastViewId = useRef(0);
 
   const RemoveView = (id) => {
-    views.current.find(v => v.GetId() === id).Dispose();
-    views.current = views.current.filter(v => v.GetId() !== id);
-    setRenderContainers(prevRenderContainers => prevRenderContainers.filter(rc => rc.key !== id));
+    const vm = viewModels.find(v => v.id === id);
+    if (vm) {
+      vm.Dispose();
+      setViewModels(prevViewModels => prevViewModels.filter(v => v.id !== id));
+    }
   };
 
   const RemoveAllViews = () => {
-    views.current.forEach(v => v.Dispose());
-    setRenderContainers([]);
-    lastWindowId.current = 0;
+    viewModels.forEach(v => v.Dispose());
+    setViewModels([]);
+    lastViewId.current = 0;
   };
 
-  const AddView = (initStyle) => {
+  const AddView = (pctTop, pctLeft, pctWidth, pctHeight) => {
     console.log("[AddView] ");
-    const newId = lastWindowId.current++;
-    const newContainerId = `viewContainer_${newId}`;
-    const newRenderContainer = <div key={newContainerId} ref={ref => {
-      if (ref) {
-        console.log("[AddView::ref callback] ref: ", ref);
-        const newView = new AVRPView(newId, ref, initStyle);
-        views.current.push(newView);
-      }
-    }} />;
-    setRenderContainers(prevRenderContainers => [...prevRenderContainers, newRenderContainer]);
+    const newId = lastViewId.current++;
+    const newViewModel = new AVRPViewModel(newId, pctTop, pctLeft, pctWidth, pctHeight);
+    setViewModels(prevViewModels => [...prevViewModels, newViewModel]);
     return newId;
   };
   const GetView = (id) => {
@@ -47,7 +42,14 @@ export default function AVRPRenderingProvider({ children }) {
       RemoveView,
     ]}>
       <div style={{position: 'absolute', width: '100vw', height: '92vh', top: '0', left: '0', backgroundColor: 'purple'}}>
-        { renderContainers }
+        { viewModels.map((model) => {
+          const g = model.GetGeometry();
+          return (
+            <AVRPView key={model.GetId()} viewId={model.GetId()} 
+              pctTop={g.pctTop} pctLeft={g.pctLeft} pctWidth={g.pctWidth} pctHeight={g.pctHeight} 
+            />
+          );
+        })}
       </div>
       { children }
     </AVRPRenderingContext.Provider>
