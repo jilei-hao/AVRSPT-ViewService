@@ -17,11 +17,10 @@ export default function AVRPView (props) {
   };
 
   useEffect(() => {
-    console.log("[AVRPView::useEffect] creating rendering pipeline")
-    const container = containerRef.current;
+    console.log("[AVRPView::useEffect] creating rendering pipeline", rgbBackgroundColor)
     
     const genericRenderWindow = GenericRenderingWindow.newInstance({
-      container: container,
+      container: containerRef.current,
     });
 
     genericRenderWindow.setBackground(rgbBackgroundColor.r/255, rgbBackgroundColor.g/255, rgbBackgroundColor.b/255, 1);
@@ -29,12 +28,13 @@ export default function AVRPView (props) {
 
     return () => {
       console.log("[AVRPView::useEffect] Clean up");
-      genericRenderWindow.delete();
+      const container = containerRef.current;
+      genericRenderWindow.dispose();
     };
   }, [containerRef]);
 
   return (
-    <div style={style} ref={containerRef}>
+    <div id={`AVRPView-${viewId}`} style={style} ref={containerRef}>
     </div>
   );
 }

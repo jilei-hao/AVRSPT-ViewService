@@ -1,7 +1,6 @@
 import macro from '@kitware/vtk.js/macros';
 import vtkRenderer from '@kitware/vtk.js/Rendering/Core/Renderer';
 import vtkRenderWindow from '@kitware/vtk.js/Rendering/Core/RenderWindow';
-import vtkRenderWindowInteractor from '@kitware/vtk.js/Rendering/Core/RenderWindowInteractor';
 import vtkInteractorStyleTrackballCamera from '@kitware/vtk.js/Interaction/Style/InteractorStyleTrackballCamera';
 
 // Load basic classes for vtk() factory
@@ -13,8 +12,13 @@ import '@kitware/vtk.js/Rendering/Core/Mapper';
 import '@kitware/vtk.js/Rendering/Misc/RenderingAPIs';
 
 
+import GenericRenderWindowInteractor from '../GenericRenderWindowInteractor';
+
+
 function GenericRenderWindow(publicAPI, model) {
   model.classHierarchy.push('GenericRenderWindow');
+
+  console.log("[GenericRenderWindow]: constructor");
 
   if (!model.container) {
     throw new Error('GenericRenderWindow must have a initial container');
@@ -25,13 +29,13 @@ function GenericRenderWindow(publicAPI, model) {
   model.renderer = vtkRenderer.newInstance();
   model.renderWindow.addRenderer(model.renderer);
 
-  // apiSpecificRenderWindow
+  //apiSpecificRenderWindow
   model.apiSpecificRenderWindow = model.renderWindow.newAPISpecificView('WebGL');
   model.apiSpecificRenderWindow.setContainer(model.container);
   model.renderWindow.addView(model.apiSpecificRenderWindow);
 
   // Interactor
-  model.interactor = vtkRenderWindowInteractor.newInstance();
+  model.interactor = GenericRenderWindowInteractor.newInstance();
   model.interactor.setInteractorStyle(
     vtkInteractorStyleTrackballCamera.newInstance()
   );
@@ -61,11 +65,24 @@ function GenericRenderWindow(publicAPI, model) {
   };
 
   // Properly release GL context
-  publicAPI.delete = macro.chain(
-    publicAPI.setContainer,
-    model.apiSpecificRenderWindow.delete,
-    publicAPI.delete
-  );
+  // publicAPI.delete = macro.chain(
+  //   publicAPI.setContainer,
+  //   model.apiSpecificRenderWindow.delete,
+  //   publicAPI.delete
+  // );
+
+  publicAPI.dispose = () => {
+    console.log("[GenericRenderWindow::dispose] ");
+    model.interactor.setContainer(null);
+    model.interactor.dispose();
+
+    while (model.container.firstChild) {
+      model.container.removeChild(model.container.firstChild);
+    }
+    model.apiSpecificRenderWindow.delete();
+    window.removeEventListener('resize', publicAPI.resize);
+    publicAPI.delete();
+  }
 
   // Handle window resize
   publicAPI.resize = () => {
