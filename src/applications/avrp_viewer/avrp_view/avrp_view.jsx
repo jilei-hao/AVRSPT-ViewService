@@ -1,9 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import vtkFullScreenRenderWindow from "@kitware/vtk.js/Rendering/Misc/FullScreenRenderWindow";
+import GenericRenderingWindow from "../../../rendering/GenericRenderingWindow";
 
 export default function AVRPView (props) {
   const containerRef = useRef();
-  const { viewId, pctTop, pctLeft, pctWidth, pctHeight } = props;
+  const { 
+    viewId, pctTop, pctLeft, pctWidth, pctHeight,
+    rgbBackgroundColor
+   } = props;
   const style = {
     position: 'absolute',
     top: `${pctTop}%`,
@@ -14,16 +17,19 @@ export default function AVRPView (props) {
   };
 
   useEffect(() => {
+    console.log("[AVRPView::useEffect] creating rendering pipeline")
     const container = containerRef.current;
-    const fullScreenRenderer = vtkFullScreenRenderWindow.newInstance({
-      rootContainer: container,
-      containerStyle: { height: '100%', width: '100%', position: 'relative' },
+    
+    const genericRenderWindow = GenericRenderingWindow.newInstance({
+      container: container,
     });
-    const renderWindow = fullScreenRenderer.getRenderWindow();
-    renderWindow.render();
+
+    genericRenderWindow.setBackground(rgbBackgroundColor.r/255, rgbBackgroundColor.g/255, rgbBackgroundColor.b/255, 1);
+    genericRenderWindow.render();
+
     return () => {
       console.log("[AVRPView::useEffect] Clean up");
-      fullScreenRenderer.delete();
+      genericRenderWindow.delete();
     };
   }, [containerRef]);
 

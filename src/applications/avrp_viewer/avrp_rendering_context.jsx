@@ -41,12 +41,14 @@ export default function AVRPRenderingProvider({ children }) {
       RemoveAllViews,
       RemoveView,
     ]}>
-      <div style={{position: 'absolute', width: '100vw', height: '92vh', top: '0', left: '0', backgroundColor: 'purple'}}>
+      <div style={{position: 'absolute', width: '100vw', height: '90vh', top: '0', left: '0', backgroundColor: 'purple'}}>
         { viewModels.map((model) => {
           const g = model.GetGeometry();
+          const bc = model.GetBackgroundColor();
           return (
             <AVRPView key={model.GetId()} viewId={model.GetId()} 
               pctTop={g.pctTop} pctLeft={g.pctLeft} pctWidth={g.pctWidth} pctHeight={g.pctHeight} 
+              rgbBackgroundColor={bc}
             />
           );
         })}
