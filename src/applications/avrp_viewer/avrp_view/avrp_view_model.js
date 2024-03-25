@@ -1,3 +1,5 @@
+import GeneriRenderWindow from "../../../rendering/GenericRenderingWindow";
+
 // generate a random rgb
 function randomRGB() {
   return {
@@ -15,13 +17,18 @@ export default class AVRPViewModel {
     this.m_PctWidth = pctWidth;
     this.m_PctHeight = pctHeight;
     this.m_RGBBackgroundColor = rgbBackgroundClr;
+    this.renderWindow = GeneriRenderWindow.newInstance();
   }
 
-  GetId() {
+  setWindowContainer = (container) => {
+    this.renderWindow.setContainer(container);
+  }
+
+  getId = () => {
     return this.m_Id;
   }
 
-  GetGeometry() {
+  getGeometry = () => {
     return {
       pctTop: this.m_PctTop,
       pctLeft: this.m_PctLeft,
@@ -30,11 +37,8 @@ export default class AVRPViewModel {
     };
   }
 
-  GetBackgroundColor() {
-    return this.m_RGBBackgroundColor;
-  }
-
-  Dispose() {
-    console.log("[AVRPViewModel::Dispose] ");
+  dispose = () => {
+    console.log("[AVRPViewModel::dispose] ");
+    this.renderWindow.dispose();
   }
 }

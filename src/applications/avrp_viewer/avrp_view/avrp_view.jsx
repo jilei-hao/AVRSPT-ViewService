@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import GenericRenderingWindow from "../../../rendering/GenericRenderingWindow";
 
 export default function AVRPView (props) {
   const containerRef = useRef();
   const { 
     viewId, pctTop, pctLeft, pctWidth, pctHeight,
-    rgbBackgroundColor
+    setWindowContainer,
    } = props;
   const style = {
     position: 'absolute',
@@ -14,22 +13,13 @@ export default function AVRPView (props) {
     width: `${pctWidth}%`,
     height: `${pctHeight}%`,
     backgroundColor: 'green',
+    border: '1px solid white',
   };
 
   useEffect(() => {
-    console.log("[AVRPView::useEffect] creating rendering pipeline", rgbBackgroundColor)
-    
-    const genericRenderWindow = GenericRenderingWindow.newInstance({
-      container: containerRef.current,
-    });
-
-    genericRenderWindow.setBackground(rgbBackgroundColor.r/255, rgbBackgroundColor.g/255, rgbBackgroundColor.b/255, 1);
-    genericRenderWindow.render();
+    setWindowContainer(containerRef.current);
 
     return () => {
-      console.log("[AVRPView::useEffect] Clean up");
-      const container = containerRef.current;
-      genericRenderWindow.dispose();
     };
   }, [containerRef]);
 
