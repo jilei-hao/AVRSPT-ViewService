@@ -2,10 +2,12 @@ import React, { useEffect, useRef } from "react";
 
 export default function AVRPView (props) {
   const containerRef = useRef();
+
   const { 
     viewId, pctTop, pctLeft, pctWidth, pctHeight,
-    setWindowContainer,
+    setWindowContainer, children
    } = props;
+
   const style = {
     position: 'absolute',
     top: `${pctTop}%`,
@@ -25,6 +27,7 @@ export default function AVRPView (props) {
 
   return (
     <div id={`AVRPView-${viewId}`} style={style} ref={containerRef}>
+      { children }
     </div>
   );
 }

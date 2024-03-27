@@ -1,15 +1,10 @@
 import React, { createContext, useContext, useState, useEffect} from 'react';
-import AVRPDataManager from './avrp_data_manager';
 
 const AVRPDataContext = createContext();
 
 export default function AVRPDataProvider({ children, studyId }) {
   console.log("[AVRPDataProvider] studyId: ", studyId);
-  const [avrpDataManager, ] = useState();
 
-  const getLoadingProgress = () => {
-    return avrpDataManager.getLoadingProgress();
-  }
 
   return (
     <AVRPDataContext.Provider value={{
