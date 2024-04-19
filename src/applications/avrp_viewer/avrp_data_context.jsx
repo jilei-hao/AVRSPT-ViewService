@@ -18,8 +18,6 @@ export default function AVRPDataProvider({ children, studyId }) {
   }, []);
 
 
-
-
   return (
     <AVRPDataContext.Provider value={{
       studyId
