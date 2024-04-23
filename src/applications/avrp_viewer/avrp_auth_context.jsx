@@ -1,25 +1,25 @@
 import React, { createContext, useContext, useState } from 'react';
 import AVRPGatewayHelper from './api_helpers/avrp_gateway_helper';
 
-const AuthContext = createContext();
+const AVRPAuthContext = createContext();
 
-export function AuthProvider({ children }) {
+export default function AVRPAuthProvider({ children }) {
   const [user, setUser] = useState(null);
-
-  const gatewayURL = process.env.NEXT_PUBLIC_GATEWAY_URL;
 
   // attempt login, set user and return a meesage
   const login = async (userData) => {
     AVRPGatewayHelper.getInstance().login(userData.username, userData.password)
     .then((res) => {
-      console.log("[AuthProvider] login response: ", res);
+      console.log("[AuthProvider] login result: ", res);
       const ok = res.success;
       if (ok) {
         setUser({
-          token: res.token,
+          username: userData.username,
         })
       } else
         setUser(null);
+
+      return res;
     })
   };
 
@@ -29,12 +29,12 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AVRPAuthContext.Provider value={{ user, login, logout }}>
       {children}
-    </AuthContext.Provider>
+    </AVRPAuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  return useContext(AVRPAuthContext);
 }

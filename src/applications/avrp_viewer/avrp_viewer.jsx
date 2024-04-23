@@ -1,19 +1,11 @@
 import React from 'react';
-import AVRPDataProvider from "./avrp_data_context";
-import AVRPApplicationProvider from './avrp_application_context';
-import MainControlPanel from './main_control_panel';
-import AVRPRenderingProvider from './avrp_rendering_context';
+import AVRPAuthProvider from './avrp_auth_context';
+import PageContainer from './page_container';
 
 export default function AVRPViewer({ studyId }) {
   return (
-    <React.StrictMode>
-      <AVRPRenderingProvider>
-        <AVRPDataProvider studyId={studyId}>
-          <AVRPApplicationProvider>
-            <MainControlPanel />
-          </AVRPApplicationProvider>
-        </AVRPDataProvider>
-      </AVRPRenderingProvider>
-    </React.StrictMode>
+    <AVRPAuthProvider>
+      <PageContainer />
+    </AVRPAuthProvider>
   )
 }
