@@ -1,0 +1,82 @@
+.loginContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f0f0; /* Background color for the whole page */
+}
+
+.loginHeader {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 16px;
+  text-align: left;
+  font-family: Arial, Helvetica, sans-serif
+}
+
+.loginForm {
+  background-color: #fff; /* Background color for the form */
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 300px; /* Adjust the width as needed */
+}
+
+.loginForm h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333; /* Heading color */
+}
+
+.loginForm label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555; /* Label color */
+}
+
+.loginForm input[type="text"],
+.loginForm input[type="email"],
+.loginForm input[type="password"] {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 16px;
+}
+
+.loginForm input[type="submit"] {
+  background-color: #007bff; /* Submit button background color */
+  color: #fff; /* Submit button text color */
+  border: none;
+  padding: 10px 15px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.loginForm input[type="submit"]:hover {
+  background-color: #0056b3; /* Hover background color */
+}
+
+.loginForm .error-message {
+  color: #f00; /* Error message color */
+  text-align: center;
+}
+
+.dark-mode .loginForm input[type="submit"] {
+  background-color: #333; /* Dark mode submit button background color */
+  color: #fff; /* Dark mode submit button text color */
+}
+
+.dark-mode .loginForm input[type="submit"]:hover {
+  background-color: #555; /* Dark mode hover background color */
+}
+
+.registrationLink {
+  color: #525ac4; /* Dark mode registration link color */
+}

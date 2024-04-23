@@ -1,0 +1,11 @@
+.panelContainer {
+  position: absolute;
+  top: 90vh;
+  left: 0vw;
+  height: 10vh;
+  width: 100vw;
+  
+  padding: 0 10px;
+  background-color: rgb(240, 240, 240);
+  border-radius: 5px;
+}

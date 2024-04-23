@@ -1,0 +1,1 @@
+// A LabelAssemblyLayer manages one mesh for each label

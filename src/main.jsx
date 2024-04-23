@@ -9,11 +9,16 @@ import {
 
 /* Routes files import */
 import Root from "./routes/root";
+import App from "./routes/app";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
+  },
+  {
+    path: "/app/:studyId",
+    element: <App />,
   }
 ]);
 
