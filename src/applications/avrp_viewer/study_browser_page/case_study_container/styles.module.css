@@ -1,0 +1,19 @@
+/* components/Sidebar.module.css */
+
+.container {
+  min-width: 26%;
+  background-color: #e5e5e5;
+  color: #7e7e7e;
+  padding: 15px;
+  margin: 5px;
+  min-height: 95vh;
+}
+
+.containerHeader {
+  border-bottom: 1px solid #ccc;
+  background-color: transparent;
+  color: #666666;
+  font-size: 24px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+}

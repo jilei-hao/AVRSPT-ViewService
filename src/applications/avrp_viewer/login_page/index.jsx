@@ -31,7 +31,7 @@ export default function LoginPage() {
     <div className={styles.loginContainer}>
       <form className={styles.loginForm} onSubmit={handleSubmit}>
         <div className={styles.loginHeader}>
-          Welcome to AVRP Terminal! Please login.
+          AVRP Terminal
         </div>
         <div>
           <input

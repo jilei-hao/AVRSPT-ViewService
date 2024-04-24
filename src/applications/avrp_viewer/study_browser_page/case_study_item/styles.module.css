@@ -1,0 +1,107 @@
+/* SidebarItem.module.css */
+
+/* Style for the case items */
+.caseStudyItem {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.caseItem {
+  cursor: pointer;
+  padding: 10px;
+  background-color: transparent;
+  text-align: left;
+  color: #666666;
+  border: none;
+  border-radius: 2px; /* Rounded corners */
+  transition: background-color 0.2s;
+}
+
+.caseItem:hover {
+  background-color: #aaaaaa; /* Button background color on hover */
+  color: #fff; /* Text color on hover */
+}
+
+.caseItemActive {
+  background-color: #888888;
+  color: #fff;
+}
+
+/* Style for study items */
+.studyItemContainer {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.studyItem {
+  cursor: pointer;
+  padding: 5px;
+  padding-left: 35px;
+  background-color: transparent;
+  text-align: left;
+  color: #404040;
+  border: none;
+  border-radius: 1px;
+  transition: background-color 0.2s;
+}
+
+.studyItem:hover {
+  background-color: #c0c0c0; /* Button background color on hover */
+  color: #fff; /* Text color on hover */
+}
+
+.studyItemActive {
+  background-color: #c0c0c0;
+  color: #fff;
+}
+
+.createStudyButton {
+  padding: 3px;
+  margin-left: 10px;
+  margin-right: 10px;
+  border-radius: 2px;
+  border: none;
+  background-color: transparent;
+  font-size: 16px;
+  font-weight: bolder;
+  color: #777777;
+}
+
+.createStudyButton:hover {
+  color: #d5d5d5;
+}
+
+.createStudyButton:active {
+  color: white;
+}
+
+/* Style for study items */
+.studyItemContainer {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.studyItem {
+  cursor: pointer;
+  padding: 5px;
+  padding-left: 35px;
+  background-color: transparent;
+  text-align: left;
+  color: #404040;
+  border: none;
+  border-radius: 1px;
+  transition: background-color 0.2s;
+}
+
+.studyItem:hover {
+  background-color: #c0c0c0; /* Button background color on hover */
+  color: #fff; /* Text color on hover */
+}
+
+.studyItemActive {
+  background-color: #c0c0c0;
+  color: #fff;
+}
