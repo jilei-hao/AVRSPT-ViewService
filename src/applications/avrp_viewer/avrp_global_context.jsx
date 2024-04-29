@@ -13,10 +13,12 @@ export default function AVRPGlobalProvider({ children  }) {
         {
           id: 1,
           study_name: 'dev-study-1',
+          status: 'completed'
         },
         {
           id: 2,
           study_name: 'dev-study-2',
+          status: 'completed'
         },
       ]
     },
@@ -27,10 +29,12 @@ export default function AVRPGlobalProvider({ children  }) {
         {
           id: 3,
           study_name: 'dev-study-3',
+          status: 'completed'
         },
         {
           id: 4,
           study_name: 'dev-study-4',
+          status: 'ready-for-processing'
         },
       ]
     },
@@ -41,10 +45,12 @@ export default function AVRPGlobalProvider({ children  }) {
         {
           id: 5,
           study_name: 'dev-study-5',
+          status: 'processing'
         },
         {
           id: 6,
           study_name: 'dev-study-6',
+          status: 'waiting-for-input'
         },
       ],
     }

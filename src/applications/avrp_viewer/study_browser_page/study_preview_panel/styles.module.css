@@ -1,6 +1,7 @@
 .panelContainer {
   flex: 1;
   display: flex;
+  flex-direction: column;
   box-sizing: border-box;
   background-color: #e5e5e5;
   color: #7e7e7e;
@@ -15,4 +16,11 @@
   font-size: 24px;
   margin-bottom: 10px;
   padding-bottom: 5px;
+}
+
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: auto;
 }

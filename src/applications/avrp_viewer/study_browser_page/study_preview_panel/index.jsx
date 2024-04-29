@@ -19,11 +19,14 @@ export default function StudyPreviewPanel () {
 
   console.log("[StudyPreviewPanel] selectedStudy: ", selectedStudy);
 
-
   return (
     <div className={styles.panelContainer}>
       <div className={ styles.panelHeader }>
         <span>{selectedStudy ? selectedStudy.study_name : ''}</span>
+      </div>
+      <div className={ styles.panelBody }>
+        <span>Status: {selectedStudy ? selectedStudy.status : ''}</span>
+        <button className={ styles.buttonOpen }>Load</button>
       </div>
     </div>
   );
