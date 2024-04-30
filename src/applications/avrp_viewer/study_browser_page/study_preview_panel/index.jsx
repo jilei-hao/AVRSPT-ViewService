@@ -9,13 +9,16 @@ export default function StudyPreviewPanel () {
 
   let selectedStudy = null;
 
-  for (let case_data of caseStudyHeaders) {
-    const find = case_data.studies.find(study => study.id == studyId);
-    if (find) {
-      selectedStudy = find;
-      break;
+  if (caseStudyHeaders.length !== 0) {
+    for (let case_data of caseStudyHeaders) {
+      const find = case_data.studies.find(study => study.id == studyId);
+      if (find) {
+        selectedStudy = find;
+        break;
+      }
     }
   }
+  
 
   console.log("[StudyPreviewPanel] selectedStudy: ", selectedStudy);
 
@@ -25,7 +28,7 @@ export default function StudyPreviewPanel () {
         <span>{selectedStudy ? selectedStudy.study_name : ''}</span>
       </div>
       <div className={ styles.panelBody }>
-        <span>Status: {selectedStudy ? selectedStudy.status : ''}</span>
+        <span>Status: {selectedStudy ? selectedStudy.status_name : ''}</span>
         <button className={ styles.buttonOpen }>Load</button>
       </div>
     </div>

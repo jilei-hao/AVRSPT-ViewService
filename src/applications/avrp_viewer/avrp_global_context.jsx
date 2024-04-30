@@ -1,60 +1,24 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useAuth } from './avrp_auth_context';
+import { AVRPGatewayHelper } from './api_helpers';
 
 const AVRPGlobalContext = createContext();
 
 export default function AVRPGlobalProvider({ children  }) {
   const [studyBrowserActive, setStudyBrowserActive] = useState(true);
   const [studyId, setStudyId] = useState(null);
-  const [caseStudyHeaders, setCaseStudyHeaders] = useState([
-    {
-      id: 1,
-      case_name: 'dev-case-1',
-      studies: [
-        {
-          id: 1,
-          study_name: 'dev-study-1',
-          status: 'completed'
-        },
-        {
-          id: 2,
-          study_name: 'dev-study-2',
-          status: 'completed'
-        },
-      ]
-    },
-    {
-      id: 2,
-      case_name: 'dev-case-2',
-      studies: [
-        {
-          id: 3,
-          study_name: 'dev-study-3',
-          status: 'completed'
-        },
-        {
-          id: 4,
-          study_name: 'dev-study-4',
-          status: 'ready-for-processing'
-        },
-      ]
-    },
-    {
-      id: 3,
-      case_name: 'dev-case-3',
-      studies: [
-        {
-          id: 5,
-          study_name: 'dev-study-5',
-          status: 'processing'
-        },
-        {
-          id: 6,
-          study_name: 'dev-study-6',
-          status: 'waiting-for-input'
-        },
-      ],
+  const { user } = useAuth();
+  const [caseStudyHeaders, setCaseStudyHeaders] = useState([]);
+
+  useEffect(() => {
+    console.log("[AVRPGlobalProvider] user: ", user);
+    if (user) {
+      const gwHelper = AVRPGatewayHelper.getInstance();
+      gwHelper.getCaseStudyHeaders().then((data) => {
+        setCaseStudyHeaders(data);
+      });
     }
-  ]);
+  }, [user]);
 
   return (
     <AVRPGlobalContext.Provider value={{

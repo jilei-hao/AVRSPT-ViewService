@@ -31,7 +31,7 @@ export default function CaseStudyItem ({ case_data }) {
   return (
     <div className={ styles.caseStudyItem }>
       <div className={ styles.caseItem } onClick={ toggleExpansion }>
-        <span>{ case_data.case_name }</span>
+        <span>{ case_data.name }</span>
       </div>
       {isExpanded && (case_data.studies.length > 0) && (
         case_data.studies.map((study_data, index) => (

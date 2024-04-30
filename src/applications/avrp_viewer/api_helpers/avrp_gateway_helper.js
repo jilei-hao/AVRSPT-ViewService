@@ -42,6 +42,25 @@ export default class AVRPGatewayHelper {
     });
   }
 
+  getCaseStudyHeaders() {
+    console.log("[AVRPGatewayHelper::getCaseStudyHeaders] ");
+    return fetch(`${GATEWAY_URL}/case-studies-vs`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this._token}`,
+      },
+    }).then((res) => {
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return res.json();
+    }).then((data) => {
+      console.log("[AVRPGatewayHelper::getCaseStudyHeaders] data: ", data);
+      return data;
+    });
+  }
+
   getStudyDataHeader(studyId) {
     console.log("[AVRPGatewayHelper::getStudyDataHeader] studyId: ", studyId)
 

@@ -6,10 +6,10 @@ import PageContainer from './page_container';
 
 export default function AVRPViewer({ studyId }) {
   return (
-    <AVRPGlobalProvider>
-      <AVRPAuthProvider>
-          <PageContainer />
-      </AVRPAuthProvider>
-    </AVRPGlobalProvider>
+    <AVRPAuthProvider>
+      <AVRPGlobalProvider>
+        <PageContainer />
+      </AVRPGlobalProvider>
+    </AVRPAuthProvider>
   )
 }
