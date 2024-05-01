@@ -63,7 +63,7 @@ function GenericRenderWindow(publicAPI, model) {
   };
 
   publicAPI.setContainer = (container) => {
-    console.log(`[GenericRenderWindow(${model.instanceId})]: setContainer`)
+    console.log(`[GenericRenderWindow(${model.instanceId})]: setContainer: `, container);
 
     model.container = container;
     model.apiSpecificRenderWindow.setContainer(model.container);

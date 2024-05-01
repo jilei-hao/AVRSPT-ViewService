@@ -43,7 +43,13 @@ export default function StudyPreviewPanel () {
               <span>{selectedStudy.study_name}</span>
             </div>
             <div className={ styles.panelBody }>
-              <span>Status: {selectedStudy.status_name}</span>
+              <div className={ styles.statusBox }>
+                <span>Status: {selectedStudy.status_name}</span>
+              </div>
+              <div className={ styles.viewerBox }>
+                <iframe src="http://localhost:5173/model-view/7"
+                  title="model preview" style={{ width: '100%', height: '100%' }}></iframe>
+              </div>
               <button className={ styles.buttonOpen }>Load</button>
             </div>
           </>

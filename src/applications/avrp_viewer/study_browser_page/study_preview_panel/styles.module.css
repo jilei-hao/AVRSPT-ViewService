@@ -24,3 +24,29 @@
   flex: 1;
   overflow: auto;
 }
+
+.statusBox {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  padding: 10px;
+  max-height: 20px;
+}
+
+.viewerBox {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  padding: 10px;
+  max-height: 30vh;
+}

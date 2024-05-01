@@ -10,6 +10,7 @@ import {
 /* Routes files import */
 import Root from "./routes/root";
 import App from "./routes/app";
+import ModelView from './routes/model-view';
 
 const router = createBrowserRouter([
   {
@@ -19,11 +20,13 @@ const router = createBrowserRouter([
   {
     path: "/app/:studyId",
     element: <App />,
-  }
+  },
+  {
+    path: "/model-view/:dsid",
+    element: <ModelView />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  <RouterProvider router={router} />
 )
