@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './styles.module.css';
 import { useAVRPGlobal } from '../../avrp_global_context';
+import { AVRPGatewayHelper } from '../../api_helpers';
 
 export default function StudyPreviewPanel () {
   const { caseStudyHeaders, studyId } = useAVRPGlobal();
@@ -18,19 +19,37 @@ export default function StudyPreviewPanel () {
       }
     }
   }
+
+  useEffect(() => {
+    console.log("[StudyPreviewPanel] studyId: ", studyId);
+
+    if (studyId) {
+      const gwHelper = AVRPGatewayHelper.getInstance();
+      gwHelper.getStudyDataHeader(studyId).then((data) => {
+        console.log("[StudyPreviewPanel] getStudyDataHeader: ", data);
+      });
+    }
+  }, [studyId]);
   
 
   console.log("[StudyPreviewPanel] selectedStudy: ", selectedStudy);
 
   return (
     <div className={styles.panelContainer}>
-      <div className={ styles.panelHeader }>
-        <span>{selectedStudy ? selectedStudy.study_name : ''}</span>
-      </div>
-      <div className={ styles.panelBody }>
-        <span>Status: {selectedStudy ? selectedStudy.status_name : ''}</span>
-        <button className={ styles.buttonOpen }>Load</button>
-      </div>
+      {
+        selectedStudy ? (
+          <>
+            <div className={ styles.panelHeader }>
+              <span>{selectedStudy.study_name}</span>
+            </div>
+            <div className={ styles.panelBody }>
+              <span>Status: {selectedStudy.status_name}</span>
+              <button className={ styles.buttonOpen }>Load</button>
+            </div>
+          </>
+        ) : ''
+      }
+      
     </div>
   );
 };

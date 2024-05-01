@@ -42,6 +42,17 @@ export default class AVRPGatewayHelper {
     });
   }
 
+  static instance = null;
+
+  static getInstance() {
+    if (!AVRPGatewayHelper.instance) {
+      AVRPGatewayHelper.instance = new AVRPGatewayHelper();
+    }
+    return AVRPGatewayHelper.instance;
+  }
+
+  // api call methods
+
   getCaseStudyHeaders() {
     console.log("[AVRPGatewayHelper::getCaseStudyHeaders] ");
     return fetch(`${GATEWAY_URL}/case-studies-vs`, {
@@ -64,16 +75,19 @@ export default class AVRPGatewayHelper {
   getStudyDataHeader(studyId) {
     console.log("[AVRPGatewayHelper::getStudyDataHeader] studyId: ", studyId)
 
-    return Promise.resolve({});
-  }
-
-  static instance = null;
-
-  static getInstance() {
-    console.log("[AVRPGatewayHelper::getInstance] ");
-    if (!AVRPGatewayHelper.instance) {
-      AVRPGatewayHelper.instance = new AVRPGatewayHelper();
-    }
-    return AVRPGatewayHelper.instance;
+    return fetch(`${GATEWAY_URL}/study-data-headers-vs?study_id=${studyId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this._token}`,
+      },
+    }).then((res) => {
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return res.json();
+    }).then((data) => {
+      console.log('[AVRPGatewayHelper::getStudyDataHeader] data: ', data);
+    });
   }
 }
