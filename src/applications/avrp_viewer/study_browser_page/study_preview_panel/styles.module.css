@@ -1,0 +1,52 @@
+.panelContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background-color: #e5e5e5;
+  color: #7e7e7e;
+  padding: 15px;
+  margin: 5px
+}
+
+.panelHeader {
+  border-bottom: 1px solid #ccc;
+  background-color: transparent;
+  color: #666666;
+  font-size: 24px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+}
+
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: auto;
+}
+
+.statusBox {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  padding: 10px;
+  max-height: 20px;
+}
+
+.viewerBox {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  padding: 10px;
+  max-height: 30vh;
+}

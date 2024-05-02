@@ -1,8 +1,10 @@
+import { useAVRPGlobal } from "../avrp_global_context"
+import StudyBrowserPage from "../study_browser_page"
+import ViewerPage from "../viewer_page"
+
 export default function MainPage() {
+  const { studyBrowserActive } = useAVRPGlobal();
   return (
-    <div>
-      <h1>Main Page</h1>
-      <p>This is the main page</p>
-    </div>
+    studyBrowserActive ? (<StudyBrowserPage />) : (<ViewerPage />)
   )
 }
