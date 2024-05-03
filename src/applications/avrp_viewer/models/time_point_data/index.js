@@ -1,94 +1,52 @@
-const TimePointDataType = {
-  VOLUME: 'volume',
-  COAPTATION_SURFACE: 'coaptation_surface',
-  MULTI_LABEL_MODEL: 'multi_label_model',
-  SINGLE_LABEL_MODEL: 'single_label_model',
-}
-
 export default class TimePointData {
-  constructor(tpDataHeader, dsHelper) {
-    console.log(`[AVRPTimepointData] constructor`);
-
-    this.data = new Map(); // data type to data object map
-    this.data_status = new Map(); // data type to boolean map
-    this.tpDataHeader = tpDataHeader;
-    this.dsHelper = dsHelper;
-
-    // for each data type, fetch the data
-    for (const type in AVRPTimepointDataType) {
-      this.fetchData(type);
-    }
+  constructor(tp) {
+    console.log("[TimePointData::constructor] ")
+    this._tp = tp;
+    this._volume = null; // volume
+    this._singleLabelModel = null; // polydata
+    this._multiLabelModel = new Map(); // label to polydata
+    this._coaptationSurface = new Map(); // position to polydata
   }
 
-  setData(type, data) {
-    this.data.set(type, data);
+  get tp() {
+    return this._tp;
   }
 
-  getData(type) {
-    return this.data.get(type);
+  get volume() {
+    return this._volume;
   }
 
-  fetchData(type) {
-    switch (type) {
-      case AVRPTimepointDataType.VOLUME:
-        this.fetchVolumeData();
-        break;
-      case AVRPTimepointDataType.COAPTATION_SURFACE:
-        this.fetchCoaptationSurfaceData();
-        break;
-      case AVRPTimepointDataType.MULTI_LABEL_MODEL:
-        this.fetchMultiLabelModelData();
-        break;
-      case AVRPTimepointDataType.SINGLE_LABEL_MODEL:
-        this.fetchSingleLabelModelData();
-        break;
-      default:
-        console.error(`[AVRPTimepointData] fetchData: unknown type ${type}`);
-    }
+  set volume(value) {
+    this._volume = value;
   }
 
-  fetchVolumeData() {
-    console.log(`[AVRPTimepointData] fetchVolumeData`);
-    // const volumeHeader = this.tpDataHeader[AVRPTimepointDataType['VOLUME']]
-    // this.dsHelper.getData(volumeHeader.dsId).then((data) => {
-    //   // parse as volume
-
-    //   // set data
-    // });
+  get singleLabelModel() {
+    return this._singleLabelModel;
   }
 
-  fetchSingleLabelModelData() {
-    console.log(`[AVRPTimepointData] fetchSingleLabelModelData`);
-    // const singleLabelModelHeader = this.tpDataHeader[AVRPTimepointDataType['SINGLE_LABEL_MODEL']]
-    // this.dsHelper.getData(singleLabelModelHeader.dsId).then((data) => {
-    //   // parse as single label model
-
-    //   // set data
-    // });
+  set singleLabelModel(value) {
+    this._singleLabelModel = value;
   }
 
-  fetchMultiLabelModelData() {
-    console.log(`[AVRPTimepointData] fetchMultiLabelModelData`);
-    // const multiLabelModelHeader = this.tpDataHeader[AVRPTimepointDataType['MULTI_LABEL_MODEL']]
-    // this.dsHelper.getData(multiLabelModelHeader.dsId).then((data) => {
-    //   // parse as multi label model
-
-    //   // set data
-    // });
+  get multiLabelModel() {
+    return this._multiLabelModel;
   }
 
-  fetchCoaptationSurfaceData() {
-    console.log(`[AVRPTimepointData] fetchCoaptationSurfaceData`);
-    // const coaptationSurfaceHeader = this.tpDataHeader[AVRPTimepointDataType['COAPTATION_SURFACE']]
-    // this.dsHelper.getData(coaptationSurfaceHeader.dsId).then((data) => {
-    //   // parse as coaptation surface
-
-    //   // set data
-    // });
+  set multiLabelModel(value) {
+    this._multiLabelModel = value;
   }
+
+  get coaptationSurface() {
+    return this._coaptationSurface;
+  }
+
+  set coaptationSurface(value) {
+    this._coaptationSurface = value;
+  }
+
 }
+
 
 export {
-  TimePointDataType,
   TimePointData,
 }

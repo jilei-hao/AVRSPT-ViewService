@@ -15,11 +15,18 @@ export default function AVRPDataProvider({ children }) {
     const gwHelper = AVRPGatewayHelper.getInstance();
     const dsHelper = AVRPDataServerHelper.getInstance();
 
-    const loader = StudyDataLoader.getInstance(studyDataHeader, gwHelper, dsHelper);
-    loader.LoadStudyData().then((data) => {
-      console.log("[AVRPDataProvider] useEffect[], data: ", data);
-      setTPData(data);
-    });
+    const loader = StudyDataLoader.getInstance(gwHelper, dsHelper);
+
+    for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
+      const tpHeader = studyDataHeader.tpHeaders[i];
+      loader.loadTPData(tpHeader).then((tpData) => {
+        setTPData((prev) => {
+          const updatedTPData = [...prev];
+          updatedTPData[i] = tpData;
+          return updatedTPData;
+        });
+      });
+    }
   }, []);
 
   return (

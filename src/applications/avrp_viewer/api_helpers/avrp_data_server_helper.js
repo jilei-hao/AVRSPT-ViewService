@@ -16,7 +16,25 @@ export default class AVRPDataServerHelper {
     return AVRPDataServerHelper.instance;
   }
 
-  static ComposeDataServerURL(dsid) {
+  static composeDataServerURL(dsid) {
     return `${DATA_SERVER_URL}/data?id=${dsid}`;
+  }
+
+  static getData(dsid) {
+    return fetch(AVRPDataServerHelper.composeDataServerURL(dsid), {
+      method: 'GET',
+      headers: {},
+    }).then((res) => {
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return res.blob();
+    }).catch((error) => {
+      console.error(`Error connecting to the server: ${error}`);
+      return {
+        success: false,
+        message: `Error connecting to the server: ${error}`,
+      };
+    });
   }
 }

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './styles.module.css';
 import { useAVRPGlobal } from '../../avrp_global_context';
-import { AVRPGatewayHelper } from '../../api_helpers';
 import AVRPCommonHelper from '../../avrp_common_helper';
 
 export default function StudyPreviewPanel () {

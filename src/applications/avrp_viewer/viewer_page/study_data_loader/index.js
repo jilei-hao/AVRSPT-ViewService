@@ -1,6 +1,8 @@
+import { TimePointData } from "../../models";
+import vtkXMLPolyDataReader from "@kitware/vtk.js/IO/XML/XMLPolyDataReader";
+
 export default class StudyDataLoader {
-  constructor(studyDataHeader, gwHelper, dsHelper) {
-    this._studyDataHeader = studyDataHeader;
+  constructor(gwHelper, dsHelper) {
     this._gwHelper = gwHelper;
     this._dsHelper = dsHelper;
     this._isLoading = false;
@@ -8,20 +10,21 @@ export default class StudyDataLoader {
 
   static instance = null;
 
-  LoadStudyData() {
-    console.log("[StudyDataLoader::LoadStudyData] isLoading: ", this._isLoading);
-    if (this._isLoading)
-      return;
-    
-    // sleep for 5 seconds
-    return new Promise(r => setTimeout(r, 5000)).then(() => {
-      return [{tp: 1}, {tp: 2}];
-    });
-  }
+  async loadTPData(studyDataHeader, tpInd) {
+    console.log("[StudyDataLoader::LoadTPData] tpInd: ", tpInd);
+    const tpHeader = studyDataHeader.tpHeaders[tpInd];
+    const tpData = new TimePointData(tpHeader.tp);
+    const polyDataReader = vtkXMLPolyDataReader.newInstance();
 
-  static getInstance(studyDataHeader, gwHelper, dsHelper) {
+    const slModelBinary = await this._dsHelper.getData(tpHeader.singleLabelModel.dsid);
+    tpData.singleLabelModel = polyDataReader.parseAsArrayBuffer(slModelBinary);
+  }
+  
+
+
+  static getInstance(gwHelper, dsHelper) {
     if (!StudyDataLoader.instance) {
-      StudyDataLoader.instance = new StudyDataLoader(studyDataHeader, gwHelper, dsHelper);
+      StudyDataLoader.instance = new StudyDataLoader(gwHelper, dsHelper);
     }
     return StudyDataLoader.instance;
   }
