@@ -1,4 +1,4 @@
-import GeneriRenderWindow from "../../../rendering/GenericRenderingWindow";
+import GeneriRenderWindow from "../../../../rendering/GenericRenderingWindow";
 
 // generate a random rgb
 function randomRGB() {

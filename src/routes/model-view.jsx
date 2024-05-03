@@ -12,8 +12,6 @@ const { fetchBinary } = vtkHttpDataAccessHelper;
 import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
 
 
-
-
 export default function ModelView() {
   const vtkContainerRef = useRef(null);
   const context = useRef(null);

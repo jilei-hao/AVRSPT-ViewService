@@ -1,11 +1,11 @@
-const AVRPTimepointDataType = {
+const TimePointDataType = {
   VOLUME: 'volume',
   COAPTATION_SURFACE: 'coaptation_surface',
   MULTI_LABEL_MODEL: 'multi_label_model',
   SINGLE_LABEL_MODEL: 'single_label_model',
 }
 
-class AVRPTimepointData {
+export default class TimePointData {
   constructor(tpDataHeader, dsHelper) {
     console.log(`[AVRPTimepointData] constructor`);
 
@@ -89,6 +89,6 @@ class AVRPTimepointData {
 }
 
 export {
-  AVRPTimepointDataType,
-  AVRPTimepointData,
+  TimePointDataType,
+  TimePointData,
 }
