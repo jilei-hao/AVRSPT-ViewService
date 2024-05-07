@@ -13,13 +13,15 @@ export default class StudyDataLoader {
 
   async loadTPData(tpHeader) {
     console.log("[StudyDataLoader::loadTPData] tpHeader: ", tpHeader);
-    console.log("-- dsHelper: ", this._dsHelper);
     const tpData = new TimePointData(tpHeader.tp);
     const polyDataReader = vtkXMLPolyDataReader.newInstance();
 
     const slModelBinary = await AVRPDataServerHelper.getData(
       tpHeader.getDataGroupHeaderByName('model-sl').dsid);
-    tpData.singleLabelModel = polyDataReader.parseAsArrayBuffer(slModelBinary);
+
+    polyDataReader.parseAsArrayBuffer(slModelBinary);
+    tpData.singleLabelModel = polyDataReader.getOutputData(0);
+    console.log("-- singleLabelModel: ", tpData.singleLabelModel);
   }
   
 

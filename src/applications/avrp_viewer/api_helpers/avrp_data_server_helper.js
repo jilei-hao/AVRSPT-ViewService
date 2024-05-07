@@ -28,7 +28,7 @@ export default class AVRPDataServerHelper {
       if (!res.ok) {
         throw new Error('Network response was not ok');
       }
-      return res.blob();
+      return res.arrayBuffer();
     }).catch((error) => {
       console.error(`Error connecting to the server: ${error}`);
       return {
