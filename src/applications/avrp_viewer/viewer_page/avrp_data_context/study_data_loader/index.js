@@ -1,6 +1,6 @@
-import { TimePointData } from "../../models";
+import { TimePointData } from "@viewer/models";
 import vtkXMLPolyDataReader from "@kitware/vtk.js/IO/XML/XMLPolyDataReader";
-import { AVRPDataServerHelper, AVRPGatewayHelper } from "../../api_helpers";
+import { AVRPDataServerHelper, AVRPGatewayHelper } from "@viewer/api_helpers";
 
 export default class StudyDataLoader {
   constructor() {
@@ -16,12 +16,14 @@ export default class StudyDataLoader {
     const tpData = new TimePointData(tpHeader.tp);
     const polyDataReader = vtkXMLPolyDataReader.newInstance();
 
+    // load single label model
     const slModelBinary = await AVRPDataServerHelper.getData(
       tpHeader.getDataGroupHeaderByName('model-sl').dsid);
 
     polyDataReader.parseAsArrayBuffer(slModelBinary);
     tpData.singleLabelModel = polyDataReader.getOutputData(0);
-    console.log("-- singleLabelModel: ", tpData.singleLabelModel);
+
+    return tpData;
   }
   
 
