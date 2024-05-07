@@ -20,7 +20,7 @@ export default class AVRPDataServerHelper {
     return `${DATA_SERVER_URL}/data?id=${dsid}`;
   }
 
-  static getData(dsid) {
+  static async getData(dsid) {
     return fetch(AVRPDataServerHelper.composeDataServerURL(dsid), {
       method: 'GET',
       headers: {},

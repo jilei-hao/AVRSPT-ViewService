@@ -59,11 +59,16 @@ class TimePointHeader {
   get dataGroupHeaders() {
     return this._dataGroupHeaders;
   }
+
+  getDataGroupHeaderByName(name) {
+    return this._dataGroupHeaders.find((dataGroupHeader) => {
+      return dataGroupHeader.name === name;
+    });
+  }
 }
 
 export default class StudyDataHeader {
   constructor(studyId, jsonData) {
-    console.log("[StudyDataHeader = =constructor] jsonData", jsonData);
     this._studyId = studyId;
     this._tpHeaders = [];
     jsonData.forEach((tpHeader) => {

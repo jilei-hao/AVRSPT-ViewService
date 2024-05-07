@@ -15,7 +15,7 @@ export default function AVRPDataProvider({ children }) {
     const gwHelper = AVRPGatewayHelper.getInstance();
     const dsHelper = AVRPDataServerHelper.getInstance();
 
-    const loader = StudyDataLoader.getInstance(gwHelper, dsHelper);
+    const loader = StudyDataLoader.getInstance();
 
     for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
       const tpHeader = studyDataHeader.tpHeaders[i];

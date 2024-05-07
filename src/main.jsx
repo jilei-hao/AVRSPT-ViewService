@@ -18,7 +18,7 @@ const router = createBrowserRouter([
     element: <Root />,
   },
   {
-    path: "/app/:studyId",
+    path: "/app",
     element: <App />,
   },
   {
