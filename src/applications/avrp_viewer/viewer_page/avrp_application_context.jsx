@@ -1,6 +1,6 @@
 
 /*
-  * This context provides controller logic, rendering and the state of the application
+  * This context provides controller logic
 */
 
 import React, { createContext, useContext, useState, useEffect} from 'react';

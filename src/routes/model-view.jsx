@@ -4,14 +4,11 @@ import '@kitware/vtk.js/Rendering/Profiles/Geometry';
 import vtkFullScreenRenderWindow from '@kitware/vtk.js/Rendering/Misc/FullScreenRenderWindow';
 import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor';
 import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
-import vtkConeSource from '@kitware/vtk.js/Filters/Sources/ConeSource';
 import vtkProperty from "@kitware/vtk.js/Rendering/Core/Property";
 
 import vtkHttpDataAccessHelper from '@kitware/vtk.js/IO/Core/DataAccessHelper/HttpDataAccessHelper';
 const { fetchBinary } = vtkHttpDataAccessHelper;
 import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader';
-
-
 
 
 export default function ModelView() {
@@ -20,7 +17,7 @@ export default function ModelView() {
   const { dsid } = useParams();
 
   const dataURL = `http://localhost:7070/data?id=${dsid}`;
-  console.log("[ModelView] dataURL: ", dataURL);
+  // console.log("[ModelView] dataURL: ", dataURL);
 
   useEffect(() => {
     if (!context.current) {
@@ -47,10 +44,10 @@ export default function ModelView() {
       renderer.resetCamera();
 
       fetchBinary(dataURL).then((binary) => {
-        console.log("[ModelView] binary: ", binary);
+        // console.log("[ModelView] binary: ", binary);
         reader.parseAsArrayBuffer(binary);
         const polydata = reader.getOutputData(0);
-        console.log("[ModelView] polydata: ", polydata);
+        // console.log("[ModelView] polydata: ", polydata);
         mapper.setInputData(reader.getOutputData(0));
         renderer.resetCamera();
         renderWindow.render();

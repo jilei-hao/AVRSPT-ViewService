@@ -88,6 +88,7 @@ export default class AVRPGatewayHelper {
       return res.json();
     }).then((data) => {
       console.log('[AVRPGatewayHelper::getStudyDataHeader] data: ', data);
+      return data;
     });
   }
 }
