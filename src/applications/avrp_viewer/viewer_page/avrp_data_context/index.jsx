@@ -32,10 +32,10 @@ export default function AVRPDataProvider({ children }) {
         });
       });
     }
-  }, []);
+  }, [studyDataHeader]);
 
   return (
-    <AVRPDataContext.Provider value={{tpData, tpDataLoaded}}>
+    <AVRPDataContext.Provider value={{tpData}}>
       { children }
     </AVRPDataContext.Provider>
   );

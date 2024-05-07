@@ -4,6 +4,8 @@
 */
 
 import React, { createContext, useContext, useState, useEffect} from 'react';
+import { useAVRPGlobal } from '../avrp_global_context';
+import { studyData } from '../../../model/studies';
 
 const AVRPViewerStateContext = createContext();
 
@@ -12,10 +14,19 @@ export default function AVRPViewerStateProvider({ children }) {
   const [activeTP, setActiveTP] = useState(0);
   const [numberOfTP, setNumberOfTP] = useState(1);
   const [tpDataLoaded, setTPDataLoaded] = useState([]);
+  const { studyDataHeader } = useAVRPGlobal();
 
   useEffect(() => {
     console.log("[AVRPViewerStateProvider] useEffect[], tpDataLoaded: ", tpDataLoaded);
   }, [tpDataLoaded]);
+
+  useEffect(() => {
+    console.log("[AVRPViewerStateProvider] useEffect[], studyDataHeader: ", studyDataHeader);
+    if (studyDataHeader.tpHeaders) {
+      setNumberOfTP(studyDataHeader.tpHeaders.length);
+      setTPDataLoaded(new Array(studyDataHeader.tpHeaders.length).fill(false));
+    }
+  }, [studyDataHeader]);
 
 
   return (

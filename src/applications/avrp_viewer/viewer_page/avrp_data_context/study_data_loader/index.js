@@ -12,7 +12,6 @@ export default class StudyDataLoader {
   static instance = null;
 
   async loadTPData(tpHeader) {
-    console.log("[StudyDataLoader::loadTPData] tpHeader: ", tpHeader);
     const tpData = new TimePointData(tpHeader.tp);
     const polyDataReader = vtkXMLPolyDataReader.newInstance();
 
