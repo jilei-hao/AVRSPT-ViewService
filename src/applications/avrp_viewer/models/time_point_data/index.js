@@ -1,6 +1,5 @@
 export default class TimePointData {
   constructor(tp) {
-    console.log("[TimePointData::constructor] ")
     this._tp = tp;
     this._volume = null; // volume
     this._singleLabelModel = null; // polydata
