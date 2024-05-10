@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './styles.module.css';
 import AVRPDataProvider from "./avrp_data_context";;
 import MainControlPanel from './main_control_panel';
 import AVRPViewerStateProvider, { useAVRPViewerState } from './avrp_viewer_state_context';
@@ -8,8 +9,9 @@ import { SingleLabelModelLayer, CoaptationSurfaceLayer } from './layers';
 
 function Viewer() {
   const { viewHeaders } = useAVRPViewerState();
+  console.log("[Viewer] viewHeaders: ", viewHeaders);
   return (
-    <div style={{position: 'absolute', width: '100vw', height: '90vh', top: '0', left: '0', backgroundColor: 'purple'}}>
+    <div className={styles.viewerContainer}>
       { viewHeaders.map((view) => {
         return (
           <View 
@@ -19,16 +21,17 @@ function Viewer() {
             pctWidth={view.geometry.pctWidth} 
             pctHeight={view.geometry.pctHeight}
           >
-            { view.layers.map((layer) => {
-              {/* switch(layer) {
+            { 
+              view.layers.map((layer) => {
+              switch(layer.type) {
                 case 'model-sl':
                   return <SingleLabelModelLayer key={layer.id} name={layer.name}/>;
                 case 'coaptation-surface':
                   return <CoaptationSurfaceLayer key={layer.id} name={layer.name}/>;
                 default:
                   return '';
-              } */}
-            })}
+              }})
+            }
           </View>
         );
       })}
@@ -47,3 +50,4 @@ export default function ViewerPage() {
     
   )
 }
+

@@ -12,25 +12,27 @@ export default function AVRPDataProvider({ children }) {
 
   useEffect(() => {
     console.log("[AVRPDataProvider] useEffect[], studyDataHeader: ", studyDataHeader);
-    const loader = StudyDataLoader.getInstance();
+    if (studyDataHeader.length > 0) {
+      const loader = StudyDataLoader.getInstance();
 
-    // sort tpHeaders by tp
-    studyDataHeader.tpHeaders.sort((a, b) => a.tp - b.tp);
+      // sort tpHeaders by tp
+      studyDataHeader.tpHeaders.sort((a, b) => a.tp - b.tp);
 
-    for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
-      const tpHeader = studyDataHeader.tpHeaders[i];
-      loader.loadTPData(tpHeader).then((tpData) => {
-        setTPData((prev) => {
-          const updatedTPData = [...prev];
-          updatedTPData[i] = tpData;
-          return updatedTPData;
+      for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
+        const tpHeader = studyDataHeader.tpHeaders[i];
+        loader.loadTPData(tpHeader).then((tpData) => {
+          setTPData((prev) => {
+            const updatedTPData = [...prev];
+            updatedTPData[i] = tpData;
+            return updatedTPData;
+          });
+          setTPDataLoaded((prev) => {
+            const updatedTPDataLoaded = [...prev];
+            updatedTPDataLoaded[i] = true;
+            return updatedTPDataLoaded;
+          });
         });
-        setTPDataLoaded((prev) => {
-          const updatedTPDataLoaded = [...prev];
-          updatedTPDataLoaded[i] = true;
-          return updatedTPDataLoaded;
-        });
-      });
+      }
     }
   }, [studyDataHeader]);
 

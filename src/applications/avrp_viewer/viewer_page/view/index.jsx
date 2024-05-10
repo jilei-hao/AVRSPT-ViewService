@@ -33,10 +33,10 @@ export default function View({ pctTop, pctLeft, pctWidth, pctHeight, children}) 
 
   return (
     <ViewRenderingProvider containerRef={containerRef}>
-      <div style={style} ref={containerRef}>
-      </div>
-      <div className={styles.layerPanelContainer}>
-        { children }
+      <div className={styles.viewContainer} style={style} ref={containerRef}>
+        <div className={styles.layerPanelContainer}>
+          { children }
+        </div>
       </div>
     </ViewRenderingProvider>
   );

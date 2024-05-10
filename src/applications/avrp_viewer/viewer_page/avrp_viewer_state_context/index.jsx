@@ -57,7 +57,8 @@ export default function AVRPViewerStateProvider({ children }) {
           pctLeft: 75,
           pctWidth: 25,
           pctHeight: 33
-        }
+        },
+        layers: []
       }, {
         id: 3,
         type: 'slicing-sagittal',
@@ -66,7 +67,8 @@ export default function AVRPViewerStateProvider({ children }) {
           pctLeft: 75,
           pctWidth: 25,
           pctHeight: 33
-        }
+        },
+        layers: []
       }, {
         id: 4,
         type: 'slicing-coronal',
@@ -75,7 +77,8 @@ export default function AVRPViewerStateProvider({ children }) {
           pctLeft: 75,
           pctWidth: 25,
           pctHeight: 34
-        }
+        },
+        layers: []
       }]
     );
   }, [])
