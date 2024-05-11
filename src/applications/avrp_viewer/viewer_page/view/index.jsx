@@ -37,6 +37,8 @@ export default function View({ pctTop, pctLeft, pctWidth, pctHeight, children}) 
         <div className={styles.layerPanelContainer}>
           { children }
         </div>
+        <div className={styles.viewModePanelContainer}>
+        </div>
       </div>
     </ViewRenderingProvider>
   );
