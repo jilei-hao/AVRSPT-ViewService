@@ -12,7 +12,7 @@ export default function AVRPDataProvider({ children }) {
 
   useEffect(() => {
     console.log("[AVRPDataProvider] useEffect[], studyDataHeader: ", studyDataHeader);
-    if (studyDataHeader.length > 0) {
+    if (studyDataHeader.tpHeaders.length > 0) {
       const loader = StudyDataLoader.getInstance();
 
       // sort tpHeaders by tp

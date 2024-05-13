@@ -20,6 +20,7 @@ function Viewer() {
             pctLeft={view.geometry.pctLeft} 
             pctWidth={view.geometry.pctWidth} 
             pctHeight={view.geometry.pctHeight}
+            viewI={view.id}
           >
             { 
               view.layers.map((layer) => {
