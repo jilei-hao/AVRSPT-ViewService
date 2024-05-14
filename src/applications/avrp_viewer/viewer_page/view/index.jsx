@@ -65,3 +65,7 @@ export default function View({ pctTop, pctLeft, pctWidth, pctHeight, viewId, chi
     </ViewRenderingProvider>
   );
 }
+
+export function useViewRendering() {
+  return React.useContext(ViewRenderingContext);
+}
