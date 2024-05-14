@@ -5,12 +5,10 @@
 
 import React, { createContext, useContext, useState, useEffect} from 'react';
 import { useAVRPGlobal } from '../../avrp_global_context';
-import { studyData } from '../../../../model/studies';
 
 const AVRPViewerStateContext = createContext();
 
 export default function AVRPViewerStateProvider({ children }) {
-  console.log("[AVRPViewerStateProvider]");
   const { studyDataHeader } = useAVRPGlobal();
   const [activeTP, setActiveTP] = useState(0);
   const [numberOfTP, setNumberOfTP] = useState(1);

@@ -7,7 +7,7 @@ const AVRPDataContext = createContext();
 
 export default function AVRPDataProvider({ children }) {
   const [tpData, setTPData] = useState([]);
-  const { tpDataLoaded, setTPDataLoaded } = useAVRPViewerState([]);
+  const { tpDataLoaded, setTPDataLoaded, activeTP } = useAVRPViewerState([]);
   const { studyDataHeader } = useAVRPGlobal();
 
   useEffect(() => {
@@ -36,8 +36,28 @@ export default function AVRPDataProvider({ children }) {
     }
   }, [studyDataHeader]);
 
+  const getActiveTPData = (type) => {
+    if (tpData.length === 0) {
+      return null;
+    }
+
+    const activeTPData = tpData[activeTP];
+
+    if (!activeTPData)
+      return null;
+
+    switch(type) {
+      case 'single-label-model':
+        return activeTPData.singleLabelModel;
+      case 'coaptation-surface':
+        return activeTPData.coaptationSurface;
+      default:
+        return null;
+    }
+  }
+
   return (
-    <AVRPDataContext.Provider value={{tpData}}>
+    <AVRPDataContext.Provider value={{ tpData, getActiveTPData }}>
       { children }
     </AVRPDataContext.Provider>
   );
