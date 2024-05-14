@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { useAVRPData } from '../avrp_data_context';
 import { useViewRendering } from '../view';
 import { useAVRPViewerState } from '../avrp_viewer_state_context';
+import RoundSlider from '../../../../ui/basic/rounder_slider';
 import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
 import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor';
 
@@ -15,7 +16,7 @@ function useSingleLabelModelRenderingPipeline() {
     const mapper = vtkMapper.newInstance();
     mapper.setScalarVisibility(false);
     actor.setMapper(mapper);
-    
+
     actorMap.current.set(key, actor);
     return actor;
   }
@@ -63,9 +64,19 @@ export default function SingleLabelModelLayer(props) {
     
   }, [tpData, activeTP]);
 
+  const handleOpacityChange = (e) => {
+    const opacity = e.target.value;
+    const actor = getActor('model');
+    const property = actor.getProperty();
+    property.setOpacity(opacity);
+    actor.setProperty(property);
+    renderWindow.render();
+  }
+
 
   return (
     <div className={styles.layerPanelContainer}>
+      <RoundSlider min={0} max={1} step={.01} onChange={handleOpacityChange} />
     </div>
   );
 }
