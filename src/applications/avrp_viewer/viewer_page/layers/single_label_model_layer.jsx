@@ -39,30 +39,34 @@ export default function SingleLabelModelLayer(props) {
   const { renderWindow } = useViewRendering();
   const { addActor, getActor, hasActor } = useSingleLabelModelRenderingPipeline();
 
-  useEffect(() => {
-    console.log("[SingleLabelModelLayer] useEffect[], activeTP: ", activeTP);
+  const updateRendering = (isInitial) => {
     const model = getActiveTPData('single-label-model');
 
     if (!model)
       return;
-
-    console.log("[SingleLabelModelLayer] model: ", model);
 
     if (!hasActor('model'))
       addActor('model');
 
     const actor = getActor('model');
     const mapper = actor.getMapper();
-    console.log("[SingleLabelModelLayer] mapper: ", mapper);
     mapper.setInputData(model);
-    actor.setMapper(mapper);
 
-    renderWindow.getRenderer().addActor(actor);
-    renderWindow.getRenderer().resetCamera();
+    if (isInitial) {
+      renderWindow.getRenderer().addActor(actor);
+      renderWindow.getRenderer().resetCamera();
+    }
+
     renderWindow.render();
+  }
 
-    
-  }, [tpData, activeTP]);
+  useEffect(() => {
+    updateRendering(true);
+  }, [tpData]);
+
+  useEffect(() => {
+    updateRendering(false);
+  }, [activeTP]);
 
   const handleOpacityChange = (e) => {
     const opacity = e.target.value;

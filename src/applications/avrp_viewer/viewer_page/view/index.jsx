@@ -1,6 +1,8 @@
 import React, { createContext, useRef, useEffect, useState } from 'react';
 import GenericRenderWindow from '@/rendering/GenericRenderingWindow';
 import styles from './styles.module.css';
+import { SingleLabelModelLayer, CoaptationSurfaceLayer } from '../layers';
+import { MultiSelectDropdown } from '@viewer/components';
 
 const ViewRenderingContext = createContext();
 
@@ -22,13 +24,6 @@ function ViewRenderingProvider({ viewId, containerRef, children }) {
   const getRenderWindow = usePersistentRenderWindows();
   const [renderWindow, ] = useState(getRenderWindow(viewId));
 
-  const registerProp = (prop) => {
-    // get a new key
-    // add prop to the propRegister
-    // add prop to the renderWindow
-    // return key to the caller
-  }
-
   useEffect(() => {
     renderWindow.setContainer(containerRef.current);
   }, [containerRef])
@@ -40,7 +35,9 @@ function ViewRenderingProvider({ viewId, containerRef, children }) {
   );
 }
 
-export default function View({ pctTop, pctLeft, pctWidth, pctHeight, viewId, children}) {
+export default function View({ viewHeader }) {
+  const { id, layers } = viewHeader;
+  const { pctTop, pctLeft, pctWidth, pctHeight } = viewHeader.geometry;
   const containerRef = useRef();
 
   const style = {
@@ -54,12 +51,35 @@ export default function View({ pctTop, pctLeft, pctWidth, pctHeight, viewId, chi
   };
 
   return (
-    <ViewRenderingProvider containerRef={containerRef} viewId={viewId}>
-      <div className={styles.viewContainer} style={style} ref={containerRef}>
+    <ViewRenderingProvider containerRef={containerRef} viewId={id}>
+      <div className={styles.viewContainer} style={style}>
+        <div className={styles.renderWindowContainer} ref={containerRef} />
         <div className={styles.layerPanelContainer}>
-          { children }
+          {
+            layers.map((layer) => {
+              switch(layer.type) {
+                case 'model-sl':
+                  return <SingleLabelModelLayer key={layer.id} name={layer.name}/>;
+                case 'coaptation-surface':
+                  return <CoaptationSurfaceLayer key={layer.id} name={layer.name}/>;
+                default:
+                  return '';
+              }})
+          }
         </div>
         <div className={styles.viewModePanelContainer}>
+          <MultiSelectDropdown 
+            options={['model-sl', 'co-surface', 'model-ml']} 
+            selectedOptions={['model-sl']}
+            onOptionChange={(options) => console.log("Options changed: ", options)}
+            menuTitle="Layers"
+          />
+          <MultiSelectDropdown 
+            options={['anatomy', 'coaptation-surface', 'measurement']} 
+            selectedOptions={['coaptation-surface']}
+            onOptionChange={(options) => console.log("Options changed: ", options)}
+            menuTitle="Modes"
+          />
         </div>
       </div>
     </ViewRenderingProvider>
