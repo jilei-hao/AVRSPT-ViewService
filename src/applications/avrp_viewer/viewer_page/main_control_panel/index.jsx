@@ -6,15 +6,14 @@ import { useAVRPViewerState } from '../avrp_viewer_state_context';
 export default function MainControlPanel () {
   const { setStudyBrowserActive } = useAVRPGlobal();
   const { activeTP, setActiveTP, numberOfTP } = useAVRPViewerState();
-  const [ isPlayOn, setIsPlayOn ] = useState(false);
+  const [ IsReplayOn, setIsReplayOn ] = useState(false);
   const replayTimerRef = useRef({});
 
   useEffect(() => {
     clearInterval(replayTimerRef.current);
-    if (isPlayOn)
+    if (IsReplayOn)
       replayTimerRef.current = setInterval(onReplayTimerTick, 50);
-
-  }, [isPlayOn]);
+  }, [IsReplayOn]);
 
   const onReplayTimerTick = () => {
     setActiveTP((currentActiveTP) => {
@@ -38,8 +37,8 @@ export default function MainControlPanel () {
     }
   };
 
-  const onPlayClicked = () => {
-    setIsPlayOn(!isPlayOn);
+  const onReplayClicked = () => {
+    setIsReplayOn(!IsReplayOn);
   }
 
   const onStepForwardClicked = () => {
@@ -53,7 +52,7 @@ export default function MainControlPanel () {
     <div className={styles.panelContainer}>
       <button onClick={ onExitClicked }>EXIT</button>
       <button onClick={ onStepbackClicked }>BACK</button>
-      <button onClick={ onPlayClicked }>PLAY</button>
+      <button onClick={ onReplayClicked }>PLAY</button>
       <button onClick={ onStepForwardClicked }>FORWARD</button>
     </div>
   );
