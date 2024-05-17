@@ -17,10 +17,19 @@ export default class StudyDataLoader {
 
     // load single label model
     const slModelBinary = await AVRPDataServerHelper.getData(
-      tpHeader.getDataGroupHeaderByName('model-sl').dsid);
+      tpHeader.getDataGroupHeaderByName('model-sl').dsid
+    );
 
     polyDataReader.parseAsArrayBuffer(slModelBinary);
     tpData.singleLabelModel = polyDataReader.getOutputData(0);
+
+    // load coaptation surface
+    const coSurfaceBinary = await AVRPDataServerHelper.getData(
+      tpHeader.getDataGroupHeaderByName('coaptation-surface').dsid
+    )
+
+    polyDataReader.parseAsArrayBuffer(coSurfaceBinary);
+    tpData.coaptationSurface = polyDataReader.getOutputData(0);
 
     return tpData;
   }
