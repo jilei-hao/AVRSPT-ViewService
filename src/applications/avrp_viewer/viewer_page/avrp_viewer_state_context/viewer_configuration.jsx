@@ -18,6 +18,20 @@ export default function useViewerConfiguration() {
           type: 'coaptation-surface',
           name: 'Coaptation Surface',
         }
+      ],
+      modes: [{
+          id: 1,
+          name: 'Simple Model',
+          layers: [1]
+        }, {
+          id: 2,
+          name: 'Coaptation Surface',
+          layers: [1, 2]
+        }, {
+          id: 3,
+          name: 'Anatomy',
+          layers: []
+        }
       ]
     }, {
       id: 2,
@@ -28,7 +42,8 @@ export default function useViewerConfiguration() {
         pctWidth: 25,
         pctHeight: 33
       },
-      layers: []
+      layers: [],
+      modes: []
     }, {
       id: 3,
       type: 'slicing-sagittal',
@@ -38,7 +53,8 @@ export default function useViewerConfiguration() {
         pctWidth: 25,
         pctHeight: 33
       },
-      layers: []
+      layers: [],
+      modes: []
     }, {
       id: 4,
       type: 'slicing-coronal',
@@ -48,7 +64,8 @@ export default function useViewerConfiguration() {
         pctWidth: 25,
         pctHeight: 34
       },
-      layers: []
+      layers: [],
+      modes: []
   }]
 
   return {
