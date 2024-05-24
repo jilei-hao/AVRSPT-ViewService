@@ -36,64 +36,45 @@ function ViewRenderingProvider({ viewId, containerRef, children }) {
   );
 }
 
+const isLayerVisibleByMode = (modes, layerId, modeId) => {
+  const selectedMode = modes.find((mode) => mode.id === modeId);
+
+  if (!selectedMode)
+    return false;
+
+  return selectedMode.layers.includes(layerId);
+}
+
+const getUpdatedLayerMenuOptions = (layers, modes, modeId) => {
+  const selectedMode = modes.find((mode) => mode.id === modeId);
+
+  if (!selectedMode)
+    return [];
+
+  const modeLayers = selectedMode.layers.map((layerId) => {
+    console.log("-- layerId: ", layerId);
+    const layer = layers.find((_layer) => _layer.id === layerId);
+    return layer ? layer.name : '';
+  });
+
+  return modeLayers;
+}
+
 export default function View({ viewHeader }) {
   const { id, layers, modes } = viewHeader;
+  const { pctTop, pctLeft, pctWidth, pctHeight } = viewHeader.geometry;
+  const containerRef = useRef();
+  const [selectedModeId, setSelectedModeId] = useState(1);
 
   const [layerConfigs, setLayerConfigs] = useState(layers.map((layer) => ({
     id: layer.id,
     name: layer.name,
     type: layer.type,
-    visible: true,
+    visible: isLayerVisibleByMode(modes, layer.id, selectedModeId),
   })));
-  const { pctTop, pctLeft, pctWidth, pctHeight } = viewHeader.geometry;
-  const containerRef = useRef();
-  const [selectedModeId, setSelectedModeId] = useState(1);
-
-  const getUpdatedLayerMenuOptions = (id) => {
-    const selectedMode = modes.find((mode) => mode.id === id);
-
-    if (!selectedMode)
-      return [];
-    
-    console.log("[View] selectedMode: ", selectedMode);
-
-    const modeLayers = selectedMode.layers.map((layerId) => {
-      console.log("-- layerId: ", layerId);
-      const layer = layers.find((_layer) => _layer.id === layerId);
-      return layer ? layer.name : '';
-    });
-
-    console.log("-- modeLayers: ", modeLayers);
-
-    return modeLayers;
-  }
 
   // get list of layers from the selected mode
-  const [layerMenuOptions, setLayerMenuOptions] = useState(getUpdatedLayerMenuOptions(1));
-
-  // set visibility of layers based on the selected mode
-  const setLayerVisibilityByMode = (modeId) => {
-    const selectedMode = modes.find((mode) => mode.id === modeId);
-
-    if (!selectedMode)
-      return;
-
-    const _layerConfigs = layerConfigs.map((lc) => {
-      if (selectedMode.layers.includes(lc.id)) {
-        return {
-          ...lc,
-          visible: true,
-        };
-      } else {
-        return {
-          ...lc,
-          visible: false,
-        };
-      }
-    });
-
-    setLayerConfigs(_layerConfigs);
-  }
+  const [layerMenuOptions, setLayerMenuOptions] = useState(getUpdatedLayerMenuOptions(layers, modes, 1));
 
   useEffect(() => {
     console.log("[View]: layerMenuOptions: ", layerMenuOptions);
@@ -111,9 +92,37 @@ export default function View({ viewHeader }) {
   const handleModeChange = (modeName) => {
     const mode = modes.find((mode) => mode.name === modeName);
     setSelectedModeId(mode.id);
-    const _options = getUpdatedLayerMenuOptions(mode.id);
+    const _options = getUpdatedLayerMenuOptions(layers, modes, mode.id);
     setLayerMenuOptions(_options);
     setLayerVisibilityByMode(mode.id);
+  }
+
+  const handleLayerMenuOptionChange = (selectedLayerNames) => {
+    console.log("[View] Layer menu option changed: ", selectedLayerNames);
+    const _layerConfigs = layerConfigs.map((lc) => {
+      return {
+        ...lc,
+        visible: selectedLayerNames.includes(lc.name),
+      }
+    });
+    setLayerConfigs(_layerConfigs);
+  }
+
+  // set visibility of layers based on the selected mode
+  const setLayerVisibilityByMode = (modeId) => {
+    const selectedMode = modes.find((mode) => mode.id === modeId);
+
+    if (!selectedMode)
+      return;
+
+    const _layerConfigs = layerConfigs.map((lc) => {
+      return {
+        ...lc,
+        visible: isLayerVisibleByMode(modes, lc.id, modeId),
+      }
+    });
+
+    setLayerConfigs(_layerConfigs);
   }
 
   return (
@@ -139,8 +148,8 @@ export default function View({ viewHeader }) {
         <div className={styles.viewModePanelContainer}>
           <MultiSelectDropdown 
             options={layerMenuOptions} 
-            selectedOptions={['model-sl']}
-            onOptionChange={(options) => console.log("Options changed: ", options)}
+            selectedOptions={ layerMenuOptions.filter((option) => layerConfigs.find((lc) => lc.name === option && lc.visible))}
+            onOptionsChange={ handleLayerMenuOptionChange }
             menuTitle="Layers"
           />
           <SingleSelectDropdown
