@@ -71,6 +71,14 @@ export default function CoaptationSurfaceLayer(props) {
     updateRendering(false);
   }, [activeTP])
 
+  useEffect(() => {
+    return () => {
+      const actor = getActor('tri');
+      renderWindow.getRenderer().removeActor(actor);
+      renderWindow.render();
+    }
+  }, []);
+
   return (
     <div className={styles.layerPanelContainer}>
       CoaptaionSurface

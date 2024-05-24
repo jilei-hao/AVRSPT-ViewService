@@ -77,6 +77,15 @@ export default function SingleLabelModelLayer(props) {
     renderWindow.render();
   }
 
+  useEffect(() => {
+    return () => {
+      console.log("[SingleLabelModelLayer] useEffect[return]")
+      const actor = getActor('model');
+      renderWindow.getRenderer().removeActor(actor);
+      renderWindow.render();
+    }
+  }, []);
+
 
   return (
     <div className={styles.layerPanelContainer}>

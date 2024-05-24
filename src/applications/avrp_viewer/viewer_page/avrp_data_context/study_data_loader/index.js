@@ -12,6 +12,7 @@ export default class StudyDataLoader {
   static instance = null;
 
   async loadTPData(tpHeader) {
+    console.log("[StudyDataLoader::loadTPData] tpHeader: ", tpHeader);
     const tpData = new TimePointData(tpHeader.tp);
     const polyDataReader = vtkXMLPolyDataReader.newInstance();
 
@@ -30,6 +31,11 @@ export default class StudyDataLoader {
 
     polyDataReader.parseAsArrayBuffer(coSurfaceBinary);
     tpData.coaptationSurface = polyDataReader.getOutputData(0);
+
+    // load multi-label model
+    const mlModelBinary = await AVRPDataServerHelper.getData(
+      tpHeader.getDataGroupHeaderByName('model-ml').dsid
+    );
 
     return tpData;
   }

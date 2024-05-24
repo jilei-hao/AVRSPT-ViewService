@@ -38,6 +38,13 @@ function ViewRenderingProvider({ viewId, containerRef, children }) {
 
 export default function View({ viewHeader }) {
   const { id, layers, modes } = viewHeader;
+
+  const [layerConfigs, setLayerConfigs] = useState(layers.map((layer) => ({
+    id: layer.id,
+    name: layer.name,
+    type: layer.type,
+    visible: true,
+  })));
   const { pctTop, pctLeft, pctWidth, pctHeight } = viewHeader.geometry;
   const containerRef = useRef();
   const [selectedModeId, setSelectedModeId] = useState(1);
@@ -64,6 +71,30 @@ export default function View({ viewHeader }) {
   // get list of layers from the selected mode
   const [layerMenuOptions, setLayerMenuOptions] = useState(getUpdatedLayerMenuOptions(1));
 
+  // set visibility of layers based on the selected mode
+  const setLayerVisibilityByMode = (modeId) => {
+    const selectedMode = modes.find((mode) => mode.id === modeId);
+
+    if (!selectedMode)
+      return;
+
+    const _layerConfigs = layerConfigs.map((lc) => {
+      if (selectedMode.layers.includes(lc.id)) {
+        return {
+          ...lc,
+          visible: true,
+        };
+      } else {
+        return {
+          ...lc,
+          visible: false,
+        };
+      }
+    });
+
+    setLayerConfigs(_layerConfigs);
+  }
+
   useEffect(() => {
     console.log("[View]: layerMenuOptions: ", layerMenuOptions);
   }, [layerMenuOptions]);
@@ -77,13 +108,12 @@ export default function View({ viewHeader }) {
     border: '1px solid white',
   };
 
-
-
   const handleModeChange = (modeName) => {
     const mode = modes.find((mode) => mode.name === modeName);
     setSelectedModeId(mode.id);
     const _options = getUpdatedLayerMenuOptions(mode.id);
     setLayerMenuOptions(_options);
+    setLayerVisibilityByMode(mode.id);
   }
 
   return (
@@ -92,12 +122,15 @@ export default function View({ viewHeader }) {
         <div className={styles.renderWindowContainer} ref={containerRef} />
         <div className={styles.layerPanelContainer}>
           {
-            layers.map((layer) => {
-              switch(layer.type) {
+            layerConfigs.map((lc) => {
+              if (!lc.visible)
+                return '';
+
+              switch(lc.type) {
                 case 'model-sl':
-                  return <SingleLabelModelLayer key={layer.id} name={layer.name}/>;
+                  return <SingleLabelModelLayer key={lc.id} name={lc.name}/>;
                 case 'coaptation-surface':
-                  return <CoaptationSurfaceLayer key={layer.id} name={layer.name}/>;
+                  return <CoaptationSurfaceLayer key={lc.id} name={lc.name}/>;
                 default:
                   return '';
               }})
