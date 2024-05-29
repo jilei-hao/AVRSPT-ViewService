@@ -39,10 +39,12 @@ export default function CoaptationSurfaceLayer(props) {
   const { addActor, getActor, hasActor } = useCoaptationSurfaceRenderingPipeline();
 
   const updateRendering = (isInitial) => {
-    const co = getActiveTPData('coaptation-surface');
+    const coData = getActiveTPData('coaptation-surface');
 
-    if (!co)
+    if (!coData)
       return;
+
+    const co = coData[0].data;
 
     if (!hasActor('tri'))
       addActor('tri');
