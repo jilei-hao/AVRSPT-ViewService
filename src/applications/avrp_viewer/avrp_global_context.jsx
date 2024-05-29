@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './avrp_auth_context';
 import { AVRPGatewayHelper } from './api_helpers';
-import { StudyDataHeader } from './models';
+import { createStudyDataHeader } from './models';
 
 const AVRPGlobalContext = createContext();
 
@@ -33,7 +33,7 @@ export default function AVRPGlobalProvider({ children  }) {
     if (studyId) {
       const gwHelper = AVRPGatewayHelper.getInstance();
       gwHelper.getStudyDataHeader(studyId).then((data) => {
-        const header = new StudyDataHeader(studyId, data);
+        const header = createStudyDataHeader(studyId, data);
         setStudyDataHeader(header);
       });
     }

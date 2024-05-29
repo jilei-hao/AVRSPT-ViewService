@@ -1,4 +1,4 @@
-import { TimePointData } from "@viewer/models";
+import { getDataGroupHeaderByName, createTimePointData } from "@viewer/models";
 import vtkXMLPolyDataReader from "@kitware/vtk.js/IO/XML/XMLPolyDataReader";
 import { AVRPDataServerHelper, AVRPGatewayHelper } from "@viewer/api_helpers";
 
@@ -11,33 +11,40 @@ export default class StudyDataLoader {
 
   static instance = null;
 
+  readEntryAsPolyData = async (entry) => {
+    const reader = vtkXMLPolyDataReader.newInstance();
+    const binary = await AVRPDataServerHelper.getData(entry.data_server_id);
+    reader.parseAsArrayBuffer(binary);
+    return {
+      primary_index: entry.primary_index_desc,
+      secondary_index: entry.secondary_index_desc,
+      data: reader.getOutputData(0),
+    };
+  };
+
+
   async loadTPData(tpHeader) {
     console.log("[StudyDataLoader::loadTPData] tpHeader: ", tpHeader);
-    const tpData = new TimePointData(tpHeader.tp);
-    const polyDataReader = vtkXMLPolyDataReader.newInstance();
-
-    // load single label model
-    const slModelBinary = await AVRPDataServerHelper.getData(
-      tpHeader.getDataGroupHeaderByName('model-sl').dsid
-    );
-
-    polyDataReader.parseAsArrayBuffer(slModelBinary);
-    tpData.singleLabelModel = polyDataReader.getOutputData(0);
-
-    // load coaptation surface
-    const coSurfaceBinary = await AVRPDataServerHelper.getData(
-      tpHeader.getDataGroupHeaderByName('coaptation-surface').dsid
-    )
-
-    polyDataReader.parseAsArrayBuffer(coSurfaceBinary);
-    tpData.coaptationSurface = polyDataReader.getOutputData(0);
-
-    // load multi-label model
-    const mlModelBinary = await AVRPDataServerHelper.getData(
-      tpHeader.getDataGroupHeaderByName('model-ml').dsid
-    );
-
-    return tpData;
+  
+    const volume = null;
+    const modelSLPromises = getDataGroupHeaderByName(tpHeader, "model-sl")
+      .data_group_entries.map((entry) => {
+        return this.readEntryAsPolyData(entry);
+      });
+    const modelMLPromises = getDataGroupHeaderByName(tpHeader, "model-ml")
+      .data_group_entries.map((entry) => {
+        return this.readEntryAsPolyData(entry);
+      });
+    const coSurfacePromises = getDataGroupHeaderByName(tpHeader, "coaptation-surface")
+      .data_group_entries.map((entry) => {
+        return this.readEntryAsPolyData(entry);
+      });
+  
+    const modelSL = await Promise.all(modelSLPromises);
+    const modelML = await Promise.all(modelMLPromises);
+    const coSurface = await Promise.all(coSurfacePromises);
+  
+    return createTimePointData(tpHeader.tp, volume, modelSL, modelML, coSurface);
   }
   
 

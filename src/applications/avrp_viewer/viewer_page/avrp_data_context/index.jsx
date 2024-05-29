@@ -21,6 +21,7 @@ export default function AVRPDataProvider({ children }) {
       for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
         const tpHeader = studyDataHeader.tpHeaders[i];
         loader.loadTPData(tpHeader).then((tpData) => {
+          console.log(`-- [AVRPDataProvider] loaded (${i}): `, tpData)
           setTPData((prev) => {
             const updatedTPData = [...prev];
             updatedTPData[i] = tpData;
@@ -36,6 +37,10 @@ export default function AVRPDataProvider({ children }) {
     }
   }, [studyDataHeader]);
 
+  useEffect(() => {
+    console.log("[AVRPDataProvider] useEffect[], tpData: ", tpData);
+  }, [tpData]);
+
   const getActiveTPData = (type) => {
     if (tpData.length === 0) {
       return null;
@@ -47,10 +52,12 @@ export default function AVRPDataProvider({ children }) {
       return null;
 
     switch(type) {
-      case 'single-label-model':
+      case 'model-sl':
         return activeTPData.singleLabelModel;
       case 'coaptation-surface':
         return activeTPData.coaptationSurface;
+      case 'model-ml':
+        return activeTPData.multiLabelModel;
       default:
         return null;
     }

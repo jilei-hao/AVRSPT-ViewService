@@ -40,17 +40,19 @@ export default function SingleLabelModelLayer(props) {
   const { addActor, getActor, hasActor } = useSingleLabelModelRenderingPipeline();
 
   const updateRendering = (isInitial) => {
-    const model = getActiveTPData('single-label-model');
+    const modelSLData = getActiveTPData('model-sl');
 
-    if (!model)
+    if (!modelSLData)
       return;
+
+    const modelSL = modelSLData[0].data;
 
     if (!hasActor('model'))
       addActor('model');
 
     const actor = getActor('model');
     const mapper = actor.getMapper();
-    mapper.setInputData(model);
+    mapper.setInputData(modelSL);
 
     if (isInitial) {
       renderWindow.getRenderer().addActor(actor);
@@ -79,7 +81,6 @@ export default function SingleLabelModelLayer(props) {
 
   useEffect(() => {
     return () => {
-      console.log("[SingleLabelModelLayer] useEffect[return]")
       const actor = getActor('model');
       renderWindow.getRenderer().removeActor(actor);
       renderWindow.render();

@@ -1,7 +1,8 @@
-import TimePointData from './time_point_data'
-import StudyDataHeader from './study_data_header'
+import { createStudyDataHeader, getDataGroupHeaderByName } from './study_data_header'
+import { createTimePointData } from './time_point_data'
 
 export {
-  TimePointData,
-  StudyDataHeader,
+  createStudyDataHeader,
+  getDataGroupHeaderByName,
+  createTimePointData,
 }
