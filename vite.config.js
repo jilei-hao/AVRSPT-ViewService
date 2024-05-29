@@ -7,7 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': '/src',
-      '@viewer': '/src/applications/avrp_viewer',
+      '@viewer': '/src/avrp_viewer',
+      '@ui': '/src/ui',
     }
   }
 })

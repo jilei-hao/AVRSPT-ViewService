@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { useAVRPData } from '../avrp_data_context';
 import { useViewRendering } from '../view';
 import { useAVRPViewerState } from '../avrp_viewer_state_context';
-import RoundSlider from '../../../../ui/basic/rounder_slider';
+import RoundSlider from '@ui/basic/rounder_slider';
 import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
 import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor';
 
