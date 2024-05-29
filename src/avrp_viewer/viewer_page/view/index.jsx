@@ -1,7 +1,11 @@
 import React, { createContext, useRef, useEffect, useState } from 'react';
 import GenericRenderWindow from '@/rendering/GenericRenderingWindow';
 import styles from './styles.module.css';
-import { SingleLabelModelLayer, CoaptationSurfaceLayer } from '../layers';
+import { 
+  SingleLabelModelLayer,
+  CoaptationSurfaceLayer,
+  MultiLabelModelLayer,
+} from '../layers';
 import { MultiSelectDropdown } from '@viewer/components';
 import SingleSelectDropdown from '../../components/single_select_dropdown';
 
@@ -140,6 +144,8 @@ export default function View({ viewHeader }) {
                   return <SingleLabelModelLayer key={lc.id} name={lc.name}/>;
                 case 'coaptation-surface':
                   return <CoaptationSurfaceLayer key={lc.id} name={lc.name}/>;
+                case 'model-ml':
+                  return <MultiLabelModelLayer key={lc.id} name={lc.name}/>;
                 default:
                   return '';
               }})

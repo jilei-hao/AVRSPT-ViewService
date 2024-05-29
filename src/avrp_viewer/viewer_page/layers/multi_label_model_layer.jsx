@@ -1,0 +1,85 @@
+import styles from './styles.module.css';
+import React, { useEffect, useRef } from 'react';
+import { useAVRPData } from '../avrp_data_context';
+import { useViewRendering } from '../view';
+import { useAVRPViewerState } from '../avrp_viewer_state_context';
+import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
+import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor';
+
+
+function useMultiLabelModelRenderingPipeline() {
+  const actorMap = useRef(new Map());
+  
+  const addActor = (key) => {
+    const actor = vtkActor.newInstance();
+
+    const mapper = vtkMapper.newInstance();
+    mapper.setScalarVisibility(false);
+    actor.setMapper(mapper);
+
+    actorMap.current.set(key, actor);
+    return actor;
+  }
+
+  const getActor = (key) => {
+    return actorMap.current.get(key);
+  }
+
+  const hasActor = (key) => {
+    return actorMap.current.has(key);
+  }
+
+  return { addActor, getActor, hasActor };
+}
+
+export default function MultiLabelModelLayer() {
+  const { activeTP } = useAVRPViewerState();
+  const { getActiveTPData, tpData } = useAVRPData();
+  const { renderWindow } = useViewRendering();
+  const { addActor, getActor, hasActor } = useMultiLabelModelRenderingPipeline();
+
+  const updateRendering = (isInitial) => {
+    const modelMLData = getActiveTPData('model-ml');
+
+    if (!modelMLData)
+      return;
+
+    console.log("[MultiLabelModelLayer::updateRendering] modelMLData: ", modelMLData);
+
+    // if (!hasActor('model'))
+    //   addActor('model');
+
+    // const actor = getActor('model');
+    // const mapper = actor.getMapper();
+    // mapper.setInputData(modelSL);
+
+    // if (isInitial) {
+    //   renderWindow.getRenderer().addActor(actor);
+    //   renderWindow.getRenderer().resetCamera();
+    // }
+
+    // renderWindow.render();
+  }
+
+  useEffect(() => {
+    updateRendering(true);
+  }, [tpData]);
+
+  useEffect(() => {
+    updateRendering(false);
+  }, [activeTP]);
+
+  useEffect(() => {
+    return () => {
+      // const actor = getActor('model');
+      // renderWindow.getRenderer().removeActor(actor);
+      // renderWindow.render();
+    }
+  }, []);
+
+  return (
+    <div>
+      <h1>MultiLabelModelLayer</h1>
+    </div>
+  );
+}

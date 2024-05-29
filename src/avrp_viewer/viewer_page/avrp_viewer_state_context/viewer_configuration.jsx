@@ -17,6 +17,10 @@ export default function useViewerConfiguration() {
           id: 2,
           type: 'coaptation-surface',
           name: 'Coaptation Surface',
+        }, {
+          id: 3,
+          type: 'model-ml',
+          name: 'Multi Label Model',
         }
       ],
       modes: [{
@@ -30,7 +34,7 @@ export default function useViewerConfiguration() {
         }, {
           id: 3,
           name: 'Anatomy',
-          layers: []
+          layers: [3]
         }
       ]
     }, {
