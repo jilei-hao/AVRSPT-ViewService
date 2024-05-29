@@ -33,6 +33,10 @@ function useMultiLabelModelRenderingPipeline() {
     return Array.from(actorMap.current.values());
   }
 
+  const getActorMapEntries = () => {
+    return Array.from(actorMap.current.entries());
+  }
+
   return { addActor, getActor, hasActor, getAllActors };
 }
 
