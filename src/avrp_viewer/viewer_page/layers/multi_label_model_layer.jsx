@@ -29,14 +29,18 @@ function useMultiLabelModelRenderingPipeline() {
     return actorMap.current.has(key);
   }
 
-  return { addActor, getActor, hasActor };
+  const getAllActors = () => {
+    return Array.from(actorMap.current.values());
+  }
+
+  return { addActor, getActor, hasActor, getAllActors };
 }
 
 export default function MultiLabelModelLayer() {
   const { activeTP } = useAVRPViewerState();
   const { getActiveTPData, tpData } = useAVRPData();
   const { renderWindow } = useViewRendering();
-  const { addActor, getActor, hasActor } = useMultiLabelModelRenderingPipeline();
+  const { addActor, getActor, hasActor, getAllActors } = useMultiLabelModelRenderingPipeline();
 
   const updateRendering = (isInitial) => {
     const modelMLData = getActiveTPData('model-ml');
@@ -44,21 +48,23 @@ export default function MultiLabelModelLayer() {
     if (!modelMLData)
       return;
 
-    console.log("[MultiLabelModelLayer::updateRendering] modelMLData: ", modelMLData);
+    modelMLData.forEach((labelModel) => {
+      const {primary_index, data} = labelModel;
+      if (!hasActor(primary_index))
+        addActor(primary_index);
 
-    // if (!hasActor('model'))
-    //   addActor('model');
+      const actor = getActor(primary_index);
+      const mapper = actor.getMapper();
+      mapper.setInputData(data);
 
-    // const actor = getActor('model');
-    // const mapper = actor.getMapper();
-    // mapper.setInputData(modelSL);
+      if (isInitial)
+        renderWindow.getRenderer().addActor(actor);
+    });
 
-    // if (isInitial) {
-    //   renderWindow.getRenderer().addActor(actor);
-    //   renderWindow.getRenderer().resetCamera();
-    // }
+    if (isInitial)
+      renderWindow.getRenderer().resetCamera();
 
-    // renderWindow.render();
+    renderWindow.render();
   }
 
   useEffect(() => {
@@ -71,9 +77,11 @@ export default function MultiLabelModelLayer() {
 
   useEffect(() => {
     return () => {
-      // const actor = getActor('model');
-      // renderWindow.getRenderer().removeActor(actor);
-      // renderWindow.render();
+      getAllActors().forEach(actor => {
+        renderWindow.getRenderer().removeActor(actor);
+      });
+      renderWindow.getRenderer().resetCamera();
+      renderWindow.render();
     }
   }, []);
 
