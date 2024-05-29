@@ -31,7 +31,7 @@ export default function AVRPViewerStateProvider({ children }) {
 
   useEffect(() => {
     setViewHeaders(getViewHeaders());
-  }, [])
+  }, []);
 
 
   return (

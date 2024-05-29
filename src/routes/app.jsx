@@ -1,4 +1,4 @@
-import { AVRPViewer } from "../applications";
+import { AVRPViewer } from "@viewer";
 
 export default function App() {
 

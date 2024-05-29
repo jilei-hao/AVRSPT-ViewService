@@ -3,11 +3,10 @@ import React, { useEffect, useRef } from 'react';
 import { useAVRPData } from '../avrp_data_context';
 import { useViewRendering } from '../view';
 import { useAVRPViewerState } from '../avrp_viewer_state_context';
-import RoundSlider from '../../../../ui/basic/rounder_slider';
 import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
 import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor';
 
-function useSingleLabelModelRenderingPipeline() {
+function useCoaptationSurfaceRenderingPipeline() {
   const actorMap = useRef(new Map());
   
   const addActor = (key) => {
@@ -33,30 +32,36 @@ function useSingleLabelModelRenderingPipeline() {
 }
 
 
-export default function SingleLabelModelLayer(props) {
+export default function CoaptationSurfaceLayer(props) {
   const { activeTP } = useAVRPViewerState();
   const { getActiveTPData, tpData } = useAVRPData();
   const { renderWindow } = useViewRendering();
-  const { addActor, getActor, hasActor } = useSingleLabelModelRenderingPipeline();
+  const { addActor, getActor, hasActor } = useCoaptationSurfaceRenderingPipeline();
 
   const updateRendering = (isInitial) => {
-    const model = getActiveTPData('single-label-model');
+    const coData = getActiveTPData('coaptation-surface');
 
-    if (!model)
+    if (!coData)
       return;
 
-    if (!hasActor('model'))
-      addActor('model');
+    const co = coData[0].data;
 
-    const actor = getActor('model');
+    if (!hasActor('tri'))
+      addActor('tri');
+
+    const actor = getActor('tri');
     const mapper = actor.getMapper();
-    mapper.setInputData(model);
+    mapper.setInputData(co);
 
     if (isInitial) {
+      const property = actor.getProperty();
+      property.setOpacity(0.8);
+      property.setColor(0, 1, 1);
+      actor.setProperty(property);
       renderWindow.getRenderer().addActor(actor);
       renderWindow.getRenderer().resetCamera();
     }
-
+    
     renderWindow.render();
   }
 
@@ -66,21 +71,19 @@ export default function SingleLabelModelLayer(props) {
 
   useEffect(() => {
     updateRendering(false);
-  }, [activeTP]);
+  }, [activeTP])
 
-  const handleOpacityChange = (e) => {
-    const opacity = e.target.value;
-    const actor = getActor('model');
-    const property = actor.getProperty();
-    property.setOpacity(opacity);
-    actor.setProperty(property);
-    renderWindow.render();
-  }
-
+  useEffect(() => {
+    return () => {
+      const actor = getActor('tri');
+      renderWindow.getRenderer().removeActor(actor);
+      renderWindow.render();
+    }
+  }, []);
 
   return (
     <div className={styles.layerPanelContainer}>
-      <RoundSlider min={0} max={1} step={.01} onChange={handleOpacityChange} />
+      CoaptaionSurface
     </div>
   );
 }

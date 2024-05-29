@@ -1,7 +1,11 @@
 import React, { createContext, useRef, useEffect, useState } from 'react';
 import GenericRenderWindow from '@/rendering/GenericRenderingWindow';
 import styles from './styles.module.css';
-import { SingleLabelModelLayer, CoaptationSurfaceLayer } from '../layers';
+import { 
+  SingleLabelModelLayer,
+  CoaptationSurfaceLayer,
+  MultiLabelModelLayer,
+} from '../layers';
 import { MultiSelectDropdown } from '@viewer/components';
 import SingleSelectDropdown from '../../components/single_select_dropdown';
 
@@ -36,33 +40,45 @@ function ViewRenderingProvider({ viewId, containerRef, children }) {
   );
 }
 
+const isLayerVisibleByMode = (modes, layerId, modeId) => {
+  const selectedMode = modes.find((mode) => mode.id === modeId);
+
+  if (!selectedMode)
+    return false;
+
+  return selectedMode.layers.includes(layerId);
+}
+
+const getUpdatedLayerMenuOptions = (layers, modes, modeId) => {
+  const selectedMode = modes.find((mode) => mode.id === modeId);
+
+  if (!selectedMode)
+    return [];
+
+  const modeLayers = selectedMode.layers.map((layerId) => {
+    console.log("-- layerId: ", layerId);
+    const layer = layers.find((_layer) => _layer.id === layerId);
+    return layer ? layer.name : '';
+  });
+
+  return modeLayers;
+}
+
 export default function View({ viewHeader }) {
   const { id, layers, modes } = viewHeader;
   const { pctTop, pctLeft, pctWidth, pctHeight } = viewHeader.geometry;
   const containerRef = useRef();
   const [selectedModeId, setSelectedModeId] = useState(1);
 
-  const getUpdatedLayerMenuOptions = (id) => {
-    const selectedMode = modes.find((mode) => mode.id === id);
-
-    if (!selectedMode)
-      return [];
-    
-    console.log("[View] selectedMode: ", selectedMode);
-
-    const modeLayers = selectedMode.layers.map((layerId) => {
-      console.log("-- layerId: ", layerId);
-      const layer = layers.find((_layer) => _layer.id === layerId);
-      return layer ? layer.name : '';
-    });
-
-    console.log("-- modeLayers: ", modeLayers);
-
-    return modeLayers;
-  }
+  const [layerConfigs, setLayerConfigs] = useState(layers.map((layer) => ({
+    id: layer.id,
+    name: layer.name,
+    type: layer.type,
+    visible: isLayerVisibleByMode(modes, layer.id, selectedModeId),
+  })));
 
   // get list of layers from the selected mode
-  const [layerMenuOptions, setLayerMenuOptions] = useState(getUpdatedLayerMenuOptions(1));
+  const [layerMenuOptions, setLayerMenuOptions] = useState(getUpdatedLayerMenuOptions(layers, modes, 1));
 
   useEffect(() => {
     console.log("[View]: layerMenuOptions: ", layerMenuOptions);
@@ -77,13 +93,40 @@ export default function View({ viewHeader }) {
     border: '1px solid white',
   };
 
-
-
   const handleModeChange = (modeName) => {
     const mode = modes.find((mode) => mode.name === modeName);
     setSelectedModeId(mode.id);
-    const _options = getUpdatedLayerMenuOptions(mode.id);
+    const _options = getUpdatedLayerMenuOptions(layers, modes, mode.id);
     setLayerMenuOptions(_options);
+    setLayerVisibilityByMode(mode.id);
+  }
+
+  const handleLayerMenuOptionChange = (selectedLayerNames) => {
+    console.log("[View] Layer menu option changed: ", selectedLayerNames);
+    const _layerConfigs = layerConfigs.map((lc) => {
+      return {
+        ...lc,
+        visible: selectedLayerNames.includes(lc.name),
+      }
+    });
+    setLayerConfigs(_layerConfigs);
+  }
+
+  // set visibility of layers based on the selected mode
+  const setLayerVisibilityByMode = (modeId) => {
+    const selectedMode = modes.find((mode) => mode.id === modeId);
+
+    if (!selectedMode)
+      return;
+
+    const _layerConfigs = layerConfigs.map((lc) => {
+      return {
+        ...lc,
+        visible: isLayerVisibleByMode(modes, lc.id, modeId),
+      }
+    });
+
+    setLayerConfigs(_layerConfigs);
   }
 
   return (
@@ -92,12 +135,17 @@ export default function View({ viewHeader }) {
         <div className={styles.renderWindowContainer} ref={containerRef} />
         <div className={styles.layerPanelContainer}>
           {
-            layers.map((layer) => {
-              switch(layer.type) {
+            layerConfigs.map((lc) => {
+              if (!lc.visible)
+                return '';
+
+              switch(lc.type) {
                 case 'model-sl':
-                  return <SingleLabelModelLayer key={layer.id} name={layer.name}/>;
+                  return <SingleLabelModelLayer key={lc.id} name={lc.name}/>;
                 case 'coaptation-surface':
-                  return <CoaptationSurfaceLayer key={layer.id} name={layer.name}/>;
+                  return <CoaptationSurfaceLayer key={lc.id} name={lc.name}/>;
+                case 'model-ml':
+                  return <MultiLabelModelLayer key={lc.id} name={lc.name}/>;
                 default:
                   return '';
               }})
@@ -106,8 +154,8 @@ export default function View({ viewHeader }) {
         <div className={styles.viewModePanelContainer}>
           <MultiSelectDropdown 
             options={layerMenuOptions} 
-            selectedOptions={['model-sl']}
-            onOptionChange={(options) => console.log("Options changed: ", options)}
+            selectedOptions={ layerMenuOptions.filter((option) => layerConfigs.find((lc) => lc.name === option && lc.visible))}
+            onOptionsChange={ handleLayerMenuOptionChange }
             menuTitle="Layers"
           />
           <SingleSelectDropdown

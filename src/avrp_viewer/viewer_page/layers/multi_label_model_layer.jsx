@@ -6,7 +6,8 @@ import { useAVRPViewerState } from '../avrp_viewer_state_context';
 import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
 import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor';
 
-function useCoaptationSurfaceRenderingPipeline() {
+
+function useMultiLabelModelRenderingPipeline() {
   const actorMap = useRef(new Map());
   
   const addActor = (key) => {
@@ -28,38 +29,45 @@ function useCoaptationSurfaceRenderingPipeline() {
     return actorMap.current.has(key);
   }
 
-  return { addActor, getActor, hasActor };
+  const getAllActors = () => {
+    return Array.from(actorMap.current.values());
+  }
+
+  const getActorMapEntries = () => {
+    return Array.from(actorMap.current.entries());
+  }
+
+  return { addActor, getActor, hasActor, getAllActors };
 }
 
-
-export default function CoaptationSurfaceLayer(props) {
+export default function MultiLabelModelLayer() {
   const { activeTP } = useAVRPViewerState();
   const { getActiveTPData, tpData } = useAVRPData();
   const { renderWindow } = useViewRendering();
-  const { addActor, getActor, hasActor } = useCoaptationSurfaceRenderingPipeline();
+  const { addActor, getActor, hasActor, getAllActors } = useMultiLabelModelRenderingPipeline();
 
   const updateRendering = (isInitial) => {
-    const co = getActiveTPData('coaptation-surface');
+    const modelMLData = getActiveTPData('model-ml');
 
-    if (!co)
+    if (!modelMLData)
       return;
 
-    if (!hasActor('tri'))
-      addActor('tri');
+    modelMLData.forEach((labelModel) => {
+      const {primary_index, data} = labelModel;
+      if (!hasActor(primary_index))
+        addActor(primary_index);
 
-    const actor = getActor('tri');
-    const mapper = actor.getMapper();
-    mapper.setInputData(co);
+      const actor = getActor(primary_index);
+      const mapper = actor.getMapper();
+      mapper.setInputData(data);
 
-    if (isInitial) {
-      const property = actor.getProperty();
-      property.setOpacity(0.8);
-      property.setColor(0, 1, 1);
-      actor.setProperty(property);
-      renderWindow.getRenderer().addActor(actor);
+      if (isInitial)
+        renderWindow.getRenderer().addActor(actor);
+    });
+
+    if (isInitial)
       renderWindow.getRenderer().resetCamera();
-    }
-    
+
     renderWindow.render();
   }
 
@@ -69,11 +77,21 @@ export default function CoaptationSurfaceLayer(props) {
 
   useEffect(() => {
     updateRendering(false);
-  }, [activeTP])
+  }, [activeTP]);
+
+  useEffect(() => {
+    return () => {
+      getAllActors().forEach(actor => {
+        renderWindow.getRenderer().removeActor(actor);
+      });
+      renderWindow.getRenderer().resetCamera();
+      renderWindow.render();
+    }
+  }, []);
 
   return (
-    <div className={styles.layerPanelContainer}>
-      CoaptaionSurface
+    <div>
+      <h1>MultiLabelModelLayer</h1>
     </div>
   );
 }
