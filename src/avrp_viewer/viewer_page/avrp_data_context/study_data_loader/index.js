@@ -24,7 +24,7 @@ export default class StudyDataLoader {
 
 
   async loadTPData(tpHeader) {
-    console.log("[StudyDataLoader::loadTPData] tpHeader: ", tpHeader);
+    // console.log("[StudyDataLoader::loadTPData] tp", tpHeader.tp);
   
     const volume = null;
     const modelSLPromises = getDataGroupHeaderByName(tpHeader, "model-sl")
@@ -40,9 +40,11 @@ export default class StudyDataLoader {
         return this.readEntryAsPolyData(entry);
       });
   
-    const modelSL = await Promise.all(modelSLPromises);
-    const modelML = await Promise.all(modelMLPromises);
-    const coSurface = await Promise.all(coSurfacePromises);
+    const [modelSL, modelML, coSurface] = await Promise.all([
+      Promise.all(modelSLPromises),
+      Promise.all(modelMLPromises),
+      Promise.all(coSurfacePromises),
+    ]);
   
     return createTimePointData(tpHeader.tp, volume, modelSL, modelML, coSurface);
   }
