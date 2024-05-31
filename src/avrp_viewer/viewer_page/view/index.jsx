@@ -56,7 +56,6 @@ const getUpdatedLayerMenuOptions = (layers, modes, modeId) => {
     return [];
 
   const modeLayers = selectedMode.layers.map((layerId) => {
-    console.log("-- layerId: ", layerId);
     const layer = layers.find((_layer) => _layer.id === layerId);
     return layer ? layer.name : '';
   });
