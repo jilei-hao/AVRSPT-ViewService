@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from './styles.module.css';
 import { useAVRPGlobal } from '../../avrp_global_context';
 import { useAVRPViewerState } from '../avrp_viewer_state_context';
-import { BtnStepBack, BtnStepForward } from '@viewer/components'
+import { BtnStepBack, BtnStepForward, BtnPlay } from '@viewer/components'
 
 export default function MainControlPanel () {
   const { setStudyBrowserActive } = useAVRPGlobal();
@@ -38,7 +38,7 @@ export default function MainControlPanel () {
     }
   };
 
-  const onReplayClicked = () => {
+  const onPlayClicked = () => {
     setIsReplayOn(!IsReplayOn);
   }
 
@@ -53,7 +53,7 @@ export default function MainControlPanel () {
     <div className={styles.panelContainer}>
       <button onClick={ onExitClicked }>EXIT</button>
       <BtnStepBack onClick={ onStepbackClicked } />
-      <button onClick={ onReplayClicked }>PLAY</button>
+      <BtnPlay isReplayOn={IsReplayOn} onClick={ onPlayClicked } />
       <BtnStepForward onClick={ onStepForwardClicked } />
     </div>
   );
