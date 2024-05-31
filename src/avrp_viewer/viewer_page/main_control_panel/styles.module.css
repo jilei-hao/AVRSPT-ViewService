@@ -4,8 +4,10 @@
   left: 0vw;
   height: 10vh;
   width: 100vw;
-  
   padding: 0 10px;
   background-color: rgb(240, 240, 240);
   border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
 }

@@ -1,7 +1,11 @@
 import MultiSelectDropdown from "./multi_select_dropdown";
-import IconButton from "./icon_button";
+import {
+  BtnStepBack,
+  BtnStepForward,
+} from "./tp_replay_buttons/index.jsx";
 
 export {
   MultiSelectDropdown,
-  IconButton
+  BtnStepBack,
+  BtnStepForward,
 }
