@@ -8,9 +8,11 @@
   display: block;
   position: absolute;
   background-color: #f9f9f9;
-  min-width: 160px;
+  min-width: 200px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 9998;
+  margin-top: 2px;
+  opacity: 0.8;
 }
 
 .dropdownItem {
@@ -23,7 +25,7 @@
 .dropdownItem:hover {background-color: #f1f1f1}
 
 .dropdownButton {
-  background-color: white;
+  background-color: transparent;
   color: grey;
   padding: 5px;
   font-size: 16px;

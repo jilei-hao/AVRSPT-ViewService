@@ -9,6 +9,8 @@ export default defineConfig({
       '@': '/src',
       '@viewer': '/src/avrp_viewer',
       '@ui': '/src/ui',
+      '@assets': '/src/assets',
+      '@components': '/src/components',
     }
   }
 })
