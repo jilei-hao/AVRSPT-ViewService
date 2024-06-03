@@ -9,6 +9,8 @@ export default function MultiSelectDropdown({ options, selectedOptions, onOption
     console.log("toggleDropdown");
   }
 
+  console.log("[MultiSelectDropdown] menuTitle: ", menuTitle);
+
   const handleOptionClick = (event) => {
     const value = event.target.value;
     const isSelected = selectedOptions.includes(value);

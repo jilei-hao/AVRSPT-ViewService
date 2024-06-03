@@ -1,1 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?><svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 517.3 504.13"><defs><style>.cls-1{fill:#fff;stroke:#58595b;stroke-miterlimit:10;stroke-width:18px;}</style></defs><polygon class="cls-1" points="254.4 494.23 21.67 387.98 254.43 281.67 487.17 387.92 254.4 494.23"/><polygon class="cls-1" points="262.85 356.13 30.11 249.89 262.88 143.57 495.61 249.82 262.85 356.13"/><polygon class="cls-1" points="262.87 222.46 30.13 116.21 262.9 9.89 495.63 116.14 262.87 222.46"/></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 517.3 504.1">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        opacity: .5;
+        stroke: #ccc;
+        stroke-miterlimit: 10;
+        stroke-width: 20px;
+      }
+    </style>
+  </defs>
+  <polygon class="cls-1" points="254.4 450.2 21.7 344 254.4 237.7 487.2 343.9 254.4 450.2"/>
+  <polygon class="cls-1" points="262.9 356.1 30.1 249.9 262.9 143.6 495.6 249.8 262.9 356.1"/>
+  <polygon class="cls-1" points="262.9 264.5 30.1 158.2 262.9 51.9 495.6 158.1 262.9 264.5"/>
+</svg>

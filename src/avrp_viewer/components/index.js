@@ -1,4 +1,5 @@
 import MultiSelectDropdown from "./multi_select_dropdown";
+import SingleSelectDropdown from "./single_select_dropdown/index.jsx";
 import {
   BtnStepBack,
   BtnStepForward,
@@ -8,6 +9,7 @@ import {
 
 export {
   MultiSelectDropdown,
+  SingleSelectDropdown,
   BtnStepBack,
   BtnStepForward,
   BtnPlay,

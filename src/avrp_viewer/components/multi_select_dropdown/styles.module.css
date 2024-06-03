@@ -23,7 +23,7 @@
 .dropdownItem:hover {background-color: #f1f1f1}
 
 .dropdownButton {
-  background-color: white;
+  background-color: transparent;
   color: grey;
   padding: 5px;
   font-size: 16px;

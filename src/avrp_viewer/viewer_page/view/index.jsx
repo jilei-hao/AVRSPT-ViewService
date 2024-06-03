@@ -6,8 +6,8 @@ import {
   CoaptationSurfaceLayer,
   MultiLabelModelLayer,
 } from '../layers';
-import { MultiSelectDropdown } from '@viewer/components';
-import SingleSelectDropdown from '../../components/single_select_dropdown';
+import { MultiSelectDropdown, SingleSelectDropdown } from '@viewer/components';
+import IconLayers_Idle from '@assets/icons/layers_idle.svg';
 
 const ViewRenderingContext = createContext();
 
@@ -155,7 +155,7 @@ export default function View({ viewHeader }) {
             options={layerMenuOptions} 
             selectedOptions={ layerMenuOptions.filter((option) => layerConfigs.find((lc) => lc.name === option && lc.visible))}
             onOptionsChange={ handleLayerMenuOptionChange }
-            menuTitle="Layers"
+            menuTitle={<img src={IconLayers_Idle} style={{width: '32px', height: '32px', objectFit: 'contain'}} />}
           />
           <SingleSelectDropdown
             options={modes.map((mode) => mode.name)} 
