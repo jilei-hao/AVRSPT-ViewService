@@ -6,7 +6,6 @@ export default function MultiSelectDropdown({ options, selectedOptions, onOption
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
-    console.log("toggleDropdown");
   }
 
   console.log("[MultiSelectDropdown] menuTitle: ", menuTitle);

@@ -132,7 +132,7 @@ export default function View({ viewHeader }) {
     <ViewRenderingProvider containerRef={containerRef} viewId={id}>
       <div className={styles.viewContainer} style={style}>
         <div className={styles.renderWindowContainer} ref={containerRef} />
-        <div className={styles.layerPanelContainer}>
+        <div className={styles.viewLayerPanelContainer}>
           {
             layerConfigs.map((lc) => {
               if (!lc.visible)
