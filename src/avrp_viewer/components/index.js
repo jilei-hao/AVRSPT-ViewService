@@ -3,6 +3,7 @@ import {
   BtnStepBack,
   BtnStepForward,
   BtnPlay,
+  BtnExit
 } from "./tp_replay_buttons/index.jsx";
 
 export {
@@ -10,4 +11,5 @@ export {
   BtnStepBack,
   BtnStepForward,
   BtnPlay,
+  BtnExit,
 }
