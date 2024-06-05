@@ -11,35 +11,35 @@ export default function AVRPDataProvider({ children }) {
   const { studyDataHeader } = useAVRPGlobal();
 
   useEffect(() => {
-    console.log("[AVRPDataProvider] useEffect[studyDataHeader]", studyDataHeader);
-    if (studyDataHeader.tpHeaders.length > 0) {
-      const loader = StudyDataLoader.getInstance();
+    async function fetchData() {
+      console.log("[AVRPDataProvider] useEffect[studyDataHeader]", studyDataHeader);
+      if (studyDataHeader.tpHeaders.length > 0) {
+        const loader = StudyDataLoader.getInstance();
 
-      // sort tpHeaders by tp
-      studyDataHeader.tpHeaders.sort((a, b) => a.tp - b.tp);
+        // sort tpHeaders by tp
+        studyDataHeader.tpHeaders.sort((a, b) => a.tp - b.tp);
 
-      for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
-        const tpHeader = studyDataHeader.tpHeaders[i];
-        loader.loadTPData(tpHeader).then((tpData) => {
-          // console.log(`-- [AVRPDataProvider] loaded (${i}): `, tpData)
-          setTPData((prev) => {
-            const updatedTPData = [...prev];
-            updatedTPData[i] = tpData;
-            return updatedTPData;
+        for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
+          const tpHeader = studyDataHeader.tpHeaders[i];
+          console.log(`-- [AVRPDataProvider] loading (${i}): `, tpHeader);
+          await loader.loadTPData(tpHeader).then((tpData) => {
+            console.log(`-- [AVRPDataProvider] loaded (${i}): `, tpData)
+            setTPData((prev) => {
+              const updatedTPData = [...prev];
+              updatedTPData[i] = tpData;
+              return updatedTPData;
+            });
+            setTPDataLoaded((prev) => {
+              const updatedTPDataLoaded = [...prev];
+              updatedTPDataLoaded[i] = true;
+              return updatedTPDataLoaded;
+            });
           });
-          setTPDataLoaded((prev) => {
-            const updatedTPDataLoaded = [...prev];
-            updatedTPDataLoaded[i] = true;
-            return updatedTPDataLoaded;
-          });
-        });
+        }
       }
     }
+    fetchData();
   }, [studyDataHeader]);
-
-  // useEffect(() => {
-  //   console.log("[AVRPDataProvider] useEffect[tpData] ", tpData);
-  // }, [tpData]);
 
   const getActiveTPData = (type) => {
     if (tpData.length === 0) {

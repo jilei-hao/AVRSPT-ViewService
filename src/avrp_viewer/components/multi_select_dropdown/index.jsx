@@ -13,7 +13,6 @@ export default function MultiSelectDropdown({ options, selectedOptions, onOption
   const handleOptionClick = (event) => {
     const value = event.target.value;
     const isSelected = selectedOptions.includes(value);
-    console.log("[MultiSelectDropdown] handleOptionClick, value: ", value, ", isSelected: ", isSelected, ", selectedOptions: ", selectedOptions)
     if (isSelected) {
       // exclude the value from the selectedOptions
       onOptionsChange(selectedOptions.filter(option => option !== value));
