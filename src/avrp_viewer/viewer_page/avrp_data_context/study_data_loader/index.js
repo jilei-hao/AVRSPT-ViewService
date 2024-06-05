@@ -1,5 +1,6 @@
 import { getDataGroupHeaderByName, createTimePointData } from "@viewer/models";
 import vtkXMLPolyDataReader from "@kitware/vtk.js/IO/XML/XMLPolyDataReader";
+import vtkXMLImageDataReader from "@kitware/vtk.js/IO/XML/XMLImageDataReader";
 import { AVRPDataServerHelper, AVRPGatewayHelper } from "@viewer/api_helpers";
 
 export default class StudyDataLoader {
@@ -22,11 +23,21 @@ export default class StudyDataLoader {
     };
   };
 
+  readEntryAsImageData = async (entry) => {
+    const reader = vtkXMLImageDataReader.newInstance();
+    const binary = await AVRPDataServerHelper.getData(entry.data_server_id);
+    reader.parseAsArrayBuffer(binary);
+    return {
+      primary_index: entry.primary_index_desc,
+      secondary_index: entry.secondary_index_desc,
+      data: reader.getOutputData(0),
+    };
+  };
+
 
   async loadTPData(tpHeader) {
     // console.log("[StudyDataLoader::loadTPData] tp", tpHeader.tp);
   
-    const volume = null;
     const modelSLPromises = getDataGroupHeaderByName(tpHeader, "model-sl")
       .data_group_entries.map((entry) => {
         return this.readEntryAsPolyData(entry);
@@ -39,14 +50,24 @@ export default class StudyDataLoader {
       .data_group_entries.map((entry) => {
         return this.readEntryAsPolyData(entry);
       });
+    const volumeMainPromise = getDataGroupHeaderByName(tpHeader, "volume-main")
+      .data_group_entries.map((entry) => {
+        return this.readEntryAsImageData(entry);
+      });
+    const volumeSegPromise = getDataGroupHeaderByName(tpHeader, "volume-segmentation")
+      .data_group_entries.map((entry) => {
+        return this.readEntryAsImageData(entry);
+      });
   
-    const [modelSL, modelML, coSurface] = await Promise.all([
+    const [modelSL, modelML, coSurface, volumeMain, volumeSeg] = await Promise.all([
       Promise.all(modelSLPromises),
       Promise.all(modelMLPromises),
       Promise.all(coSurfacePromises),
+      Promise.all(volumeMainPromise),
+      Promise.all(volumeSegPromise),
     ]);
   
-    return createTimePointData(tpHeader.tp, volume, modelSL, modelML, coSurface);
+    return createTimePointData(tpHeader.tp, volumeMain, volumeSeg, modelSL, modelML, coSurface);
   }
   
 

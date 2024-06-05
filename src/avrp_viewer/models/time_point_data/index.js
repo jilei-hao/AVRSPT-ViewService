@@ -1,7 +1,8 @@
-export function createTimePointData (tp, volume, modelSL, modelML, coSurface) {
+export function createTimePointData (tp, volumeMain, volumeSeg, modelSL, modelML, coSurface) {
   return {
     tp: tp,
-    volume: volume,
+    volumeMain: volumeMain,
+    volumeSegmentation: volumeSeg,
     singleLabelModel: modelSL,
     multiLabelModel: modelML,
     coaptationSurface: coSurface,
