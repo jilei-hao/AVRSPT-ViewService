@@ -33,7 +33,7 @@ export class ModelRendererWrapper extends AbstractRendererWrapper {
   }
 
   _configureRenderer() {
-    this.renderer.setBackground(...this.config.getBackgroundInRGBA());
+    this.renderer.setBackground(0, 0, 0, 1);
     this.renderer.setViewport(...this.config.getViewportBoundingBoxInArray());
   }
 
