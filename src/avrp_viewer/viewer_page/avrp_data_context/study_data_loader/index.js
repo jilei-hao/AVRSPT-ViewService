@@ -8,9 +8,7 @@ const readEntryAsPolyData = async (entry) => {
 
   const binary = await AVRPDataServerHelper.getData(entry.data_server_id);
 
-  console.time("parsePolyData");
   reader.parseAsArrayBuffer(binary);
-  console.timeEnd("parsePolyData");
 
   return {
     primary_index: entry.primary_index_desc,
@@ -24,9 +22,7 @@ const readEntryAsImageData = async (entry) => {
 
   const binary = await AVRPDataServerHelper.getData(entry.data_server_id);
 
-  console.time("parseImageData");
   reader.parseAsArrayBuffer(binary);
-  console.timeEnd("parseImageData");
 
   return {
     primary_index: entry.primary_index_desc,
@@ -45,8 +41,6 @@ export default class StudyDataLoader {
   static instance = null;
 
   loadTPData = async (tpHeader) => {
-    console.log(`[DataLoaderWorker::loadTPData] tp[${tpHeader.tp}] started`);
-  
     const modelSLPromises = getDataGroupHeaderByName(tpHeader, "model-sl")
       .data_group_entries.map((entry) => {
         return readEntryAsPolyData(entry);

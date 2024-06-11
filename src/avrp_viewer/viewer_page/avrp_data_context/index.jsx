@@ -8,7 +8,8 @@ const AVRPDataContext = createContext();
 export default function AVRPDataProvider({ children }) {
   const [tpData, setTPData] = useState([]);
   const { tpDataLoaded, setTPDataLoaded, activeTP } = useAVRPViewerState();
-  const { studyDataHeader } = useAVRPGlobal();
+  const { studyDataHeader, studyBrowserActive } = useAVRPGlobal();
+  const abortLoading = useRef(false);
 
   const loadData = async (tpHeader) => {
     console.log("[AVRPDataProvider] start loading data: ", tpHeader);
@@ -19,9 +20,12 @@ export default function AVRPDataProvider({ children }) {
     studyDataHeader.tpHeaders.sort((a, b) => a.tp - b.tp);
 
     for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
+      if (abortLoading.current)
+        return;
+
       const tpHeader = studyDataHeader.tpHeaders[i];
-      console.log(`-- [AVRPDataProvider] loading (${i}): `);
-      loader.loadTPData(tpHeader).then((tpData) => {
+      console.log(`-- [AVRPDataProvider] loading (${i}): `, abortLoading.current);
+      await loader.loadTPData(tpHeader).then((tpData) => {
         console.log(`-- [AVRPDataProvider] loaded (${i}): `, tpData)
         setTPData((prev) => {
           const updatedTPData = [...prev];
@@ -41,6 +45,11 @@ export default function AVRPDataProvider({ children }) {
     console.log("[AVRPDataProvider] useEffect[studyDataHeader]", studyDataHeader);
     if (studyDataHeader.tpHeaders.length > 0) {
       loadData(studyDataHeader.tpHeaders);
+    }
+
+    return () => {
+      console.log("[AVRPDataProvider] cleanup[studyBrowserActive]: ", studyBrowserActive);
+      abortLoading.current = true;
     }
   }, [studyDataHeader]);
 
