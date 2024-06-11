@@ -1,4 +1,3 @@
-import { createTimePointData } from "@viewer/models";
 import { getDataGroupHeaderByName, createTimePointData } from "@viewer/models";
 import vtkXMLPolyDataReader from "@kitware/vtk.js/IO/XML/XMLPolyDataReader";
 import vtkXMLImageDataReader from "@kitware/vtk.js/IO/XML/XMLImageDataReader";
@@ -64,6 +63,7 @@ const loadTPData = async (tpHeader) => {
 }
 
 self.onmessage = function(event) {
+  console.log("[DataLoaderWorker] onmessage: ", event.data);
   self.postMessage("Worker Started");
   const data = loadTPData(event.data);
 
