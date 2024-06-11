@@ -8,7 +8,7 @@ export default function MultiSelectDropdown({ options, selectedOptions, onOption
     setIsOpen(!isOpen);
   }
 
-  console.log("[MultiSelectDropdown] menuTitle: ", menuTitle);
+  // console.log("[MultiSelectDropdown] menuTitle: ", menuTitle);
 
   const handleOptionClick = (event) => {
     const value = event.target.value;
