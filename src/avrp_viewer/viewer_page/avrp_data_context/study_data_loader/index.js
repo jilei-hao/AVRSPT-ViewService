@@ -1,4 +1,39 @@
 import { AVRPDataServerHelper, AVRPGatewayHelper } from "@viewer/api_helpers";
+import { getDataGroupHeaderByName, createTimePointData } from "@viewer/models";
+import vtkXMLPolyDataReader from "@kitware/vtk.js/IO/XML/XMLPolyDataReader";
+import vtkXMLImageDataReader from "@kitware/vtk.js/IO/XML/XMLImageDataReader";
+
+const readEntryAsPolyData = async (entry) => {
+  const reader = vtkXMLPolyDataReader.newInstance();
+
+  const binary = await AVRPDataServerHelper.getData(entry.data_server_id);
+
+  console.time("parsePolyData");
+  reader.parseAsArrayBuffer(binary);
+  console.timeEnd("parsePolyData");
+
+  return {
+    primary_index: entry.primary_index_desc,
+    secondary_index: entry.secondary_index_desc,
+    data: reader.getOutputData(0),
+  };
+};
+
+const readEntryAsImageData = async (entry) => {
+  const reader = vtkXMLImageDataReader.newInstance();
+
+  const binary = await AVRPDataServerHelper.getData(entry.data_server_id);
+
+  console.time("parseImageData");
+  reader.parseAsArrayBuffer(binary);
+  console.timeEnd("parseImageData");
+
+  return {
+    primary_index: entry.primary_index_desc,
+    secondary_index: entry.secondary_index_desc,
+    data: reader.getOutputData(0),
+  };
+};
 
 export default class StudyDataLoader {
   constructor() {
@@ -9,25 +44,41 @@ export default class StudyDataLoader {
 
   static instance = null;
 
-  loadTPData = (tpHeader) => {
-    return new Promise((resolve, reject) => {
-      const worker = new Worker(new URL('data_loader_workers.js', import.meta.url), { type: 'module' });
+  loadTPData = async (tpHeader) => {
+    console.log(`[DataLoaderWorker::loadTPData] tp[${tpHeader.tp}] started`);
   
-      worker.onmessage = (event) => {
-        console.log("[StudyDataLoader::loadTPData] worker.onmessage: ", event.data)
-        // const data = event.data;
-        // Process the data and resolve the promise
-        // resolve(data);
-      }
+    const modelSLPromises = getDataGroupHeaderByName(tpHeader, "model-sl")
+      .data_group_entries.map((entry) => {
+        return readEntryAsPolyData(entry);
+      });
+    const modelMLPromises = getDataGroupHeaderByName(tpHeader, "model-ml")
+      .data_group_entries.map((entry) => {
+        return readEntryAsPolyData(entry);
+      });
+    const coSurfacePromises = getDataGroupHeaderByName(tpHeader, "coaptation-surface")
+      .data_group_entries.map((entry) => {
+        return readEntryAsPolyData(entry);
+      });
+    const volumeMainPromise = getDataGroupHeaderByName(tpHeader, "volume-main")
+      .data_group_entries.map((entry) => {
+        return readEntryAsImageData(entry);
+      });
+    const volumeSegPromise = getDataGroupHeaderByName(tpHeader, "volume-segmentation")
+      .data_group_entries.map((entry) => {
+        return readEntryAsImageData(entry);
+      });
   
-      worker.onerror = (error) => {
-        // If there's an error, reject the promise
-        console.log("[StudyDataLoader::loadTPData] error in worker: ", error);
-        reject(error);
-      }
+    const [modelSL, modelML, coSurface, volumeMain, volumeSeg] = await Promise.all([
+      Promise.all(modelSLPromises),
+      Promise.all(modelMLPromises),
+      Promise.all(coSurfacePromises),
+      Promise.all(volumeMainPromise),
+      Promise.all(volumeSegPromise),
+    ]);
   
-      worker.postMessage({ tpHeader: tpHeader });
-    });
+    console.log(`[DataLoaderWorker::loadTPData] tp[${tpHeader.tp}] completed`);
+  
+    return createTimePointData(tpHeader.tp, volumeMain, volumeSeg, modelSL, modelML, coSurface);
   }
 
   static getInstance(gwHelper, dsHelper) {
