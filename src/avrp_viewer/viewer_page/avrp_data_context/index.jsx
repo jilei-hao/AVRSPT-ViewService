@@ -20,6 +20,7 @@ export default function AVRPDataProvider({ children }) {
     studyDataHeader.tpHeaders.sort((a, b) => a.tp - b.tp);
 
     for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
+    // for (let i = 0; i < 2; i++) { // for dev only
       if (abortLoading.current)
         return;
 
@@ -70,6 +71,10 @@ export default function AVRPDataProvider({ children }) {
         return activeTPData.coaptationSurface;
       case 'model-ml':
         return activeTPData.multiLabelModel;
+      case 'volume-main':
+        return activeTPData.volumeMain;
+      case 'volume-segmentation':
+        return activeTPData.volumeSegmentation;
       default:
         return null;
     }

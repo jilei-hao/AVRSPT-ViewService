@@ -5,9 +5,17 @@ import {
   SingleLabelModelLayer,
   CoaptationSurfaceLayer,
   MultiLabelModelLayer,
+  MainVolumeSlicingLayer,
+  SegVolumeSlicingLayer
 } from '../layers';
 import { MultiSelectDropdown, SingleSelectDropdown } from '@viewer/components';
 import IconLayers_Idle from '@assets/icons/layers_idle.svg';
+import Constants from '@kitware/vtk.js/Rendering/Core/ImageMapper/Constants';
+import InteractorStyleImageTouch from '@interaction/InteractorStyleImageTouch';
+import vtkInteractorStyleTrackballCamera from '@kitware/vtk.js/Interaction/Style/InteractorStyleTrackballCamera';
+import vtkBoundingBox from '@kitware/vtk.js/Common/DataModel/BoundingBox';
+import { M } from '@kitware/vtk.js/macros2';
+const { SlicingMode } = Constants;
 
 const ViewRenderingContext = createContext();
 
@@ -16,7 +24,9 @@ function usePersistentRenderWindows() {
 
   const getRenderWindow = (id) => {
     if (!renderWindowsRef.current.has(id)) {
-      renderWindowsRef.current.set(id, GenericRenderWindow.newInstance());
+      const renderWindow = GenericRenderWindow.newInstance();
+      renderWindow.getRenderer().setBackground(0, 0, 0);
+      renderWindowsRef.current.set(id, renderWindow);
     }
 
     return renderWindowsRef.current.get(id);
@@ -25,16 +35,83 @@ function usePersistentRenderWindows() {
   return getRenderWindow;
 }
 
-function ViewRenderingProvider({ viewId, containerRef, children }) {
+function getInteractorStyle(interactorMode) {
+  switch(interactorMode) {
+    case 'slicing':{
+      const iStyle = InteractorStyleImageTouch.newInstance();
+      iStyle.setInteractionMode('IMAGE_SLICING');
+      return iStyle;
+    }
+    case 'trackball':
+      return vtkInteractorStyleTrackballCamera.newInstance();
+    default:
+      return vtkInteractorStyleTrackballCamera.newInstance();
+  }
+}
+
+const getCameraViewUp = (slicingModeStr) => {
+  switch(slicingModeStr) {
+    case 'X':
+      return [0, 1, 0];
+    case 'Y':
+      return [1, 0, 0];
+    case 'Z':
+      return [0, -1, 0];
+    default:
+      return [0, 0, 1];
+  }
+}
+
+function ViewRenderingProvider({ viewId, containerRef, children, renderConfig }) {
   const getRenderWindow = usePersistentRenderWindows();
   const [renderWindow, ] = useState(getRenderWindow(viewId));
+  const { interactorMode, cameraConfig } = renderConfig;
+
+  console.log("[ViewRenderingProvider]: ", renderConfig);
 
   useEffect(() => {
     renderWindow.setContainer(containerRef.current);
+    renderWindow.getInteractor().setInteractorStyle(getInteractorStyle(interactorMode));
+
+    // expose renderWindow to the global scope for debugging
+    if (!window.renderWindows) {
+      window.renderWindows = new Map();
+    }
+    // add renderWindow to the map with viewId as the key
+    window.renderWindows.set(viewId, renderWindow);
   }, [containerRef])
 
+  const resetSlicingCamera = (bounds, slicingNormal, slicingMode) => {
+    console.log(`[resetSlicingCamera(${viewId})]: `, bounds, slicingNormal, slicingMode);
+    const camera = renderWindow.getRenderer().getActiveCamera();
+    camera.setFocalPoint(...vtkBoundingBox.getCenter(bounds));
+    const position = camera.getFocalPoint();
+    position[0] += slicingNormal[0];
+    position[1] += slicingNormal[1];
+    position[2] += slicingNormal[2];
+    camera.setPosition(...position);
+
+    switch (slicingMode) {
+      case SlicingMode.X:
+        camera.setViewUp([0, 0, -1]);
+        camera.setParallelScale((bounds[1] - bounds[0]) / 2);
+        break;
+      case SlicingMode.Y:
+        camera.setViewUp([1, -1, 0]);
+        camera.setParallelScale((bounds[5] - bounds[4]) / 2);
+        break;
+      case SlicingMode.Z:
+        camera.setViewUp([0, -1, 1]);
+        camera.setParallelScale((bounds[1] - bounds[0]) / 2);
+        break;
+      default:
+    }
+    camera.setParallelProjection(true);
+  }
+
+
   return (
-    <ViewRenderingContext.Provider value={{renderWindow}}>
+    <ViewRenderingContext.Provider value={{renderWindow, resetSlicingCamera}}>
       { children }
     </ViewRenderingContext.Provider>
   );
@@ -63,11 +140,34 @@ const getUpdatedLayerMenuOptions = (layers, modes, modeId) => {
   return modeLayers;
 }
 
+const getSlicingMode = (slicingModeStr) => {
+  switch(slicingModeStr) {
+    case 'X':
+      return SlicingMode.X;
+    case 'Y':
+      return SlicingMode.Y;
+    case 'Z':
+      return SlicingMode.Z;
+    default:
+      return SlicingMode.Z;
+  }
+}
+
+const getRenderConfig = (slicingModeStr) => {
+  console.log("[getRenderConfig]: slicingModeStr: ", slicingModeStr)
+  return {
+    interactorMode: slicingModeStr=='none' ? 'trackball' : 'slicing',
+    // interactorMode: 'trackball',
+  }
+}
+
 export default function View({ viewHeader }) {
-  const { id, layers, modes } = viewHeader;
+  const { id, slicingMode, layers, modes } = viewHeader;
   const { pctTop, pctLeft, pctWidth, pctHeight } = viewHeader.geometry;
   const containerRef = useRef();
   const [selectedModeId, setSelectedModeId] = useState(1);
+
+  console.log(`[View(${id})]: slicingMode: ${slicingMode}`);
 
   const [layerConfigs, setLayerConfigs] = useState(layers.map((layer) => ({
     id: layer.id,
@@ -79,9 +179,9 @@ export default function View({ viewHeader }) {
   // get list of layers from the selected mode
   const [layerMenuOptions, setLayerMenuOptions] = useState(getUpdatedLayerMenuOptions(layers, modes, 1));
 
-  useEffect(() => {
-    console.log("[View]: layerMenuOptions: ", layerMenuOptions);
-  }, [layerMenuOptions]);
+  // useEffect(() => {
+  //   console.log("[View]: layerMenuOptions: ", layerMenuOptions);
+  // }, [layerMenuOptions]);
 
   const style = {
     position: 'absolute',
@@ -129,7 +229,8 @@ export default function View({ viewHeader }) {
   }
 
   return (
-    <ViewRenderingProvider containerRef={containerRef} viewId={id}>
+    <ViewRenderingProvider containerRef={containerRef} viewId={id}
+      renderConfig={getRenderConfig(slicingMode)}>
       <div className={styles.viewContainer} style={style}>
         <div className={styles.renderWindowContainer} ref={containerRef} />
         <div className={styles.viewLayerPanelContainer}>
@@ -145,6 +246,8 @@ export default function View({ viewHeader }) {
                   return <CoaptationSurfaceLayer key={lc.id} name={lc.name}/>;
                 case 'model-ml':
                   return <MultiLabelModelLayer key={lc.id} name={lc.name}/>;
+                case 'volume-main-slicing':
+                  return <MainVolumeSlicingLayer key={lc.id} name={lc.name} slicingMode={getSlicingMode(slicingMode)}/>;
                 default:
                   return '';
               }})

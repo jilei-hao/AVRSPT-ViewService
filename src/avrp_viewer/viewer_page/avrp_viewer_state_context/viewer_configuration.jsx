@@ -3,6 +3,7 @@ export default function useViewerConfiguration() {
   const getViewHeaders = () => [{
       id: 1, 
       type: '3d',
+      slicingMode: 'none',
       geometry: {
         pctTop: 0,
         pctLeft: 0,
@@ -12,14 +13,17 @@ export default function useViewerConfiguration() {
       layers: [{
           id: 1,
           type: 'model-sl',
+          subtype: 'none',
           name: 'Simple Model',
         }, {
           id: 2,
           type: 'coaptation-surface',
+          subtype: 'none',
           name: 'Coaptation Surface',
         }, {
           id: 3,
           type: 'model-ml',
+          subtype: 'none',
           name: 'Multi Label Model',
         }
       ],
@@ -39,37 +43,67 @@ export default function useViewerConfiguration() {
       ]
     }, {
       id: 2,
-      type: 'slicing-axial',
+      type: 'slicing-x',
+      slicingMode: 'X',
       geometry: {
         pctTop: 0,
         pctLeft: 75,
         pctWidth: 25,
         pctHeight: 33
       },
-      layers: [],
-      modes: []
+      layers: [{
+        id: 1,
+        type: 'volume-main-slicing',
+        subtype: 'X',
+        name: 'Main Slicing X',
+      }],
+      modes: [{
+        id: 1,
+        name: 'Slicing-X',
+        layers: [1]
+      }]
     }, {
       id: 3,
-      type: 'slicing-sagittal',
+      type: 'slicing-y',
+      slicingMode: 'Y',
       geometry: {
         pctTop: 33,
         pctLeft: 75,
         pctWidth: 25,
         pctHeight: 33
       },
-      layers: [],
-      modes: []
+      layers: [{
+        id: 1,
+        type: 'volume-main-slicing',
+        subtype: 'Y',
+        name: 'Main Slicing Y',
+      }],
+      modes: [{
+        id: 1,
+        name: 'Slicing-Y',
+        layers: [1]
+      }]
     }, {
       id: 4,
-      type: 'slicing-coronal',
+      type: 'slicing-z',
+      slicingMode: 'Z',
       geometry: {
         pctTop: 66,
         pctLeft: 75,
         pctWidth: 25,
         pctHeight: 34
       },
-      layers: [],
-      modes: []
+      layers: [{
+        id: 1,
+        type: 'volume-main-slicing',
+        subtype: 'Z',
+        name: 'Main Slicing Z',
+      }],
+      modes: [{
+        id: 1,
+        name: 'Slicing-Z',
+        layers: [1]
+      }]
   }]
 
   return {
