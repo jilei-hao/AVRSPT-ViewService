@@ -19,8 +19,8 @@ export default function AVRPDataProvider({ children }) {
     // sort tpHeaders by tp
     studyDataHeader.tpHeaders.sort((a, b) => a.tp - b.tp);
 
-    for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
-    // for (let i = 0; i < 2; i++) { // for dev only
+    // for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
+    for (let i = 0; i < 2; i++) { // for dev only
       if (abortLoading.current)
         return;
 

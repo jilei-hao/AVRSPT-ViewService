@@ -49,18 +49,6 @@ function getInteractorStyle(interactorMode) {
   }
 }
 
-const getCameraViewUp = (slicingModeStr) => {
-  switch(slicingModeStr) {
-    case 'X':
-      return [0, 1, 0];
-    case 'Y':
-      return [1, 0, 0];
-    case 'Z':
-      return [0, -1, 0];
-    default:
-      return [0, 0, 1];
-  }
-}
 
 function ViewRenderingProvider({ viewId, containerRef, children, renderConfig }) {
   const getRenderWindow = usePersistentRenderWindows();
@@ -179,10 +167,6 @@ export default function View({ viewHeader }) {
   // get list of layers from the selected mode
   const [layerMenuOptions, setLayerMenuOptions] = useState(getUpdatedLayerMenuOptions(layers, modes, 1));
 
-  // useEffect(() => {
-  //   console.log("[View]: layerMenuOptions: ", layerMenuOptions);
-  // }, [layerMenuOptions]);
-
   const style = {
     position: 'absolute',
     top: `${pctTop}%`,
@@ -248,6 +232,8 @@ export default function View({ viewHeader }) {
                   return <MultiLabelModelLayer key={lc.id} name={lc.name}/>;
                 case 'volume-main-slicing':
                   return <MainVolumeSlicingLayer key={lc.id} name={lc.name} slicingMode={getSlicingMode(slicingMode)}/>;
+                case 'volume-seg-slicing':
+                  return <SegVolumeSlicingLayer key={lc.id} name={lc.name} slicingMode={getSlicingMode(slicingMode)}/>;
                 default:
                   return '';
               }})

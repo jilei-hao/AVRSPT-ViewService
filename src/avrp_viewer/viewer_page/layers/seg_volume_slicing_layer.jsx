@@ -43,17 +43,20 @@ function useSegVolumeSlicingRenderingPipeline(slicingMode) {
 export default function SegVolumeSlicingLayer({ slicingMode }) {
   const { activeTP } = useAVRPViewerState();
   const { getActiveTPData, tpData } = useAVRPData();
-  const { renderWindow } = useViewRendering();
+  const { renderWindow, resetSlicingCamera } = useViewRendering();
   const { addActor, getActor, hasActor, getAllActors } = useSegVolumeSlicingRenderingPipeline(slicingMode);
-  const dataKey = 'volume-main';
+  const renderingInitialized = useRef(false);
+  const dataKey = 'volume-segmentation';
 
   const updateRendering = (isInitial) => {
-    const mainVolumeData = getActiveTPData(dataKey);
+    const segVolumeData = getActiveTPData(dataKey);
 
-    if (!mainVolumeData)
+    console.log(`[SegVolumeSlicingLayer${slicingMode}]: updateRendering: `, segVolumeData);
+
+    if (!segVolumeData)
       return;
 
-    const { data } = mainVolumeData;
+    const { data } = segVolumeData[0];
     if (!hasActor(dataKey))
       addActor(dataKey);
 
@@ -63,14 +66,16 @@ export default function SegVolumeSlicingLayer({ slicingMode }) {
       
     if (isInitial) {
       renderWindow.getRenderer().addActor(actor);
+      resetSlicingCamera(data.getBounds(), mapper.getSlicingModeNormal(), mapper.getSlicingMode())
       renderWindow.getRenderer().resetCamera();
+      renderingInitialized.current = true;
     }
 
     renderWindow.render();
   }
 
   useEffect(() => {
-    updateRendering(true);
+    updateRendering(!renderingInitialized.current);
   }, [tpData]);
 
   useEffect(() => {

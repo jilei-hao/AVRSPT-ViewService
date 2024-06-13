@@ -56,11 +56,16 @@ export default function useViewerConfiguration() {
         type: 'volume-main-slicing',
         subtype: 'X',
         name: 'Main Slicing X',
+      }, {
+        id: 2,
+        type: 'volume-seg-slicing',
+        subtype: 'X',
+        name: 'Seg Slicing X',
       }],
       modes: [{
         id: 1,
         name: 'Slicing-X',
-        layers: [1]
+        layers: [1, 2]
       }]
     }, {
       id: 3,
@@ -77,11 +82,16 @@ export default function useViewerConfiguration() {
         type: 'volume-main-slicing',
         subtype: 'Y',
         name: 'Main Slicing Y',
+      }, {
+        id: 2,
+        type: 'volume-seg-slicing',
+        subtype: 'Y',
+        name: 'Seg Slicing Y',
       }],
       modes: [{
         id: 1,
         name: 'Slicing-Y',
-        layers: [1]
+        layers: [1, 2]
       }]
     }, {
       id: 4,
@@ -98,11 +108,16 @@ export default function useViewerConfiguration() {
         type: 'volume-main-slicing',
         subtype: 'Z',
         name: 'Main Slicing Z',
+      }, {
+        id: 2,
+        type: 'volume-seg-slicing',
+        subtype: 'Z',
+        name: 'Seg Slicing Z',
       }],
       modes: [{
         id: 1,
         name: 'Slicing-Z',
-        layers: [1]
+        layers: [1, 2]
       }]
   }]
 

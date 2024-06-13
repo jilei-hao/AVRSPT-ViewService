@@ -48,17 +48,17 @@ function getGreyImageColorLevelAndWindow(imageData) {
 }
 
 export default function MainVolumeSlicingLayer({ slicingMode }) {
-  console.log(`[MainVolumeSlicingLayer${slicingMode}]`);
   const { activeTP } = useAVRPViewerState();
   const { getActiveTPData, tpData } = useAVRPData();
   const { renderWindow, resetSlicingCamera } = useViewRendering();
   const { addActor, getActor, hasActor, getAllActors } = useMainVolumeSlicingRenderingPipeline(slicingMode);
+  const renderingInitialized = useRef(false);
   const dataKey = 'volume-main';
 
   const updateRendering = (isInitial) => {
     const mainVolumeData = getActiveTPData(dataKey);
 
-    console.log(`[MainVolumeSlicingLayer${slicingMode}]: updateRendering: `, isInitial);
+    // console.log(`[MainVolumeSlicingLayer${slicingMode}]: updateRendering: `, isInitial);
 
     if (!mainVolumeData || mainVolumeData.length == 0)
       return;
@@ -80,13 +80,14 @@ export default function MainVolumeSlicingLayer({ slicingMode }) {
       renderWindow.getRenderer().addActor(actor);
       resetSlicingCamera(data.getBounds(), mapper.getSlicingModeNormal(), mapper.getSlicingMode())
       renderWindow.getRenderer().resetCamera();
+      renderingInitialized.current = true;
     }
 
     renderWindow.render();
   }
 
   useEffect(() => {
-    updateRendering(true);
+    updateRendering(!renderingInitialized.current);
   }, [tpData]);
 
   useEffect(() => {
