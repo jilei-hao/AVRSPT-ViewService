@@ -66,7 +66,6 @@ export default function SegVolumeSlicingLayer({ slicingMode }) {
       
     if (isInitial) {
       renderWindow.getRenderer().addActor(actor);
-      resetSlicingCamera(data.getBounds(), mapper.getSlicingModeNormal(), mapper.getSlicingMode())
       renderWindow.getRenderer().resetCamera();
       renderingInitialized.current = true;
     }

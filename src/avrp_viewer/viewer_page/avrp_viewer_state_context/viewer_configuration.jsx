@@ -121,7 +121,59 @@ export default function useViewerConfiguration() {
       }]
   }]
 
+  const defaultLabelOpacity = 128;
+  const defaultTissueRGBA = [255, 233, 205, defaultLabelOpacity];
+
+  const getDefaultLabelRGBA = () => {
+    return {
+      0: [0, 0, 0, 0],
+      1: defaultTissueRGBA,
+      2: defaultTissueRGBA,
+      3: defaultTissueRGBA,
+      4: defaultTissueRGBA,
+      5: defaultTissueRGBA,
+      6: defaultTissueRGBA,
+      7: defaultTissueRGBA,
+      8: defaultTissueRGBA,
+      9: defaultTissueRGBA,
+      10: defaultTissueRGBA,
+      11: defaultTissueRGBA,
+      12: defaultTissueRGBA,
+      13: defaultTissueRGBA,
+      14: defaultTissueRGBA,
+      15: defaultTissueRGBA,
+      16: defaultTissueRGBA,
+    }
+  };
+
+  const getITKSNAPDefaultLabelRGBA = () => {
+    return {
+      0: [0, 0, 0, 0],
+      1: [255, 0, 0, 255],
+      2: [0, 255, 0, 255],
+      3: [0, 0, 255, 255],
+      4: [255, 255, 0, 255],
+      5: [255, 0, 255, 255],
+      6: [0, 255, 255, 255],
+      7: [255, 255, 255, 255],
+      8: [128, 0, 0, 255],
+      9: [0, 128, 0, 255],
+      10: [0, 0, 128, 255],
+      11: [128, 128, 0, 255],
+      12: [128, 0, 128, 255],
+      13: [0, 128, 128, 255],
+      14: [128, 128, 128, 255],
+      15: [192, 192, 192, 255],
+      16: [255, 128, 128, 255],
+    }
+  };
+    
+
   return {
     getViewHeaders,
+    defaultLabelOpacity,
+    defaultTissueRGBA,
+    getDefaultLabelRGBA,
+    getITKSNAPDefaultLabelRGBA,
   }
 }
