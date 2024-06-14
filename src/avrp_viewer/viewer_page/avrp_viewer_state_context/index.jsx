@@ -15,7 +15,8 @@ export default function AVRPViewerStateProvider({ children }) {
   const [numberOfTP, setNumberOfTP] = useState(1);
   const [tpDataLoaded, setTPDataLoaded] = useState([]);
   const [viewHeaders, setViewHeaders] = useState([]);
-  const { getViewHeaders } = useViewerConfiguration();
+  const { getViewHeaders, getDefaultLabelRGBA } = useViewerConfiguration();
+  const [labelRGBA, setLabelRGBA] = useState(getDefaultLabelRGBA())
 
   useEffect(() => {
     console.log("[AVRPViewerStateProvider] useEffect[], tpDataLoaded: ", tpDataLoaded);
@@ -37,7 +38,8 @@ export default function AVRPViewerStateProvider({ children }) {
   return (
     <AVRPViewerStateContext.Provider value={{ 
       activeTP, setActiveTP, numberOfTP, setNumberOfTP, 
-      tpDataLoaded, setTPDataLoaded, viewHeaders, setViewHeaders
+      tpDataLoaded, setTPDataLoaded, viewHeaders, setViewHeaders,
+      labelRGBA, setLabelRGBA
       }}>
       { children }
     </AVRPViewerStateContext.Provider>

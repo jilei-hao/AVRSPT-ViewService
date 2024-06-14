@@ -39,6 +39,10 @@ export default function AVRPGlobalProvider({ children  }) {
     }
   }, [studyId]);
 
+  useEffect(() => {
+    console.log("[AVRPGlobalProvider] studyBrowserActive: ", studyBrowserActive);
+  }, [studyBrowserActive])
+
   return (
     <AVRPGlobalContext.Provider value={{
       studyBrowserActive, setStudyBrowserActive,

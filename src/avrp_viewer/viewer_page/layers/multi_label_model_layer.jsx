@@ -45,6 +45,7 @@ export default function MultiLabelModelLayer() {
   const { getActiveTPData, tpData } = useAVRPData();
   const { renderWindow } = useViewRendering();
   const { addActor, getActor, hasActor, getAllActors } = useMultiLabelModelRenderingPipeline();
+  const renderingInitialized = useRef(false);
 
   const updateRendering = (isInitial) => {
     const modelMLData = getActiveTPData('model-ml');
@@ -65,14 +66,17 @@ export default function MultiLabelModelLayer() {
         renderWindow.getRenderer().addActor(actor);
     });
 
-    if (isInitial)
+    if (isInitial) {
       renderWindow.getRenderer().resetCamera();
+      renderingInitialized.current = true;
+    }
+      
 
     renderWindow.render();
   }
 
   useEffect(() => {
-    updateRendering(true);
+    updateRendering(!renderingInitialized.current);
   }, [tpData]);
 
   useEffect(() => {

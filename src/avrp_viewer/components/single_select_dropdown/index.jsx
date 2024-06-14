@@ -6,7 +6,6 @@ export default function SingleSelectDropdown({ options, selectedOption, onOption
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
-    console.log("[SingleSelectDropdown] toggleDropdown");
   }
 
   const handleOptionClick = (event) => {

@@ -37,6 +37,7 @@ export default function CoaptationSurfaceLayer(props) {
   const { getActiveTPData, tpData } = useAVRPData();
   const { renderWindow } = useViewRendering();
   const { addActor, getActor, hasActor } = useCoaptationSurfaceRenderingPipeline();
+  const renderingInitialized = useRef(false);
 
   const updateRendering = (isInitial) => {
     const coData = getActiveTPData('coaptation-surface');
@@ -60,13 +61,14 @@ export default function CoaptationSurfaceLayer(props) {
       actor.setProperty(property);
       renderWindow.getRenderer().addActor(actor);
       renderWindow.getRenderer().resetCamera();
+      renderingInitialized.current = true;
     }
     
     renderWindow.render();
   }
 
   useEffect(() => {
-    updateRendering(true);
+    updateRendering(!renderingInitialized.current);
   }, [tpData]);
 
   useEffect(() => {

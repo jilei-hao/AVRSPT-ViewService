@@ -8,38 +8,51 @@ const AVRPDataContext = createContext();
 export default function AVRPDataProvider({ children }) {
   const [tpData, setTPData] = useState([]);
   const { tpDataLoaded, setTPDataLoaded, activeTP } = useAVRPViewerState();
-  const { studyDataHeader } = useAVRPGlobal();
+  const { studyDataHeader, studyBrowserActive } = useAVRPGlobal();
+  const abortLoading = useRef(false);
+
+  const loadData = async (tpHeader) => {
+    console.log("[AVRPDataProvider] start loading data: ", tpHeader);
+
+    const loader = StudyDataLoader.getInstance();
+
+    // sort tpHeaders by tp
+    studyDataHeader.tpHeaders.sort((a, b) => a.tp - b.tp);
+
+    // for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
+    for (let i = 0; i < 2; i++) { // for dev only
+      if (abortLoading.current)
+        return;
+
+      const tpHeader = studyDataHeader.tpHeaders[i];
+      console.log(`-- [AVRPDataProvider] loading (${i}): `, abortLoading.current);
+      await loader.loadTPData(tpHeader).then((tpData) => {
+        console.log(`-- [AVRPDataProvider] loaded (${i}): `, tpData)
+        setTPData((prev) => {
+          const updatedTPData = [...prev];
+          updatedTPData[i] = tpData;
+          return updatedTPData;
+        });
+        setTPDataLoaded((prev) => {
+          const updatedTPDataLoaded = [...prev];
+          updatedTPDataLoaded[i] = true;
+          return updatedTPDataLoaded;
+        });
+      });
+    }
+  }
 
   useEffect(() => {
     console.log("[AVRPDataProvider] useEffect[studyDataHeader]", studyDataHeader);
     if (studyDataHeader.tpHeaders.length > 0) {
-      const loader = StudyDataLoader.getInstance();
+      loadData(studyDataHeader.tpHeaders);
+    }
 
-      // sort tpHeaders by tp
-      studyDataHeader.tpHeaders.sort((a, b) => a.tp - b.tp);
-
-      for (let i = 0; i < studyDataHeader.tpHeaders.length; i++) {
-        const tpHeader = studyDataHeader.tpHeaders[i];
-        loader.loadTPData(tpHeader).then((tpData) => {
-          // console.log(`-- [AVRPDataProvider] loaded (${i}): `, tpData)
-          setTPData((prev) => {
-            const updatedTPData = [...prev];
-            updatedTPData[i] = tpData;
-            return updatedTPData;
-          });
-          setTPDataLoaded((prev) => {
-            const updatedTPDataLoaded = [...prev];
-            updatedTPDataLoaded[i] = true;
-            return updatedTPDataLoaded;
-          });
-        });
-      }
+    return () => {
+      console.log("[AVRPDataProvider] cleanup[studyBrowserActive]: ", studyBrowserActive);
+      abortLoading.current = true;
     }
   }, [studyDataHeader]);
-
-  // useEffect(() => {
-  //   console.log("[AVRPDataProvider] useEffect[tpData] ", tpData);
-  // }, [tpData]);
 
   const getActiveTPData = (type) => {
     if (tpData.length === 0) {
@@ -58,6 +71,10 @@ export default function AVRPDataProvider({ children }) {
         return activeTPData.coaptationSurface;
       case 'model-ml':
         return activeTPData.multiLabelModel;
+      case 'volume-main':
+        return activeTPData.volumeMain;
+      case 'volume-segmentation':
+        return activeTPData.volumeSegmentation;
       default:
         return null;
     }
