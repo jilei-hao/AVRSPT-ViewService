@@ -13,6 +13,7 @@ export default defineConfig({
       '@components': '/src/components',
       '@rendering': '/src/rendering',
       '@interaction': '/src/interaction',
+      '@logic': '/src/logic',
     }
   }
 })

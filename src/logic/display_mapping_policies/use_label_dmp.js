@@ -1,22 +1,8 @@
 import vtkColorTransferFunction from "@kitware/vtk.js/Rendering/Core/ColorTransferFunction";
 import vtkPiecewiseFunction from "@kitware/vtk.js/Common/DataModel/PiecewiseFunction";
 
-export default function useLabelDMP(defaultlabelRGBA) {
-  const labelRGBA = defaultlabelRGBA; 
-
-  function setlabelRGBA(newlabelRGBA) {
-    labelRGBA = newlabelRGBA;
-  }
-
-  function getlabelRGBA() {
-    return labelRGBA;
-  }
-
-  function getLabelColor(label) {
-    return labelRGBA[label];
-  }
-
-  function getLabelRange() {
+export default function useLabelDMP() {
+  function getLabelRange(labelRGBA) {
     const labels = Object.keys(labelRGBA);
     return [
       Math.min(...labels),
@@ -24,10 +10,10 @@ export default function useLabelDMP(defaultlabelRGBA) {
     ];
   }
 
-  function createLabelColorFunction() {
+  function createLabelColorFunction(labelRGBA) {
     const ctFun = vtkColorTransferFunction.newInstance();
-    const { labelMin, labelMax } = getLabelRange();
-    ctFun.setMappingRange(labelMin, labelMax);
+    const range = getLabelRange(labelRGBA);
+    ctFun.setMappingRange(range[0], range[1]);
 
     Object.entries(labelRGBA).forEach(([label, rgba]) => {
       ctFun.addRGBPoint(Number(label), rgba[0], rgba[1], rgba[2]);
@@ -37,7 +23,7 @@ export default function useLabelDMP(defaultlabelRGBA) {
     return ctFun;
   }
 
-  function createLabelOpacityFunction() {
+  function createLabelOpacityFunction(labelRGBA) {
     const oFun = vtkPiecewiseFunction.newInstance();
 
     Object.entries(labelRGBA).forEach(([label, rgba]) => {
@@ -47,12 +33,18 @@ export default function useLabelDMP(defaultlabelRGBA) {
     return oFun;
   }
 
+  function normalizeLabelRGBA(labelRGBA) {
+    const normalizedLabelRGBA = {};
+    Object.entries(labelRGBA).forEach(([label, rgba]) => {
+      normalizedLabelRGBA[label] = rgba.map(value => value / 255);
+    });
+    return normalizedLabelRGBA;
+  }
+
   return {
-    setlabelRGBA,
-    getlabelRGBA,
-    getLabelColor,
     getLabelRange,
     createLabelColorFunction,
-    createLabelOpacityFunction
+    createLabelOpacityFunction,
+    normalizeLabelRGBA,
   }
 }

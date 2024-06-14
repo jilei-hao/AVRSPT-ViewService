@@ -167,7 +167,6 @@ export default function useViewerConfiguration() {
       16: [255, 128, 128, 255],
     }
   };
-    
 
   return {
     getViewHeaders,

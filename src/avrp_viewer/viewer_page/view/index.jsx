@@ -55,8 +55,6 @@ function ViewRenderingProvider({ viewId, containerRef, children, renderConfig })
   const [renderWindow, ] = useState(getRenderWindow(viewId));
   const { interactorMode, cameraConfig } = renderConfig;
 
-  console.log("[ViewRenderingProvider]: ", renderConfig);
-
   useEffect(() => {
     renderWindow.setContainer(containerRef.current);
     renderWindow.getInteractor().setInteractorStyle(getInteractorStyle(interactorMode));
@@ -70,7 +68,6 @@ function ViewRenderingProvider({ viewId, containerRef, children, renderConfig })
   }, [containerRef])
 
   const resetSlicingCamera = (bounds, slicingNormal, slicingMode) => {
-    console.log(`[resetSlicingCamera(${viewId})]: `, bounds, slicingNormal, slicingMode);
     const camera = renderWindow.getRenderer().getActiveCamera();
     camera.setFocalPoint(...vtkBoundingBox.getCenter(bounds));
     const position = camera.getFocalPoint();
@@ -142,10 +139,8 @@ const getSlicingMode = (slicingModeStr) => {
 }
 
 const getRenderConfig = (slicingModeStr) => {
-  console.log("[getRenderConfig]: slicingModeStr: ", slicingModeStr)
   return {
     interactorMode: slicingModeStr=='none' ? 'trackball' : 'slicing',
-    // interactorMode: 'trackball',
   }
 }
 
@@ -154,8 +149,6 @@ export default function View({ viewHeader }) {
   const { pctTop, pctLeft, pctWidth, pctHeight } = viewHeader.geometry;
   const containerRef = useRef();
   const [selectedModeId, setSelectedModeId] = useState(1);
-
-  console.log(`[View(${id})]: slicingMode: ${slicingMode}`);
 
   const [layerConfigs, setLayerConfigs] = useState(layers.map((layer) => ({
     id: layer.id,

@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { useAVRPData } from '../avrp_data_context';
 import { useViewRendering } from '../view';
 import { useAVRPViewerState } from '../avrp_viewer_state_context';
+import { useLabelDMP } from '@logic/display_mapping_policies';
 import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper';
 import vtkImageSlice from '@kitware/vtk.js/Rendering/Core/ImageSlice';
 
@@ -40,8 +41,31 @@ function useSegVolumeSlicingRenderingPipeline(slicingMode) {
   return { addActor, getActor, hasActor, getAllActors };
 }
 
+function applySegmentationDMP (actor, labelRGBA) {
+  const { 
+    createLabelColorFunction,
+    createLabelOpacityFunction,
+    normalizeLabelRGBA,
+    getLabelRange
+  } = useLabelDMP();
+
+  const normRGBA = normalizeLabelRGBA(labelRGBA);
+  const range = getLabelRange(labelRGBA);
+  const clrWindow = range[1] - range[0];
+  const clrLevel = range[0] + clrWindow / 2;
+
+  const p = actor.getProperty();
+
+  p.setColorWindow(clrWindow);
+  p.setColorLevel(clrLevel);
+  p.setRGBTransferFunction(0, createLabelColorFunction(normRGBA));
+  p.setScalarOpacity(createLabelOpacityFunction(normRGBA));
+  p.setInterpolationTypeToNearest();
+
+}
+
 export default function SegVolumeSlicingLayer({ slicingMode }) {
-  const { activeTP } = useAVRPViewerState();
+  const { activeTP, labelRGBA } = useAVRPViewerState();
   const { getActiveTPData, tpData } = useAVRPData();
   const { renderWindow, resetSlicingCamera } = useViewRendering();
   const { addActor, getActor, hasActor, getAllActors } = useSegVolumeSlicingRenderingPipeline(slicingMode);
@@ -51,7 +75,7 @@ export default function SegVolumeSlicingLayer({ slicingMode }) {
   const updateRendering = (isInitial) => {
     const segVolumeData = getActiveTPData(dataKey);
 
-    console.log(`[SegVolumeSlicingLayer${slicingMode}]: updateRendering: `, segVolumeData);
+    // console.log(`[SegVolumeSlicingLayer${slicingMode}]: updateRendering: `);
 
     if (!segVolumeData)
       return;
@@ -63,9 +87,11 @@ export default function SegVolumeSlicingLayer({ slicingMode }) {
     const actor = getActor(dataKey);
     const mapper = actor.getMapper();
     mapper.setInputData(data);
+    applySegmentationDMP(actor, labelRGBA);
       
     if (isInitial) {
       renderWindow.getRenderer().addActor(actor);
+      resetSlicingCamera(data.getBounds(), mapper.getSlicingModeNormal(), mapper.getSlicingMode());
       renderWindow.getRenderer().resetCamera();
       renderingInitialized.current = true;
     }
