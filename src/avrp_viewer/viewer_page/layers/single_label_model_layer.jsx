@@ -38,6 +38,7 @@ export default function SingleLabelModelLayer(props) {
   const { getActiveTPData, tpData } = useAVRPData();
   const { renderWindow } = useViewRendering();
   const { addActor, getActor, hasActor } = useSingleLabelModelRenderingPipeline();
+  const renderingInitialized = useRef(false);
 
   const updateRendering = (isInitial) => {
     const modelSLData = getActiveTPData('model-sl');
@@ -57,13 +58,14 @@ export default function SingleLabelModelLayer(props) {
     if (isInitial) {
       renderWindow.getRenderer().addActor(actor);
       renderWindow.getRenderer().resetCamera();
+      renderingInitialized.current = true;
     }
 
     renderWindow.render();
   }
 
   useEffect(() => {
-    updateRendering(true);
+    updateRendering(!renderingInitialized.current);
   }, [tpData]);
 
   useEffect(() => {
